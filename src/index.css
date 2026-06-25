@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #000080;
+  --color-brand-navy-hover: #000066;
+  --color-brand-yellow: #ffd300;
+  --color-brand-yellow-hover: #e6be00;
+  --color-brand-yellow-soft: #fff3b0;
+  --color-brand-cream: #fffbeb;
+  --color-brand-muted: #4a4a7a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+.auth-signature-bg {
+  position: relative;
+  background-color: var(--color-brand-cream);
+}
+
+.auth-signature-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/app-icon.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(55vw, 300px);
+  opacity: 0.1;
+  pointer-events: none;
+}
