@@ -30,6 +30,44 @@ const formatDate = (value) => {
 
 const getPrimaryContact = (student) => student.contactInformation?.[0] || null;
 
+const mapNotesList = (notes) => {
+  if (Array.isArray(notes)) {
+    return notes
+      .filter((note) => note?.text?.trim())
+      .map((note) => ({
+        id: String(note._id || note.id || ''),
+        text: note.text.trim(),
+        createdAt: formatDate(note.createdAt),
+        status: note.status || '',
+      }));
+  }
+
+  if (typeof notes === 'string' && notes.trim()) {
+    return [{ id: 'legacy', text: notes.trim(), createdAt: '', status: '' }];
+  }
+
+  return [];
+};
+
+export const getLeadNotesList = (lead) => {
+  if (!lead) return [];
+
+  if (lead.notesList?.length > 0) {
+    return lead.notesList;
+  }
+
+  const fromRawStudent = mapNotesList(lead.rawStudent?.notes);
+  if (fromRawStudent.length > 0) {
+    return fromRawStudent;
+  }
+
+  if (lead.notes?.trim()) {
+    return [{ id: 'primary', text: lead.notes.trim(), createdAt: '', status: '' }];
+  }
+
+  return [];
+};
+
 export const mapStudentToLead = (student) => {
   const primaryContact = getPrimaryContact(student);
   const parentContact =
@@ -50,6 +88,7 @@ export const mapStudentToLead = (student) => {
     status: formatStatus(student.status),
     createdAt: formatDate(student.createdAt),
     notes: student.notes?.[0]?.text || '',
+    notesList: mapNotesList(student.notes),
     rawStudent: student,
   };
 };

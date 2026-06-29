@@ -5,6 +5,10 @@ export const PAGE_CONFIG = {
     title: 'Leads',
     description: 'Manage and track your sales leads.',
   },
+  '/event': {
+    title: 'Event',
+    description: 'View and manage scheduled action items and follow-ups.',
+  },
   '/analytics': {
     title: 'Analytics',
     description: 'View performance metrics and insights.',

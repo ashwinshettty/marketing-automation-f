@@ -4,12 +4,22 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
+import axios from 'axios';
 import { fetchLeadManagerStudents } from '../api/studentApi';
 import { mapStudentToLead } from '../utils/mapStudentToLead';
 
 const DEFAULT_PAGE_SIZE = 10;
+const FILTER_DEBOUNCE_MS = 400;
+
+export const EMPTY_LEAD_FILTERS = {
+  search: '',
+  grade: '',
+  board: '',
+  source: '',
+};
 
 const LeadContext = createContext(null);
 
@@ -19,6 +29,8 @@ export const LeadProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState(EMPTY_LEAD_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState(EMPTY_LEAD_FILTERS);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: DEFAULT_PAGE_SIZE,
@@ -28,7 +40,22 @@ export const LeadProvider = ({ children }) => {
     hasPrevPage: false,
   });
 
-  const loadLeads = useCallback(async (pageToLoad = 1) => {
+  const loadIdRef = useRef(0);
+  const appliedFiltersRef = useRef(appliedFilters);
+
+  useEffect(() => {
+    appliedFiltersRef.current = appliedFilters;
+  }, [appliedFilters]);
+
+  const isCanceledRequest = (err) =>
+    axios.isCancel(err) ||
+    err?.code === 'ERR_CANCELED' ||
+    err?.name === 'CanceledError';
+
+  const loadLeads = useCallback(async (pageToLoad = 1, { signal, filters: filtersOverride } = {}) => {
+    const loadId = ++loadIdRef.current;
+    const activeFilters = filtersOverride ?? appliedFiltersRef.current;
+
     try {
       setLoading(true);
       setError('');
@@ -36,7 +63,14 @@ export const LeadProvider = ({ children }) => {
       const data = await fetchLeadManagerStudents({
         page: pageToLoad,
         limit: DEFAULT_PAGE_SIZE,
+        signal,
+        filters: activeFilters,
       });
+
+      if (loadId !== loadIdRef.current) {
+        return;
+      }
+
       const students = Array.isArray(data?.students) ? data.students : [];
       const mappedLeads = students.map(mapStudentToLead);
 
@@ -51,16 +85,71 @@ export const LeadProvider = ({ children }) => {
         hasPrevPage: Boolean(data?.pagination?.hasPrevPage),
       });
     } catch (err) {
+      if (isCanceledRequest(err) || loadId !== loadIdRef.current) {
+        return;
+      }
+
       setError(err.message || 'Failed to load leads');
       setLeads([]);
     } finally {
-      setLoading(false);
+      if (loadId === loadIdRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    loadLeads(1);
-  }, [loadLeads]);
+    const timeoutId = window.setTimeout(() => {
+      setAppliedFilters((current) => {
+        if (
+          current.search === filters.search &&
+          current.source === filters.source
+        ) {
+          return current;
+        }
+
+        return {
+          ...current,
+          search: filters.search,
+          source: filters.source,
+        };
+      });
+    }, FILTER_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [filters.search, filters.source]);
+
+  useEffect(() => {
+    setAppliedFilters((current) => {
+      if (current.grade === filters.grade && current.board === filters.board) {
+        return current;
+      }
+
+      return {
+        ...current,
+        grade: filters.grade,
+        board: filters.board,
+      };
+    });
+  }, [filters.grade, filters.board]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    loadLeads(1, { signal: abortController.signal, filters: appliedFilters });
+
+    return () => abortController.abort();
+  }, [appliedFilters, loadLeads]);
+
+  const updateFilters = useCallback((nextFilters) => {
+    setFilters(nextFilters);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setFilters(EMPTY_LEAD_FILTERS);
+    setAppliedFilters(EMPTY_LEAD_FILTERS);
+    setPage(1);
+  }, []);
 
   const goToPage = useCallback(
     (nextPage) => {
@@ -106,6 +195,9 @@ export const LeadProvider = ({ children }) => {
       error,
       page,
       pagination,
+      filters,
+      setFilters: updateFilters,
+      resetFilters,
       loadLeads,
       goToPage,
       updateLeadInList,
@@ -121,6 +213,9 @@ export const LeadProvider = ({ children }) => {
       error,
       page,
       pagination,
+      filters,
+      updateFilters,
+      resetFilters,
       loadLeads,
       goToPage,
       updateLeadInList,

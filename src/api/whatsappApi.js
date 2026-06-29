@@ -27,6 +27,7 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
     id: message.id,
     direction: message.direction,
     text: message.text,
+    timestamp: message.time,
     time: formatMessageTime(message.time),
     status: message.status,
   }));

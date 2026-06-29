@@ -66,3 +66,61 @@ export const leadToEditForm = (lead) => ({
   city: lead.city === '-' ? '' : lead.city,
   notes: lead.notes || '',
 });
+
+export const sortNotesByNewest = (notes) =>
+  [...(notes || [])].sort((a, b) => {
+    const aTime = new Date(a?.createdAt || 0).getTime();
+    const bTime = new Date(b?.createdAt || 0).getTime();
+    return bTime - aTime;
+  });
+
+export const normalizeNotesFromLead = (lead) => {
+  const rawNotes = lead?.rawStudent?.notes;
+
+  if (!Array.isArray(rawNotes)) {
+    return [];
+  }
+
+  return sortNotesByNewest(
+    rawNotes.map((note) => ({
+      _id: note._id,
+      text: note.text || '',
+      createdAt: note.createdAt,
+      status: note.status || 'pending',
+      recentlyEdited: Boolean(note.recentlyEdited),
+      addedBy: note.addedBy,
+    })),
+  );
+};
+
+export const sanitizeNotesForSave = (notes) =>
+  (notes || [])
+    .map((note) => {
+      const trimmedText = (note.text || '').trim();
+      if (!trimmedText) {
+        return null;
+      }
+
+      const payload = {
+        text: trimmedText,
+        createdAt: note.createdAt || new Date().toISOString(),
+        recentlyEdited: note._id ? Boolean(note.recentlyEdited) : false,
+        status: note.status || 'pending',
+      };
+
+      if (note._id) {
+        payload._id = note._id;
+      }
+
+      if (note.addedBy) {
+        payload.addedBy = note.addedBy;
+      }
+
+      return payload;
+    })
+    .filter(Boolean);
+
+export const buildNotesUpdatePayload = (lead, notes) => ({
+  ...(lead.rawStudent || {}),
+  notes: sanitizeNotesForSave(notes),
+});

@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { LeadProvider } from './context/LeadContext';
 import { PAGE_CONFIG } from './constants/pageConfig';
 import CampaignsPage from './campaigns/CampaignsPage';
+import EventsPage from './events/EventsPage';
 import CreateAccount from './login/CreateAccount';
 import Login from './login/Login';
 import LeadDetails from './leads/lead-details/LeadDetails';
@@ -31,11 +32,12 @@ const App = () => {
         >
           <Route index element={<Home />} />
           <Route path="leads" element={<LeadsPage />} />
+          <Route path="event" element={<EventsPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />
           {Object.entries(PAGE_CONFIG)
-            .filter(([path]) => !['/leads', '/campaign'].includes(path))
+            .filter(([path]) => !['/leads', '/event', '/campaign'].includes(path))
             .map(([path, { title }]) => (
               <Route
                 key={path}
