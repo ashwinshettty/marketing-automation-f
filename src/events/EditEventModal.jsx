@@ -6,11 +6,9 @@ import {
   eventToEditForm,
 } from '../utils/buildEventUpdatePayload';
 import {
-  CONTACT_TYPE_OPTIONS,
   EVENT_TYPE_OPTIONS,
   PRIORITY_OPTIONS,
   STATUS_OPTIONS,
-  URGENCY_OPTIONS,
 } from '../leads/lead-details/actionItemOptions';
 
 const inputClassName =
@@ -218,32 +216,6 @@ const EditEventModal = ({ event, onClose, onSaved }) => {
             </label>
 
             <label className="block">
-              <span className={labelClassName}>Urgency</span>
-              <select
-                name="urgency"
-                value={form.urgency}
-                onChange={handleChange}
-                className={inputClassName}
-              >
-                {URGENCY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className={labelClassName}>Student Name</span>
-              <input
-                name="studentName"
-                value={form.studentName}
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </label>
-
-            <label className="block">
               <span className={labelClassName}>Location</span>
               <input
                 name="location"
@@ -251,42 +223,6 @@ const EditEventModal = ({ event, onClose, onSaved }) => {
                 onChange={handleChange}
                 className={inputClassName}
               />
-            </label>
-
-            <label className="block">
-              <span className={labelClassName}>Contact Number</span>
-              <input
-                name="contactNumber"
-                value={form.contactNumber}
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </label>
-
-            <label className="block">
-              <span className={labelClassName}>Contact Name</span>
-              <input
-                name="contactName"
-                value={form.contactName}
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </label>
-
-            <label className="block">
-              <span className={labelClassName}>Contact Type</span>
-              <select
-                name="contactType"
-                value={form.contactType}
-                onChange={handleChange}
-                className={inputClassName}
-              >
-                {CONTACT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
             </label>
 
             <label className="block sm:col-span-2">

@@ -32,15 +32,14 @@ const DeleteIcon = () => (
 );
 
 const COLUMNS = [
-  { key: 'title', label: 'Title', className: 'w-[14%]' },
-  { key: 'type', label: 'Type', className: 'w-[9%]' },
-  { key: 'date', label: 'Date', className: 'w-[10%]' },
+  { key: 'title', label: 'Title', className: 'w-[12%]' },
+  { key: 'type', label: 'Type', className: 'w-[8%]' },
+  { key: 'date', label: 'Date', className: 'w-[9%]' },
   { key: 'time', label: 'Time', className: 'w-[7%]' },
   { key: 'studentName', label: 'Student', className: 'w-[10%]' },
-  { key: 'salesuserName', label: 'Sales User', className: 'w-[12%]' },
-  { key: 'contactNumber', label: 'Contact No', className: 'w-[11%]' },
-  { key: 'status', label: 'Status', className: 'w-[9%]' },
-  { key: 'priority', label: 'Priority', className: 'w-[9%]' },
+  { key: 'salesuserName', label: 'Sales User', className: 'w-[11%]' },
+  { key: 'status', label: 'Status', className: 'w-[8%]' },
+  { key: 'priority', label: 'Priority', className: 'w-[8%]' },
 ];
 
 const formatDate = (value) => {
@@ -77,8 +76,12 @@ const EventTable = ({
   pagination,
   onPageChange,
   onReload,
+  hideStudentColumn = false,
 }) => {
   const navigate = useNavigate();
+  const columns = hideStudentColumn
+    ? COLUMNS.filter((col) => col.key !== 'studentName')
+    : COLUMNS;
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [deletingId, setDeletingId] = useState('');
@@ -129,8 +132,6 @@ const EventTable = ({
         const salesuserId = getSalesuserId(event);
         return salesuserMap[salesuserId] || '-';
       }
-      case 'contactNumber':
-        return event.contactNumber || '-';
       default:
         return event[key] || '-';
     }
@@ -198,7 +199,7 @@ const EventTable = ({
             <table className="w-full table-fixed text-left text-sm">
               <thead className="sticky top-0 z-10">
                 <tr className="border-b border-brand-yellow/30 bg-brand-cream shadow-sm">
-                  {COLUMNS.map((col) => (
+                  {columns.map((col) => (
                     <th
                       key={col.key}
                       className={`px-3 py-3.5 text-xs font-semibold uppercase tracking-wide text-brand-navy ${col.className}`}
@@ -219,7 +220,7 @@ const EventTable = ({
                       index === events.length - 1 ? 'border-b-0' : ''
                     }`}
                   >
-                    {COLUMNS.map((col) => (
+                    {columns.map((col) => (
                       <td key={col.key} className="px-3 py-4 text-brand-navy">
                         <div className="truncate" title={String(getCellValue(event, col.key))}>
                           {col.key === 'studentName' && getStudentId(event) ? (

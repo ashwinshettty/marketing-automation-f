@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getLeadNotesList } from '../../utils/mapStudentToLead';
+import LeadEventsPanel from './LeadEventsPanel';
 import LeadTimeline from './LeadTimeline';
 import NotesPanel from './NotesPanel';
 import WhatsAppChatPanel from './WhatsAppChatPanel';
@@ -20,6 +21,7 @@ const INFO_FIELDS = [
 const TABS = [
   { id: 'info', label: 'Student Info' },
   { id: 'notes', label: 'Notes' },
+  { id: 'events', label: 'Event' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'whatsapp', label: 'WhatsApp' },
 ];
@@ -42,7 +44,7 @@ const StudentInfoContent = ({ lead }) => (
   </dl>
 );
 
-const StudentTab = ({ lead, onLeadUpdate }) => {
+const StudentTab = ({ lead, onLeadUpdate, eventsRefreshKey = 0 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(
@@ -111,6 +113,9 @@ const StudentTab = ({ lead, onLeadUpdate }) => {
         {activeTab === 'info' && <StudentInfoContent lead={lead} />}
         {activeTab === 'notes' && (
           <NotesPanel lead={lead} onLeadUpdate={onLeadUpdate} />
+        )}
+        {activeTab === 'events' && (
+          <LeadEventsPanel lead={lead} refreshKey={eventsRefreshKey} />
         )}
         {activeTab === 'timeline' && <LeadTimeline lead={lead} />}
         {activeTab === 'whatsapp' && <WhatsAppChatPanel lead={lead} />}

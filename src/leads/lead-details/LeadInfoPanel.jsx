@@ -14,13 +14,22 @@ const EditIcon = () => (
 const LeadInfoPanel = ({ lead, onLeadUpdate }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
 
   if (!lead) {
     return null;
   }
 
   return (
-    <div className="rounded-2xl border border-brand-yellow/40 bg-white p-6 shadow-sm">
+    <div className="relative rounded-2xl border border-brand-yellow/40 bg-white p-6 pt-14 shadow-sm">
+      {/* Back Button */}
+      <Link
+        to="/leads"
+        className="absolute left-6 top-6 inline-flex items-center gap-2 text-sm font-medium text-brand-navy hover:underline"
+      >
+        ← Back to leads
+      </Link>
+
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-navy text-xl font-semibold text-brand-yellow">
@@ -33,31 +42,37 @@ const LeadInfoPanel = ({ lead, onLeadUpdate }) => {
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsEventModalOpen(true)}
-          className="rounded-xl bg-brand-navy px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-navy-hover"
-        >
-          Add Event
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsEditOpen(true)}
-          aria-label={`Edit ${lead.name}`}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-yellow/40 bg-brand-cream text-brand-navy transition hover:bg-brand-yellow/30"
-        >
-          <EditIcon />
-        </button>
+        <div className="flex shrink-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsEventModalOpen(true)}
+            className="rounded-xl bg-brand-yellow px-4 py-2.5 text-sm font-semibold text-brand-navy transition hover:bg-brand-yellow-hover"
+          >
+            Add Event
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditOpen(true)}
+            aria-label={`Edit ${lead.name}`}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-yellow/40 bg-brand-cream text-brand-navy transition hover:bg-brand-yellow/30"
+          >
+            <EditIcon />
+          </button>
+        </div>
       </div>
 
-      <StudentTab lead={lead} onLeadUpdate={onLeadUpdate} />
+      <StudentTab
+        lead={lead}
+        onLeadUpdate={onLeadUpdate}
+        eventsRefreshKey={eventsRefreshKey}
+      />
 
-      <Link
+      {/* <Link
         to="/leads"
         className="mt-6 inline-flex text-sm font-medium text-brand-navy hover:underline"
       >
         ← Back to leads
-      </Link>
+      </Link> */}
 
       {isEditOpen && (
         <LeadEditModal
@@ -73,7 +88,10 @@ const LeadInfoPanel = ({ lead, onLeadUpdate }) => {
         <CreateActionItemModal
           lead={lead}
           onClose={() => setIsEventModalOpen(false)}
-          onSaved={() => setIsEventModalOpen(false)}
+          onSaved={() => {
+            setEventsRefreshKey((current) => current + 1);
+            setIsEventModalOpen(false);
+          }}
         />
       )}
     </div>

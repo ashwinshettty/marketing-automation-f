@@ -12,6 +12,7 @@ import LeadWhatsAppChat from './leads/lead-details/LeadWhatsAppChat';
 import LeadsPage from './leads/LeadsPage';
 import Home from './pages/Home';
 import SectionPage from './pages/SectionPage';
+import WhatsAppPage from './whatsapp/WhatsAppPage';
 
 const App = () => {
   return (
@@ -34,10 +35,11 @@ const App = () => {
           <Route path="leads" element={<LeadsPage />} />
           <Route path="event" element={<EventsPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
+          <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />
           {Object.entries(PAGE_CONFIG)
-            .filter(([path]) => !['/leads', '/event', '/campaign'].includes(path))
+            .filter(([path]) => !['/leads', '/event', '/campaign', '/whatsapp'].includes(path))
             .map(([path, { title }]) => (
               <Route
                 key={path}

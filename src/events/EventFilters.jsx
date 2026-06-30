@@ -12,7 +12,13 @@ const fieldClassName =
 
 const labelClassName = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-brand-navy';
 
-const EventFilters = ({ filters, onChange, onReset }) => {
+const EventFilters = ({
+  filters,
+  onChange,
+  onReset,
+  searchPlaceholder = 'Title, student, or location',
+  openDescription = 'Search and narrow results by type, status, priority, or counsellor.',
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [counsellors, setCounsellors] = useState([]);
   const [counsellorsLoading, setCounsellorsLoading] = useState(true);
@@ -68,7 +74,7 @@ const EventFilters = ({ filters, onChange, onReset }) => {
             <h2 className="text-sm font-semibold text-brand-navy">Filter events</h2>
             <p className="text-xs text-brand-muted">
               {isOpen
-                ? 'Search and narrow results by type, status, priority, or counsellor.'
+                ? openDescription
                 : hasActiveFilters
                   ? `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} applied`
                   : 'Filters are hidden'}
@@ -111,7 +117,7 @@ const EventFilters = ({ filters, onChange, onReset }) => {
               type="search"
               value={filters.search}
               onChange={handleFieldChange('search')}
-              placeholder="Title, student, or location"
+              placeholder={searchPlaceholder}
               className={fieldClassName}
             />
           </label>
