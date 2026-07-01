@@ -1,14 +1,61 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { FaChevronDown, FaPaperclip } from 'react-icons/fa';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
+import { formatMessageTime } from '../../utils/formatMessageTime';
+
+const renderMessageContent = (message) => {
+  if (message.messageType === 'image' && message.mediaUrl) {
+    const isPlaceholderText =
+      !message.text ||
+      message.text === '[Image received]' ||
+      message.text.toLowerCase().startsWith('[image]');
+
+    return (
+      <div className="space-y-2">
+        <img
+          src={message.mediaUrl}
+          alt={message.text || 'WhatsApp image'}
+          className="max-h-64 w-full rounded-xl object-cover"
+        />
+        {!isPlaceholderText && (
+          <p className="whitespace-pre-wrap break-words">{message.text}</p>
+        )}
+      </div>
+    );
+  }
+
+  return <p className="whitespace-pre-wrap break-words">{message.text}</p>;
+};
+
+const mediaOptions = {
+  image: {
+    label: 'Image',
+    accept: 'image/*',
+  },
+  video: {
+    label: 'Video',
+    accept: 'video/*',
+  },
+  document: {
+    label: 'Document',
+    accept: '.pdf,.doc,.docx,.xls,.xlsx,.txt',
+  },
+};
 
 const WhatsAppChatPanel = ({ lead }) => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showMediaMenu, setShowMediaMenu] = useState(false);
+  const [mediaAccept, setMediaAccept] = useState(mediaOptions.image.accept);
+  const fileInputRef = useRef(null);
+  const mediaMenuRef = useRef(null);
 
   const {
     draft,
     setDraft,
+    selectedMedia,
+    setSelectedMedia,
     messages,
     isLoading,
     isSending,
@@ -17,6 +64,46 @@ const WhatsAppChatPanel = ({ lead }) => {
     handleSend,
     handleSendTemplate,
   } = useWhatsAppChat({ lead });
+
+  const handleMediaSelect = (event) => {
+    const file = event.target.files?.[0] || null;
+    setSelectedMedia(file);
+    setShowMediaMenu(false);
+  };
+
+  const handleOpenMediaPicker = (type) => {
+    setMediaAccept(mediaOptions[type].accept);
+    setShowMediaMenu(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const clearSelectedMedia = () => {
+    setSelectedMedia(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedMedia && fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [selectedMedia]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mediaMenuRef.current && !mediaMenuRef.current.contains(event.target)) {
+        setShowMediaMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (isLoading) {
     return (
@@ -61,9 +148,9 @@ const WhatsAppChatPanel = ({ lead }) => {
                     {message.messageType}
                   </p>
                 )}
-                <p>{message.text}</p>
+                {renderMessageContent(message)}
                 <p className="mt-1 flex items-center justify-end text-[11px] text-slate-500">
-                  {message.time}
+                  {formatMessageTime(message.timestamp || message.time)}
                   <MessageStatusIcon
                     status={message.status}
                     direction={message.direction}
@@ -82,31 +169,87 @@ const WhatsAppChatPanel = ({ lead }) => {
 
         <form
           onSubmit={handleSend}
-          className="flex items-center gap-2 border-t border-slate-200 bg-white px-4 py-3"
+          className="border-t border-slate-200 bg-white px-4 py-3"
         >
-          <button
-            type="button"
-            onClick={() => setShowTemplateModal(true)}
-            disabled={isSending}
-            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-brand-navy hover:bg-slate-50 disabled:opacity-60"
-          >
-            Template
-          </button>
-          <input
-            type="text"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder={`Message ${lead.name} on WhatsApp`}
-            disabled={isSending}
-            className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60"
-          />
-          <button
-            type="submit"
-            disabled={isSending || !draft.trim()}
-            className="rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1fb85a] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSending ? 'Sending...' : 'Send'}
-          </button>
+          {selectedMedia && (
+            <div className="mb-2 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+              <span className="truncate pr-3">
+                Selected media: {selectedMedia.name}
+              </span>
+              <button
+                type="button"
+                onClick={clearSelectedMedia}
+                disabled={isSending}
+                className="font-medium text-red-500 hover:text-red-600 disabled:opacity-60"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowTemplateModal(true)}
+              disabled={isSending}
+              className="rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-brand-navy hover:bg-slate-50 disabled:opacity-60"
+            >
+              Template
+            </button>
+            <div className="relative" ref={mediaMenuRef}>
+              <button
+                type="button"
+                onClick={() => setShowMediaMenu((current) => !current)}
+                disabled={isSending}
+                className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-brand-navy hover:bg-slate-50 disabled:opacity-60"
+              >
+                <FaPaperclip className="text-[11px]" />
+                <FaChevronDown className="text-[10px]" />
+              </button>
+
+              {showMediaMenu && (
+                <div className="absolute bottom-full left-0 z-10 mb-2 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                  {Object.entries(mediaOptions).map(([type, option]) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleOpenMediaPicker(type)}
+                      className="block w-full rounded-lg px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleMediaSelect}
+              disabled={isSending}
+              accept={mediaAccept}
+              className="hidden"
+            />
+            <input
+              type="text"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder={
+                selectedMedia
+                  ? 'Add a caption (optional)'
+                  : `Message ${lead.name} on WhatsApp`
+              }
+              disabled={isSending}
+              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60"
+            />
+            <button
+              type="submit"
+              disabled={isSending || (!draft.trim() && !selectedMedia)}
+              className="rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1fb85a] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSending ? 'Sending...' : 'Send'}
+            </button>
+          </div>
         </form>
       </div>
 

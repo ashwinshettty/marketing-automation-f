@@ -1,12 +1,14 @@
 import authApi from './authAxios';
+import { getAuthSession } from '../utils/authStorage';
+import { formatMessageTime } from '../utils/formatMessageTime';
 
 const unwrap = (response) => response.data;
 
-const formatMessageTime = (value) =>
-  new Date(value).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+const getMarketingApiRoot = () => {
+  const apiUrl =
+    import.meta.env.VITE_MARKETING_AUTOMATION_API_URL || 'http://localhost:3000/api';
+  return apiUrl.replace(/\/api\/?$/, '');
+};
 
 const parseApiError = (error) => {
   const data = error.response?.data;
@@ -25,6 +27,26 @@ export const sendWhatsAppMessage = async ({ phoneNumber, message, leadId }) => {
       message,
       leadId,
     });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
+export const sendWhatsAppMedia = async ({ phoneNumber, caption, leadId, file }) => {
+  try {
+    const formData = new FormData();
+    formData.append('phoneNumber', phoneNumber);
+    formData.append('leadId', leadId);
+    formData.append('caption', caption || '');
+    formData.append('media', file);
+
+    const response = await authApi.post('/whatsapp/send-media', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
     return unwrap(response);
   } catch (error) {
     throw parseApiError(error);
@@ -63,10 +85,22 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
     direction: message.direction,
     text: message.text,
     messageType: message.messageType,
+    mediaId: message.mediaId,
+    mediaUrl: getWhatsAppMediaUrl(message.mediaId),
     timestamp: message.time,
     time: formatMessageTime(message.time),
     status: message.status,
   }));
+};
+
+export const getWhatsAppMediaUrl = (mediaId) => {
+  const token = getAuthSession().token;
+
+  if (!mediaId || !token) {
+    return '';
+  }
+
+  return `${getMarketingApiRoot()}/api/whatsapp/media/${encodeURIComponent(mediaId)}?token=${encodeURIComponent(token)}`;
 };
 
 export const fetchCallHistory = async ({ phoneNumber }) => {
