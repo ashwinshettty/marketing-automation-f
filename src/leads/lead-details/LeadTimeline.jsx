@@ -1,168 +1,32 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { fetchWhatsAppMessages, sendWhatsAppMessage } from '../../api/whatsappApi';
-import { getSocket } from '../../api/socket';
+import { useMemo, useState } from 'react';
+import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
+import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
+import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
 import {
   buildLeadTimelineItems,
   formatTimelineDate,
   TIMELINE_STYLES,
 } from '../../utils/buildLeadTimeline';
-import { normalizePhoneNumber } from '../../utils/normalizePhone';
-
-const mapSocketMessage = (message) => ({
-  id: message.id,
-  direction: message.direction,
-  text: message.text,
-  timestamp: message.time,
-  time: new Date(message.time).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  }),
-});
 
 const LeadTimeline = ({ lead }) => {
-  const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState('');
-  const messageIdsRef = useRef(new Set());
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
-  const conversationId = useMemo(
-    () => normalizePhoneNumber(lead?.contactNo),
-    [lead?.contactNo],
-  );
+  const {
+    draft,
+    setDraft,
+    messages,
+    isLoading,
+    isSending,
+    error,
+    conversationId,
+    handleSend,
+    handleSendTemplate,
+  } = useWhatsAppChat({ lead });
 
   const timelineItems = useMemo(
     () => buildLeadTimelineItems(lead, messages),
     [lead, messages],
   );
-
-  useEffect(() => {
-    if (!lead) {
-      setIsLoading(false);
-      return undefined;
-    }
-
-    let isMounted = true;
-
-    const loadMessages = async ({ showLoading = true } = {}) => {
-      if (!conversationId) {
-        if (isMounted) {
-          setMessages([]);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      try {
-        if (showLoading) setIsLoading(true);
-        setError('');
-
-        const history = await fetchWhatsAppMessages({
-          leadId: lead.id,
-          phoneNumber: lead.contactNo,
-        });
-
-        if (isMounted) {
-          const nextIds = new Set();
-          history.forEach((message) => nextIds.add(message.id));
-          messageIdsRef.current = nextIds;
-          setMessages(history);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err.message || 'Failed to load timeline');
-        }
-      } finally {
-        if (isMounted && showLoading) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadMessages();
-
-    const pollInterval = conversationId
-      ? setInterval(() => {
-          loadMessages({ showLoading: false });
-        }, 15000)
-      : null;
-
-    return () => {
-      isMounted = false;
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [lead, conversationId]);
-
-  useEffect(() => {
-    if (!conversationId) return undefined;
-
-    const socket = getSocket();
-
-    const joinRoom = () => {
-      socket.emit('join_whatsapp', conversationId);
-    };
-
-    const handleConnect = () => {
-      joinRoom();
-    };
-
-    const handleNewMessage = (data) => {
-      if (data.conversationId !== conversationId || !data.message) return;
-
-      const incoming = mapSocketMessage(data.message);
-      if (messageIdsRef.current.has(incoming.id)) return;
-
-      messageIdsRef.current.add(incoming.id);
-      setMessages((current) => [...current, incoming]);
-    };
-
-    socket.on('connect', handleConnect);
-    socket.on('new_whatsapp_message', handleNewMessage);
-
-    if (socket.connected) {
-      joinRoom();
-    }
-
-    return () => {
-      socket.emit('leave_whatsapp', conversationId);
-      socket.off('connect', handleConnect);
-      socket.off('new_whatsapp_message', handleNewMessage);
-    };
-  }, [conversationId]);
-
-  const handleSend = async (event) => {
-    event.preventDefault();
-
-    const text = draft.trim();
-    if (!text || !conversationId) return;
-
-    setError('');
-    setIsSending(true);
-
-    try {
-      const result = await sendWhatsAppMessage({
-        phoneNumber: lead.contactNo,
-        message: text,
-        leadId: lead.id,
-      });
-
-      if (result.data) {
-        const saved = mapSocketMessage(result.data);
-
-        if (!messageIdsRef.current.has(saved.id)) {
-          messageIdsRef.current.add(saved.id);
-          setMessages((current) => [...current, saved]);
-        }
-      }
-
-      setDraft('');
-    } catch (err) {
-      setError(err.message || 'Failed to send WhatsApp message');
-    } finally {
-      setIsSending(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -202,8 +66,14 @@ const LeadTimeline = ({ lead }) => {
                     {formatTimelineDate(item.timestamp)}
                   </span>
                   {item.meta?.status && (
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium capitalize text-brand-navy">
+                    <span className="flex items-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium capitalize text-brand-navy">
                       {item.meta.status}
+                      {item.type === 'whatsapp_outbound' && (
+                        <MessageStatusIcon
+                          status={item.meta.status}
+                          direction="outbound"
+                        />
+                      )}
                     </span>
                   )}
                 </div>
@@ -225,8 +95,16 @@ const LeadTimeline = ({ lead }) => {
       {conversationId && (
         <form
           onSubmit={handleSend}
-          className="flex items-center gap-3 border-t border-slate-200 bg-white px-4 py-3"
+          className="flex items-center gap-2 border-t border-slate-200 bg-white px-4 py-3"
         >
+          <button
+            type="button"
+            onClick={() => setShowTemplateModal(true)}
+            disabled={isSending}
+            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-brand-navy hover:bg-slate-50 disabled:opacity-60"
+          >
+            Template
+          </button>
           <input
             type="text"
             value={draft}
@@ -244,6 +122,16 @@ const LeadTimeline = ({ lead }) => {
           </button>
         </form>
       )}
+
+      <TemplateSendModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        isSending={isSending}
+        onSend={async (payload) => {
+          await handleSendTemplate(payload);
+          setShowTemplateModal(false);
+        }}
+      />
     </div>
   );
 };

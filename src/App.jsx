@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
+import IncomingCallBanner from './components/whatsapp/IncomingCallBanner';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LeadProvider } from './context/LeadContext';
 import { PAGE_CONFIG } from './constants/pageConfig';
@@ -27,6 +28,7 @@ const App = () => {
             <ProtectedRoute>
               <LeadProvider>
                 <AppLayout />
+                <IncomingCallBanner />
               </LeadProvider>
             </ProtectedRoute>
           }

@@ -1,150 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { fetchWhatsAppMessages, sendWhatsAppMessage } from '../../api/whatsappApi';
-import { getSocket } from '../../api/socket';
-import { normalizePhoneNumber } from '../../utils/normalizePhone';
-
-const formatMessageTime = (value) =>
-  new Date(value).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-const mapSocketMessage = (message) => ({
-  id: message.id,
-  direction: message.direction,
-  text: message.text,
-  time: formatMessageTime(message.time),
-});
+import { useState } from 'react';
+import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
+import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
+import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
 
 const WhatsAppChatPanel = ({ lead }) => {
-  const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState('');
-  const messageIdsRef = useRef(new Set());
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
-  const conversationId = useMemo(
-    () => normalizePhoneNumber(lead?.contactNo),
-    [lead?.contactNo],
-  );
-
-  useEffect(() => {
-    if (!lead || !conversationId) {
-      setIsLoading(false);
-      return undefined;
-    }
-
-    let isMounted = true;
-
-    const loadMessages = async ({ showLoading = true } = {}) => {
-      try {
-        if (showLoading) setIsLoading(true);
-        setError('');
-
-        const history = await fetchWhatsAppMessages({
-          leadId: lead.id,
-          phoneNumber: lead.contactNo,
-        });
-
-        if (isMounted) {
-          const nextIds = new Set();
-          history.forEach((message) => nextIds.add(message.id));
-          messageIdsRef.current = nextIds;
-          setMessages(history);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err.message || 'Failed to load chat history');
-        }
-      } finally {
-        if (isMounted && showLoading) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadMessages();
-
-    const pollInterval = setInterval(() => {
-      loadMessages({ showLoading: false });
-    }, 15000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(pollInterval);
-    };
-  }, [lead, conversationId]);
-
-  useEffect(() => {
-    if (!conversationId) return undefined;
-
-    const socket = getSocket();
-
-    const joinRoom = () => {
-      socket.emit('join_whatsapp', conversationId);
-    };
-
-    const handleConnect = () => {
-      joinRoom();
-    };
-
-    const handleNewMessage = (data) => {
-      if (data.conversationId !== conversationId || !data.message) return;
-
-      const incoming = mapSocketMessage(data.message);
-      if (messageIdsRef.current.has(incoming.id)) return;
-
-      messageIdsRef.current.add(incoming.id);
-      setMessages((current) => [...current, incoming]);
-    };
-
-    socket.on('connect', handleConnect);
-    socket.on('new_whatsapp_message', handleNewMessage);
-
-    if (socket.connected) {
-      joinRoom();
-    }
-
-    return () => {
-      socket.emit('leave_whatsapp', conversationId);
-      socket.off('connect', handleConnect);
-      socket.off('new_whatsapp_message', handleNewMessage);
-    };
-  }, [conversationId]);
-
-  const handleSend = async (event) => {
-    event.preventDefault();
-
-    const text = draft.trim();
-    if (!text || !conversationId) return;
-
-    setError('');
-    setIsSending(true);
-
-    try {
-      const result = await sendWhatsAppMessage({
-        phoneNumber: lead.contactNo,
-        message: text,
-        leadId: lead.id,
-      });
-
-      if (result.data) {
-        const saved = mapSocketMessage(result.data);
-
-        if (!messageIdsRef.current.has(saved.id)) {
-          messageIdsRef.current.add(saved.id);
-          setMessages((current) => [...current, saved]);
-        }
-      }
-
-      setDraft('');
-    } catch (err) {
-      setError(err.message || 'Failed to send WhatsApp message');
-    } finally {
-      setIsSending(false);
-    }
-  };
+  const {
+    draft,
+    setDraft,
+    messages,
+    isLoading,
+    isSending,
+    error,
+    conversationId,
+    handleSend,
+    handleSendTemplate,
+  } = useWhatsAppChat({ lead });
 
   if (isLoading) {
     return (
@@ -184,9 +56,18 @@ const WhatsAppChatPanel = ({ lead }) => {
                     : 'rounded-bl-md bg-white text-slate-800'
                 }`}
               >
+                {message.messageType && message.messageType !== 'text' && (
+                  <p className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                    {message.messageType}
+                  </p>
+                )}
                 <p>{message.text}</p>
-                <p className="mt-1 text-right text-[11px] text-slate-500">
-                  {message.time || formatMessageTime(message.timestamp)}
+                <p className="mt-1 flex items-center justify-end text-[11px] text-slate-500">
+                  {message.time}
+                  <MessageStatusIcon
+                    status={message.status}
+                    direction={message.direction}
+                  />
                 </p>
               </div>
             </div>
@@ -201,8 +82,16 @@ const WhatsAppChatPanel = ({ lead }) => {
 
         <form
           onSubmit={handleSend}
-          className="flex items-center gap-3 border-t border-slate-200 bg-white px-4 py-3"
+          className="flex items-center gap-2 border-t border-slate-200 bg-white px-4 py-3"
         >
+          <button
+            type="button"
+            onClick={() => setShowTemplateModal(true)}
+            disabled={isSending}
+            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-brand-navy hover:bg-slate-50 disabled:opacity-60"
+          >
+            Template
+          </button>
           <input
             type="text"
             value={draft}
@@ -220,6 +109,16 @@ const WhatsAppChatPanel = ({ lead }) => {
           </button>
         </form>
       </div>
+
+      <TemplateSendModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        isSending={isSending}
+        onSend={async (payload) => {
+          await handleSendTemplate(payload);
+          setShowTemplateModal(false);
+        }}
+      />
     </div>
   );
 };

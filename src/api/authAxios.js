@@ -2,7 +2,9 @@ import axios from 'axios';
 import { clearAuthSession, getAuthSession } from '../utils/authStorage';
 
 const authApi = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3000/api',
+  baseURL:
+    import.meta.env.VITE_MARKETING_AUTOMATION_API_URL ||
+    'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },

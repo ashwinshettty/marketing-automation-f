@@ -149,7 +149,7 @@ const parseDate = (value) => {
         timestamp: at.getTime(),
         title: message.direction === 'outbound' ? 'WhatsApp sent' : 'WhatsApp received',
         body: message.text,
-        meta: { direction: message.direction },
+        meta: { direction: message.direction, status: message.status },
       });
     });
   
