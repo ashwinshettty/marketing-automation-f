@@ -34,6 +34,7 @@ export const sendWhatsAppMessage = async ({ phoneNumber, message, leadId }) => {
 export const sendWhatsAppTemplate = async ({
   phoneNumber,
   leadId,
+  templateId,
   templateName,
   languageCode,
   bodyParams,
@@ -42,6 +43,7 @@ export const sendWhatsAppTemplate = async ({
     const response = await authApi.post('/whatsapp/send-template', {
       phoneNumber,
       leadId,
+      templateId,
       templateName,
       languageCode,
       bodyParams,

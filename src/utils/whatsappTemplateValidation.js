@@ -2,6 +2,26 @@
 // WHATSAPP TEMPLATE VALIDATION UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════
 
+export const extractTemplateVariablePositions = (text) => {
+  if (!text) return [];
+
+  const regex = /\{\{(\d+)\}\}/g;
+  const positions = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    positions.push(parseInt(match[1], 10));
+  }
+
+  return [...new Set(positions)].sort((a, b) => a - b);
+};
+
+export const getTemplateBodyVariableCount = (bodyText, variables = []) => {
+  const fromBodyText = extractTemplateVariablePositions(bodyText).length;
+  const fromMetadata = Array.isArray(variables) ? variables.length : 0;
+  return Math.max(fromBodyText, fromMetadata);
+};
+
 // Helper function to validate URLs
 export const isValidURL = (url) => {
     try {

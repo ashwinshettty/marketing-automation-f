@@ -145,7 +145,7 @@ export const useWhatsAppChat = ({ lead }) => {
     }
   };
 
-  const handleSendTemplate = async ({ templateName, languageCode, bodyParams }) => {
+  const handleSendTemplate = async ({ templateId, templateName, languageCode, bodyParams }) => {
     if (!conversationId) return;
 
     setError('');
@@ -155,6 +155,7 @@ export const useWhatsAppChat = ({ lead }) => {
       const result = await sendWhatsAppTemplate({
         phoneNumber: lead.contactNo,
         leadId: lead.id,
+        templateId,
         templateName,
         languageCode,
         bodyParams,
