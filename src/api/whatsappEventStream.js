@@ -1,49 +1,64 @@
-import { getAuthSession } from '../utils/authStorage';
+import { getSocket } from './socket';
+import { normalizePhoneNumber } from '../utils/normalizePhone';
 
-const getMarketingApiRoot = () => {
-  const apiUrl =
-    import.meta.env.VITE_MARKETING_AUTOMATION_API_URL || 'http://localhost:3000/api';
-  return apiUrl.replace(/\/api\/?$/, '');
+const subscribeOnConnect = (socket, subscribe) => {
+  if (socket.connected) {
+    subscribe();
+    return () => {};
+  }
+
+  socket.once('connect', subscribe);
+  return () => socket.off('connect', subscribe);
 };
 
 export const openWhatsAppConversationStream = (phoneNumber, onEvent) => {
-  const token = getAuthSession().token;
+  const socket = getSocket();
 
-  if (!token || !phoneNumber) {
+  if (!socket || !phoneNumber) {
     return () => {};
   }
 
-  const url = `${getMarketingApiRoot()}/api/whatsapp/stream?phoneNumber=${encodeURIComponent(phoneNumber)}&token=${encodeURIComponent(token)}`;
-  const source = new EventSource(url);
+  const conversationId = normalizePhoneNumber(phoneNumber);
 
-  source.onmessage = (event) => {
-    try {
-      onEvent(JSON.parse(event.data));
-    } catch {
-      // Ignore malformed SSE payloads.
+  const handleEvent = (event) => {
+    if (event.conversationId === conversationId) {
+      onEvent(event);
     }
   };
 
-  return () => source.close();
+  const subscribe = () => {
+    socket.emit('whatsapp:subscribe', { phoneNumber });
+  };
+
+  const removeConnectListener = subscribeOnConnect(socket, subscribe);
+
+  socket.on('whatsapp:event', handleEvent);
+
+  return () => {
+    socket.emit('whatsapp:unsubscribe', { phoneNumber });
+    socket.off('whatsapp:event', handleEvent);
+    removeConnectListener();
+  };
 };
 
 export const openWhatsAppGlobalStream = (onEvent) => {
-  const token = getAuthSession().token;
+  const socket = getSocket();
 
-  if (!token) {
+  if (!socket) {
     return () => {};
   }
 
-  const url = `${getMarketingApiRoot()}/api/whatsapp/stream/global?token=${encodeURIComponent(token)}`;
-  const source = new EventSource(url);
-
-  source.onmessage = (event) => {
-    try {
-      onEvent(JSON.parse(event.data));
-    } catch {
-      // Ignore malformed SSE payloads.
-    }
+  const subscribe = () => {
+    socket.emit('whatsapp:subscribe_global');
   };
 
-  return () => source.close();
+  const removeConnectListener = subscribeOnConnect(socket, subscribe);
+
+  socket.on('whatsapp:global', onEvent);
+
+  return () => {
+    socket.emit('whatsapp:unsubscribe_global');
+    socket.off('whatsapp:global', onEvent);
+    removeConnectListener();
+  };
 };
