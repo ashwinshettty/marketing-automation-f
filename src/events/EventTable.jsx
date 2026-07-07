@@ -32,6 +32,7 @@ const DeleteIcon = () => (
 );
 
 const COLUMNS = [
+  { key: 'srNo', label: 'Sr No', className: 'w-[7%]' },
   { key: 'title', label: 'Title', className: 'w-[12%]' },
   { key: 'type', label: 'Type', className: 'w-[8%]' },
   { key: 'date', label: 'Date', className: 'w-[9%]' },
@@ -223,7 +224,9 @@ const EventTable = ({
                     {columns.map((col) => (
                       <td key={col.key} className="px-3 py-4 text-brand-navy">
                         <div className="truncate" title={String(getCellValue(event, col.key))}>
-                          {col.key === 'studentName' && getStudentId(event) ? (
+                          {col.key === 'srNo' ? (
+                            (pagination.page - 1) * (pagination.limit || 10) + index + 1
+                          ) : col.key === 'studentName' && getStudentId(event) ? (
                             <button
                               type="button"
                               onClick={() => handleStudentClick(event)}

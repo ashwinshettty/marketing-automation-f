@@ -117,7 +117,9 @@ const StudentTab = ({ lead, onLeadUpdate, eventsRefreshKey = 0 }) => {
         {activeTab === 'events' && (
           <LeadEventsPanel lead={lead} refreshKey={eventsRefreshKey} />
         )}
-        {activeTab === 'timeline' && <LeadTimeline lead={lead} />}
+        {activeTab === 'timeline' && (
+          <LeadTimeline lead={lead} eventsRefreshKey={eventsRefreshKey} />
+        )}
         {activeTab === 'whatsapp' && <WhatsAppChatPanel lead={lead} />}
       </div>
     </div>

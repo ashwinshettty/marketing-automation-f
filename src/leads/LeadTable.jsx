@@ -36,6 +36,7 @@ const DeleteIcon = () => (
 );
 
 const COLUMNS = [
+  { key: 'srNo', label: 'Sr No' },
   { key: 'name', label: 'Student Name' },
   { key: 'contactNo', label: 'Contact No' },
   { key: 'grade', label: 'Grade' },
@@ -106,6 +107,9 @@ const LeadTable = () => {
                   index === leads.length - 1 ? 'border-b-0' : ''
                 }`}
               >
+                <td className="px-5 py-4 text-brand-muted">
+                  {(pagination.page - 1) * (pagination.limit || 10) + index + 1}
+                </td>
                 <td className="px-5 py-4 font-medium text-brand-navy">{lead.name}</td>
                 <td className="px-5 py-4 text-brand-muted">{lead.contactNo}</td>
                 <td className="px-5 py-4 text-brand-muted">{lead.grade}</td>

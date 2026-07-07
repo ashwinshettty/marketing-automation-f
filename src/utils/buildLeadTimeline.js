@@ -27,8 +27,24 @@ const parseDate = (value) => {
   
     return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   };
+
+const composeEventTimestamp = (event) => {
+  const baseDate = parseDate(event?.date || event?.createdAt || event?.updatedAt);
+  if (!baseDate) return null;
+
+  const timeText = String(event?.time || '').trim();
+  const [hoursText, minutesText] = timeText.split(':');
+  const hours = Number.parseInt(hoursText, 10);
+  const minutes = Number.parseInt(minutesText, 10);
+
+  if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+    baseDate.setHours(hours, minutes, 0, 0);
+  }
+
+  return baseDate;
+};
   
-  export const buildLeadTimelineItems = (lead, whatsappMessages = []) => {
+export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = []) => {
     if (!lead) return [];
   
     const items = [];
@@ -152,6 +168,40 @@ const parseDate = (value) => {
         meta: { direction: message.direction, status: message.status },
       });
     });
+
+  events.forEach((event, index) => {
+    const at = composeEventTimestamp(event);
+    if (!at) return;
+
+    const status = String(event.status || 'pending').toLowerCase();
+    const eventType = String(event.type || 'event').toLowerCase();
+    const title = event.title?.trim() || 'Event added';
+    const details = [
+      `Type: ${eventType}`,
+      event.date ? `Date: ${formatTimelineDate(event.date)}` : null,
+      event.time ? `Time: ${event.time}` : null,
+      event.priority ? `Priority: ${event.priority}` : null,
+      `Status: ${status}`,
+      event.studentName ? `Student: ${event.studentName}` : null,
+      event.contactName ? `Contact: ${event.contactName}` : null,
+      event.contactNumber ? `Contact Number: ${event.contactNumber}` : null,
+      event.contactType ? `Contact Type: ${event.contactType}` : null,
+      event.salesuser?.name ? `Counsellor: ${event.salesuser.name}` : null,
+      event.location ? `Location: ${event.location}` : null,
+      event.description ? `Description: ${event.description}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    push({
+      id: `event-${event._id || index}`,
+      type: 'event_added',
+      timestamp: at.getTime(),
+      title,
+      body: details,
+      meta: { status, eventType },
+    });
+  });
   
     return items.sort((a, b) => b.timestamp - a.timestamp);
   };
@@ -163,6 +213,7 @@ const parseDate = (value) => {
     assigned: { badge: 'AS', badgeClass: 'bg-violet-600', cardClass: 'bg-violet-50' },
     note_added: { badge: 'N+', badgeClass: 'bg-amber-500', cardClass: 'bg-brand-yellow-soft/60' },
     note_updated: { badge: 'N~', badgeClass: 'bg-amber-600', cardClass: 'bg-brand-yellow-soft/80' },
+  event_added: { badge: 'EV', badgeClass: 'bg-indigo-600', cardClass: 'bg-indigo-50' },
     whatsapp_inbound: { badge: 'In', badgeClass: 'bg-[#25D366]', cardClass: 'bg-white' },
     whatsapp_outbound: { badge: 'You', badgeClass: 'bg-brand-navy', cardClass: 'bg-brand-yellow-soft/60' },
   };

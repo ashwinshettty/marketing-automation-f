@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
+import { fetchEvents } from '../../api/eventApi';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
 import {
   buildLeadTimelineItems,
@@ -8,8 +9,9 @@ import {
   TIMELINE_STYLES,
 } from '../../utils/buildLeadTimeline';
 
-const LeadTimeline = ({ lead }) => {
+const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [events, setEvents] = useState([]);
 
   const {
     draft,
@@ -23,9 +25,38 @@ const LeadTimeline = ({ lead }) => {
     handleSendTemplate,
   } = useWhatsAppChat({ lead });
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadLeadEvents = async () => {
+      if (!lead?.id) {
+        if (isMounted) setEvents([]);
+        return;
+      }
+
+      try {
+        const data = await fetchEvents({
+          studentId: lead.id,
+          page: 1,
+          limit: 50,
+        });
+
+        if (!isMounted) return;
+        setEvents(Array.isArray(data?.events) ? data.events : []);
+      } catch {
+        if (isMounted) setEvents([]);
+      }
+    };
+
+    loadLeadEvents();
+    return () => {
+      isMounted = false;
+    };
+  }, [lead?.id, eventsRefreshKey]);
+
   const timelineItems = useMemo(
-    () => buildLeadTimelineItems(lead, messages),
-    [lead, messages],
+    () => buildLeadTimelineItems(lead, messages, events),
+    [lead, messages, events],
   );
 
   if (isLoading) {
