@@ -405,7 +405,7 @@ const ViewTemplates = ({ setActiveTab }) => {
               </th>
               <th className="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-brand-navy">
               <div className="flex items-center gap-1">
-                <span className="leading-tight">Msg delivered</span>
+                <span className="leading-tight">Message<br />delivered</span>
                 {getSortIcon('usageCount')}
               </div>
             </th>

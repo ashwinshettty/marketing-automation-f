@@ -9,6 +9,7 @@ import {
 import { openWhatsAppConversationStream } from '../api/whatsappEventStream';
 import { formatMessageTime } from '../utils/formatMessageTime';
 import { normalizePhoneNumber } from '../utils/normalizePhone';
+import { resolveTemplateContentForDisplay } from '../utils/resolveTemplateContentForDisplay';
 
 export const mapApiMessage = (message) => {
   const timestamp = message.timestamp || message.time;
@@ -21,6 +22,11 @@ export const mapApiMessage = (message) => {
     mediaId: message.mediaId,
     mediaUrl: getWhatsAppMediaUrl(message.mediaId),
     status: message.status,
+    templateId: message.templateId,
+    templateContent: resolveTemplateContentForDisplay(
+      message.templateContent,
+      message.templateId,
+    ),
     timestamp,
     time: formatMessageTime(timestamp),
   };

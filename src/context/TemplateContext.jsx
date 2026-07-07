@@ -62,6 +62,24 @@ export const TemplateProvider = ({ children }) => {
     setError(null);
   };
 
+  const buildBackendPayload = (dataToUse) => {
+    const templateType =
+      dataToUse.templateType === 'FLOW' ? 'INTERACTIVE' : dataToUse.templateType;
+
+    return {
+      name: dataToUse.name,
+      category: String(dataToUse.category || '').toUpperCase(),
+      templateType: String(templateType || '').toUpperCase(),
+      language: dataToUse.language,
+      bodyText: dataToUse.bodyText,
+      headerText: dataToUse.headerText || undefined,
+      footerText: dataToUse.footerText || undefined,
+      variables: dataToUse.variables || [],
+      buttons: dataToUse.buttons || [],
+      isActive: dataToUse.isActive !== false,
+    };
+  };
+
   // Create template in backend
   const createTemplate = async (overrideData = {}) => {
     try {
@@ -70,20 +88,7 @@ export const TemplateProvider = ({ children }) => {
       
       // Merge override data with template data
       const dataToUse = { ...templateData, ...overrideData };
-      
-      // Transform frontend data to backend format
-      const backendData = {
-        name: dataToUse.name,
-        category: dataToUse.category.toUpperCase(), // Convert to uppercase for backend
-        templateType: dataToUse.templateType.toUpperCase(),
-        language: dataToUse.language,
-        bodyText: dataToUse.bodyText,
-        headerText: dataToUse.headerText || undefined,
-        footerText: dataToUse.footerText || undefined,
-        variables: dataToUse.variables || [],
-        buttons: dataToUse.buttons || [],
-        isActive: dataToUse.isActive
-      };
+      const backendData = buildBackendPayload(dataToUse);
 
       const response = await templateApi.createTemplate(backendData, dataToUse.uploadedFile);
       
@@ -199,8 +204,10 @@ export const TemplateProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
+
+      const backendData = buildBackendPayload({ ...templateData, ...updates });
       
-      const response = await templateApi.updateTemplate(templateId, updates, uploadedFile);
+      const response = await templateApi.updateTemplate(templateId, backendData, uploadedFile);
       
       if (response.success) {
         await fetchTemplates();

@@ -1,6 +1,7 @@
 import authApi from './authAxios';
 import { getAuthSession } from '../utils/authStorage';
 import { formatMessageTime } from '../utils/formatMessageTime';
+import { resolveTemplateContentForDisplay } from '../utils/resolveTemplateContentForDisplay';
 
 const unwrap = (response) => response.data;
 
@@ -92,6 +93,11 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
     timestamp: message.time,
     time: formatMessageTime(message.time),
     status: message.status,
+    templateId: message.templateId,
+    templateContent: resolveTemplateContentForDisplay(
+      message.templateContent,
+      message.templateId,
+    ),
   }));
 };
 
@@ -103,6 +109,16 @@ export const getWhatsAppMediaUrl = (mediaId) => {
   }
 
   return `${getMarketingApiRoot()}/api/whatsapp/media/${encodeURIComponent(mediaId)}?token=${encodeURIComponent(token)}`;
+};
+
+export const getTemplateHeaderImageUrl = (templateId) => {
+  const token = getAuthSession().token;
+
+  if (!templateId || !token) {
+    return '';
+  }
+
+  return `${getMarketingApiRoot()}/api/whatsapp/templates/${encodeURIComponent(templateId)}/header-image?token=${encodeURIComponent(token)}`;
 };
 
 export const fetchCallHistory = async ({ phoneNumber }) => {

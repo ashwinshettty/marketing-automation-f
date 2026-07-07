@@ -2,13 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaChevronDown, FaSearch, FaTimes } from 'react-icons/fa';
 import { getTemplates } from '../../api/templateApi';
 import { getTemplateBodyVariableCount } from '../../utils/whatsappTemplateValidation';
-
-const inputClassName =
-  'h-11 w-full rounded-xl border border-brand-yellow/40 bg-brand-cream/40 px-4 text-sm text-brand-navy outline-none transition focus:border-brand-navy focus:bg-white';
+import { resolveTemplateBodyParams } from '../../utils/resolveTemplateBodyParams';
 
 const labelClassName = 'mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-muted';
 
-const TemplateSendModal = ({ isOpen, onClose, onSend, isSending }) => {
+const TemplateSendModal = ({ isOpen, onClose, onSend, isSending, lead }) => {
   const [templates, setTemplates] = useState([]);
   const [selectedName, setSelectedName] = useState('');
   const [bodyParams, setBodyParams] = useState(['']);
@@ -74,17 +72,14 @@ const TemplateSendModal = ({ isOpen, onClose, onSend, isSending }) => {
     ? getTemplateBodyVariableCount(selectedTemplate.bodyText, selectedTemplate.variables)
     : 0;
 
-  const getVariableLabel = (index) => {
-    const position = index + 1;
-    const variable = selectedTemplate?.variables?.find((item) => item.position === position);
-    if (variable?.key) return variable.key;
-    if (variable?.example) return `Variable ${position} (e.g. ${variable.example})`;
-    return `Variable ${position}`;
-  };
-
   useEffect(() => {
-    setBodyParams(Array.from({ length: variableCount }, () => ''));
-  }, [selectedName, variableCount]);
+    if (!selectedTemplate) {
+      setBodyParams(Array.from({ length: variableCount }, () => ''));
+      return;
+    }
+
+    setBodyParams(resolveTemplateBodyParams(selectedTemplate, lead));
+  }, [selectedName, variableCount, selectedTemplate, lead]);
 
   if (!isOpen) return null;
 
@@ -209,24 +204,6 @@ const TemplateSendModal = ({ isOpen, onClose, onSend, isSending }) => {
                   </div>
                 )}
               </div>
-
-              {variableCount > 0 &&
-                Array.from({ length: variableCount }).map((_, index) => (
-                  <label key={index} className="block">
-                    <span className={labelClassName}>{getVariableLabel(index)}</span>
-                    <input
-                      type="text"
-                      value={bodyParams[index] || ''}
-                      onChange={(event) => {
-                        const next = [...bodyParams];
-                        next[index] = event.target.value;
-                        setBodyParams(next);
-                      }}
-                      className={inputClassName}
-                      required
-                    />
-                  </label>
-                ))}
             </div>
 
             <div className="flex shrink-0 items-center justify-end gap-3 border-t border-brand-yellow/30 bg-white px-5 py-4">

@@ -16,10 +16,27 @@ export const extractTemplateVariablePositions = (text) => {
   return [...new Set(positions)].sort((a, b) => a - b);
 };
 
+export const hasTemplateVariables = (variables = []) =>
+  Array.isArray(variables) && variables.length > 0;
+
+export const getTemplateBodyPlaceholderCount = (bodyText) =>
+  extractTemplateVariablePositions(bodyText).length;
+
+export const templateHasBodyVariables = (bodyText) =>
+  getTemplateBodyPlaceholderCount(bodyText) > 0;
+
 export const getTemplateBodyVariableCount = (bodyText, variables = []) => {
-  const fromBodyText = extractTemplateVariablePositions(bodyText).length;
-  const fromMetadata = Array.isArray(variables) ? variables.length : 0;
-  return Math.max(fromBodyText, fromMetadata);
+  const placeholderCount = getTemplateBodyPlaceholderCount(bodyText);
+
+  if (placeholderCount === 0) {
+    return 0;
+  }
+
+  if (!hasTemplateVariables(variables)) {
+    return placeholderCount;
+  }
+
+  return Math.max(placeholderCount, variables.length);
 };
 
 // Helper function to validate URLs

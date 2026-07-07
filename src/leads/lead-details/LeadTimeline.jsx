@@ -127,6 +127,7 @@ const LeadTimeline = ({ lead }) => {
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
         isSending={isSending}
+        lead={lead}
         onSend={async (payload) => {
           await handleSendTemplate(payload);
           setShowTemplateModal(false);

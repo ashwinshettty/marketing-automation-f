@@ -26,13 +26,14 @@ import {
   validateButtonPhoneField
 } from '../../utils/whatsappTemplateValidation';
 
-const Edit = () => {
+const Edit = ({ setActiveTab }) => {
   const { 
     templateData, 
     updateTemplateData, 
     goToPreviousStep, 
     createTemplate,
     updateTemplate,
+    resetTemplate,
     loading, 
     error, 
     setError 
@@ -396,17 +397,29 @@ const Edit = () => {
         return null;
       }).filter(Boolean);
 
+      const resolvedTemplateType =
+        templateData.templateType === 'FLOW' ? 'INTERACTIVE' : templateData.templateType;
+
+      if (resolvedTemplateType === 'INTERACTIVE' && backendButtons.length === 0) {
+        setError('Interactive templates must have at least one button');
+        setValidationErrors((prev) => ({
+          ...prev,
+          buttons: 'Add at least one button for interactive templates',
+        }));
+        return;
+      }
+
       // Prepare template data with variables and buttons
       const templateDataToSubmit = {
         name: templateData.name,
         category: templateData.category,
-        templateType: templateData.templateType,
+        templateType: resolvedTemplateType,
         language: templateData.language || 'en',
         bodyText: body,
         headerText: mediaSample === 'None' ? header : undefined,
-        footerText: footer,
+        footerText: resolvedTemplateType === 'INTERACTIVE' ? footer : undefined,
         variables: variables,
-        buttons: backendButtons,
+        buttons: resolvedTemplateType === 'INTERACTIVE' ? backendButtons : [],
         uploadedFile: uploadedFile // Add the uploaded file to the data
       };
 
@@ -423,6 +436,8 @@ const Edit = () => {
       } else {
         result = await createTemplate(templateDataToSubmit);
         toast.success('Template created successfully!');
+        resetTemplate();
+        setActiveTab?.('view');
       }
     } catch (err) {
       // Show error toast
@@ -1077,7 +1092,10 @@ const Edit = () => {
             {/* Buttons Section */}
             <div className="rounded-2xl border border-brand-yellow/40 bg-brand-cream/40 p-5 shadow-sm">
               <h3 className="text-lg font-semibold text-brand-navy mb-2">
-                Buttons <span className="text-brand-muted font-normal text-sm">• Optional</span>
+                Buttons{' '}
+                <span className="text-brand-muted font-normal text-sm">
+                  • {templateType === 'INTERACTIVE' ? 'Required' : 'Optional'}
+                </span>
               </h3>
               <p className="text-sm text-brand-muted mb-4">
                 Create buttons that let customers respond to your message or take action. You can add up to ten buttons. If you add more than three buttons, they will appear in a list.

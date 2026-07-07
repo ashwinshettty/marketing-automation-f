@@ -7,7 +7,7 @@ import { tabClass, tabIndicatorClass } from './templateUi';
 
 const MainTemplate = () => {
   const { currentStep, isEditMode } = useTemplate();
-  const [activeTab, setActiveTab] = useState('view');
+  const [activeTab, setActiveTab] = useState('create');
 
   return (
     <div className="min-w-0 overflow-hidden rounded-2xl border border-brand-yellow/40 bg-white shadow-sm">
@@ -26,7 +26,7 @@ const MainTemplate = () => {
 
       <div className="p-6">
         {activeTab === 'create' ? (
-          currentStep === 'edit' ? <Edit /> : <SetUp />
+          currentStep === 'edit' ? <Edit setActiveTab={setActiveTab} /> : <SetUp />
         ) : (
           <ViewTemplates setActiveTab={setActiveTab} />
         )}

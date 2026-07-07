@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaChevronDown, FaPaperclip } from 'react-icons/fa';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
+import TemplateMessageContent from '../../components/whatsapp/TemplateMessageContent';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
 import { formatMessageTime } from '../../utils/formatMessageTime';
@@ -23,6 +24,15 @@ const renderMessageContent = (message) => {
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
         )}
       </div>
+    );
+  }
+
+  if (message.messageType === 'template') {
+    return (
+      <TemplateMessageContent
+        templateContent={message.templateContent}
+        fallbackText={message.text}
+      />
     );
   }
 
@@ -122,34 +132,46 @@ const WhatsAppChatPanel = ({ lead }) => {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200">
       <div className="flex h-[420px] flex-col">
-        <div className="flex-1 space-y-4 overflow-y-auto bg-[#f7f9f4] px-4 py-5">
+        <div className="flex-1 space-y-4 overflow-y-auto bg-[#efeae2] px-4 py-5">
           {messages.length === 0 && (
             <p className="text-center text-sm text-brand-muted">
               Send a WhatsApp message to {lead.name}
             </p>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message) => {
+            const isTemplate = message.messageType === 'template';
+            const isOutbound = message.direction === 'outbound';
+
+            return (
             <div
               key={message.id}
-              className={`flex ${
-                message.direction === 'outbound' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
-                  message.direction === 'outbound'
-                    ? 'rounded-br-md bg-[#dcf8c6] text-slate-800'
-                    : 'rounded-bl-md bg-white text-slate-800'
+                className={`max-w-[min(75%,320px)] text-sm shadow-sm ${
+                  isTemplate
+                    ? `overflow-hidden rounded-lg ${isOutbound ? 'bg-[#d9fdd3]' : 'bg-white'}`
+                    : `rounded-2xl px-4 py-3 ${
+                        isOutbound
+                          ? 'rounded-br-md bg-[#d9fdd3] text-slate-800'
+                          : 'rounded-bl-md bg-white text-slate-800'
+                      }`
                 }`}
               >
-                {message.messageType && message.messageType !== 'text' && (
-                  <p className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+                {message.messageType &&
+                  message.messageType !== 'text' &&
+                  message.messageType !== 'template' && (
+                  <p className="mb-1 px-4 pt-3 text-[10px] uppercase tracking-wide text-slate-500">
                     {message.messageType}
                   </p>
                 )}
                 {renderMessageContent(message)}
-                <p className="mt-1 flex items-center justify-end text-[11px] text-slate-500">
+                <p
+                  className={`flex items-center justify-end gap-1 text-[11px] text-[#667781] ${
+                    isTemplate ? 'px-2 pb-1 pt-0' : 'mt-1'
+                  }`}
+                >
                   {formatMessageTime(message.timestamp || message.time)}
                   <MessageStatusIcon
                     status={message.status}
@@ -158,7 +180,8 @@ const WhatsAppChatPanel = ({ lead }) => {
                 </p>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {error && (
@@ -257,6 +280,7 @@ const WhatsAppChatPanel = ({ lead }) => {
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
         isSending={isSending}
+        lead={lead}
         onSend={async (payload) => {
           await handleSendTemplate(payload);
           setShowTemplateModal(false);

@@ -133,9 +133,10 @@ const SetUp = () => {
     // Clear any existing errors and proceed
     setValidationErrors({});
     setError(null);
-    updateTemplateData({ 
-      category: selectedCategory, 
-      templateType: selectedType 
+    const resolvedType = selectedType === 'FLOW' ? 'INTERACTIVE' : selectedType;
+    updateTemplateData({
+      category: selectedCategory,
+      templateType: resolvedType,
     });
     goToNextStep();
   };
