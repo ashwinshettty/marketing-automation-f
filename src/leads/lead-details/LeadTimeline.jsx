@@ -67,7 +67,7 @@ const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200">
-      <div className="max-h-[420px] space-y-4 overflow-y-auto bg-[#f7f9f4] px-4 py-5">
+      <div className="max-h-[560px] space-y-4 overflow-y-auto bg-[#f7f9f4] px-4 py-5">
         {timelineItems.length === 0 && (
           <p className="text-center text-sm text-brand-muted">
             No activity yet. Add notes or send a WhatsApp message to build the timeline.
@@ -76,6 +76,8 @@ const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
 
         {timelineItems.map((item, index) => {
           const style = TIMELINE_STYLES[item.type] || TIMELINE_STYLES.lead_created;
+          const showWaStatus =
+            item.type === 'whatsapp_outbound' || item.type === 'whatsapp_bot';
 
           return (
             <div key={item.id} className="relative flex gap-3">
@@ -99,7 +101,7 @@ const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
                   {item.meta?.status && (
                     <span className="flex items-center rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium capitalize text-brand-navy">
                       {item.meta.status}
-                      {item.type === 'whatsapp_outbound' && (
+                      {showWaStatus && (
                         <MessageStatusIcon
                           status={item.meta.status}
                           direction="outbound"

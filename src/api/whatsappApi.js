@@ -93,6 +93,8 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
     timestamp: message.time,
     time: formatMessageTime(message.time),
     status: message.status,
+    senderName: message.senderName,
+    isBot: Boolean(message.senderName) && message.direction === 'outbound',
     templateId: message.templateId,
     templateContent: resolveTemplateContentForDisplay(
       message.templateContent,

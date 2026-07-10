@@ -156,16 +156,39 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
   
     whatsappMessages.forEach((message) => {
       const at = parseDate(message.timestamp);
-      if (!at || !message.text) return;
-  
+      const body = String(message.text || '').trim();
+      if (!at || !body) return;
+
+      const isInbound = message.direction === 'inbound';
+      const isBot =
+        !isInbound &&
+        (message.isBot || Boolean(message.senderName));
+
+      let type = 'whatsapp_outbound';
+      let title = 'WhatsApp sent';
+
+      if (isInbound) {
+        type = 'whatsapp_inbound';
+        title = 'User message';
+      } else if (isBot) {
+        type = 'whatsapp_bot';
+        title = message.senderName
+          ? `Bot reply · ${message.senderName}`
+          : 'Bot reply';
+      }
+
       push({
         id: `wa-${message.id}`,
-        type:
-          message.direction === 'outbound' ? 'whatsapp_outbound' : 'whatsapp_inbound',
+        type,
         timestamp: at.getTime(),
-        title: message.direction === 'outbound' ? 'WhatsApp sent' : 'WhatsApp received',
-        body: message.text,
-        meta: { direction: message.direction, status: message.status },
+        title,
+        body,
+        meta: {
+          direction: message.direction,
+          status: message.status,
+          senderName: message.senderName,
+          isBot,
+        },
       });
     });
 
@@ -213,8 +236,9 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
     assigned: { badge: 'AS', badgeClass: 'bg-violet-600', cardClass: 'bg-violet-50' },
     note_added: { badge: 'N+', badgeClass: 'bg-amber-500', cardClass: 'bg-brand-yellow-soft/60' },
     note_updated: { badge: 'N~', badgeClass: 'bg-amber-600', cardClass: 'bg-brand-yellow-soft/80' },
-  event_added: { badge: 'EV', badgeClass: 'bg-indigo-600', cardClass: 'bg-indigo-50' },
-    whatsapp_inbound: { badge: 'In', badgeClass: 'bg-[#25D366]', cardClass: 'bg-white' },
+    event_added: { badge: 'EV', badgeClass: 'bg-indigo-600', cardClass: 'bg-indigo-50' },
+    whatsapp_inbound: { badge: 'User', badgeClass: 'bg-[#128C7E]', cardClass: 'bg-white border border-slate-100' },
+    whatsapp_bot: { badge: 'Bot', badgeClass: 'bg-[#075E54]', cardClass: 'bg-[#e7f8ef] border border-[#cdeedc]' },
     whatsapp_outbound: { badge: 'You', badgeClass: 'bg-brand-navy', cardClass: 'bg-brand-yellow-soft/60' },
   };
   

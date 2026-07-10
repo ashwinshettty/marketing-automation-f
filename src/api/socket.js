@@ -20,6 +20,18 @@ export const getSocket = () => {
       auth: { token },
       transports: ['websocket', 'polling'],
       autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 5000,
+    });
+
+    socket.on('connect', () => {
+      console.log('[socket] connected', socket.id);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('[socket] disconnected', reason);
     });
 
     socket.on('connect_error', (error) => {

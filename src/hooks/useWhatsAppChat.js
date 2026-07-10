@@ -22,6 +22,8 @@ export const mapApiMessage = (message) => {
     mediaId: message.mediaId,
     mediaUrl: getWhatsAppMediaUrl(message.mediaId),
     status: message.status,
+    senderName: message.senderName,
+    isBot: Boolean(message.senderName) && message.direction === 'outbound',
     templateId: message.templateId,
     templateContent: resolveTemplateContentForDisplay(
       message.templateContent,
