@@ -128,6 +128,19 @@ export const fetchCallHistory = async ({ phoneNumber }) => {
   return unwrap(response);
 };
 
+export const initiateWhatsAppCall = async ({ phoneNumber, leadId, sdp }) => {
+  try {
+    const response = await authApi.post('/whatsapp/calls/initiate', {
+      phoneNumber,
+      leadId,
+      sdp,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
 export const acceptCall = async ({ callId, sdp }) => {
   const response = await authApi.post('/whatsapp/calls/accept', { callId, sdp });
   return unwrap(response);

@@ -8,7 +8,7 @@ const IncomingCallBanner = () => {
 
   useEffect(() => {
     const closeStream = openWhatsAppGlobalStream((event) => {
-      if (event.type === 'incoming_call' && event.call?.status === 'ringing') {
+      if (event.type === 'incoming_call' && event.call?.status === 'ringing' && event.call?.direction === 'USER_INITIATED') {
         setIncomingCall(event.call);
         return;
       }

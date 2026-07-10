@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { FaChevronDown, FaPaperclip } from 'react-icons/fa';
+import { FaChevronDown, FaPaperclip, FaWhatsapp } from 'react-icons/fa';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
+import WhatsAppCallButton from '../../components/whatsapp/WhatsAppCallButton';
 import TemplateMessageContent from '../../components/whatsapp/TemplateMessageContent';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
@@ -132,6 +133,23 @@ const WhatsAppChatPanel = ({ lead }) => {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200">
       <div className="flex h-[420px] flex-col">
+        <div className="flex items-center justify-between gap-3 border-b border-[#075e54]/20 bg-[#075e54] px-4 py-3 text-white">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <FaWhatsapp className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{lead.name}</p>
+              <p className="truncate text-xs text-white/80">{lead.contactNo}</p>
+            </div>
+          </div>
+          <WhatsAppCallButton
+            phoneNumber={lead.contactNo}
+            leadId={lead.id}
+            className="shrink-0"
+          />
+        </div>
+
         <div className="flex-1 space-y-4 overflow-y-auto bg-[#efeae2] px-4 py-5">
           {messages.length === 0 && (
             <p className="text-center text-sm text-brand-muted">
