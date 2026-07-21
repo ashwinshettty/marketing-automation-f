@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  fetchCallHistory,
   fetchWhatsAppMessages,
   getWhatsAppMediaUrl,
   sendWhatsAppMedia,
@@ -16,6 +17,7 @@ export const mapApiMessage = (message) => {
 
   return {
     id: message.id,
+    kind: 'message',
     direction: message.direction,
     text: message.text,
     messageType: message.messageType,
@@ -34,16 +36,34 @@ export const mapApiMessage = (message) => {
   };
 };
 
-const sortMessagesNewestFirst = (messages) =>
-  [...messages].sort(
+export const mapApiCall = (call) => {
+  const timestamp = call.startTime || call.endTime || call.createdAt;
+  const isOutbound = call.direction === 'BUSINESS_INITIATED';
+
+  return {
+    id: `call-${call.id || call.dbId}`,
+    kind: 'call',
+    callId: call.id,
+    direction: isOutbound ? 'outbound' : 'inbound',
+    callDirection: call.direction,
+    status: call.status,
+    event: call.event,
+    duration: call.duration,
+    timestamp,
+    time: formatMessageTime(timestamp),
+  };
+};
+
+const sortTimelineNewestFirst = (items) =>
+  [...items].sort(
     (left, right) =>
       new Date(right.timestamp || right.time).getTime() -
       new Date(left.timestamp || left.time).getTime(),
   );
 
-const upsertMessage = (messages, incoming) => {
-  const withoutDuplicate = messages.filter((message) => message.id !== incoming.id);
-  return sortMessagesNewestFirst([incoming, ...withoutDuplicate]);
+const upsertTimelineItem = (items, incoming) => {
+  const withoutDuplicate = items.filter((item) => item.id !== incoming.id);
+  return sortTimelineNewestFirst([incoming, ...withoutDuplicate]);
 };
 
 export const useWhatsAppChat = ({ lead }) => {
@@ -71,13 +91,21 @@ export const useWhatsAppChat = ({ lead }) => {
         if (showLoading) setIsLoading(true);
         setError('');
 
-        const history = await fetchWhatsAppMessages({
-          leadId: lead.id,
-          phoneNumber: lead.contactNo,
-        });
+        const [history, callResult] = await Promise.all([
+          fetchWhatsAppMessages({
+            leadId: lead.id,
+            phoneNumber: lead.contactNo,
+          }),
+          fetchCallHistory({ phoneNumber: lead.contactNo }).catch(() => ({
+            calls: [],
+          })),
+        ]);
 
-        const sorted = sortMessagesNewestFirst(history);
-        messageIdsRef.current = new Set(sorted.map((message) => message.id));
+        const callItems = (callResult?.calls || []).map(mapApiCall);
+        const sorted = sortTimelineNewestFirst([...history, ...callItems]);
+        messageIdsRef.current = new Set(
+          sorted.filter((item) => item.kind !== 'call').map((item) => item.id),
+        );
         setMessages(sorted);
       } catch (err) {
         setError(err.message || 'Failed to load chat');
@@ -100,7 +128,7 @@ export const useWhatsAppChat = ({ lead }) => {
         const incoming = mapApiMessage(event.message);
 
         messageIdsRef.current.add(incoming.id);
-        setMessages((current) => upsertMessage(current, incoming));
+        setMessages((current) => upsertTimelineItem(current, incoming));
         return;
       }
 
@@ -112,6 +140,31 @@ export const useWhatsAppChat = ({ lead }) => {
               : message,
           ),
         );
+        return;
+      }
+
+      if (event.call?.id) {
+        const callItem = mapApiCall({
+          id: event.call.id,
+          dbId: event.call.dbId,
+          direction: event.call.direction,
+          status: event.call.status,
+          event: event.call.event,
+          duration: event.call.duration,
+          startTime: event.call.startTime,
+          endTime: event.call.endTime,
+          createdAt: event.call.createdAt || new Date().toISOString(),
+        });
+
+        if (
+          event.type === 'call_ended' ||
+          event.type === 'call_status_update' ||
+          event.type === 'incoming_call' ||
+          event.type === 'call_initiated' ||
+          event.type === 'outbound_call_connect'
+        ) {
+          setMessages((current) => upsertTimelineItem(current, callItem));
+        }
       }
     });
 
@@ -144,7 +197,7 @@ export const useWhatsAppChat = ({ lead }) => {
       if (result.data) {
         const saved = mapApiMessage(result.data);
         messageIdsRef.current.add(saved.id);
-        setMessages((current) => upsertMessage(current, saved));
+        setMessages((current) => upsertTimelineItem(current, saved));
       }
 
       setDraft('');
@@ -156,7 +209,12 @@ export const useWhatsAppChat = ({ lead }) => {
     }
   };
 
-  const handleSendTemplate = async ({ templateId, templateName, languageCode, bodyParams }) => {
+  const handleSendTemplate = async ({
+    templateId,
+    templateName,
+    languageCode,
+    bodyParams,
+  }) => {
     if (!conversationId) return;
 
     setError('');
@@ -175,7 +233,7 @@ export const useWhatsAppChat = ({ lead }) => {
       if (result.data) {
         const saved = mapApiMessage(result.data);
         messageIdsRef.current.add(saved.id);
-        setMessages((current) => upsertMessage(current, saved));
+        setMessages((current) => upsertTimelineItem(current, saved));
       }
     } catch (err) {
       setError(err.message || 'Failed to send template');

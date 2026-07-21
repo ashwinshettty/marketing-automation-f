@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaChevronDown, FaPaperclip, FaWhatsapp } from 'react-icons/fa';
+import CallLogBubble from '../../components/whatsapp/CallLogBubble';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
 import WhatsAppCallButton from '../../components/whatsapp/WhatsAppCallButton';
 import TemplateMessageContent from '../../components/whatsapp/TemplateMessageContent';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
-import { formatMessageTime } from '../../utils/formatMessageTime';
+import {
+  formatChatDateLabel,
+  formatMessageTime,
+  isSameChatDay,
+} from '../../utils/formatMessageTime';
 
 const renderMessageContent = (message) => {
   if (message.messageType === 'image' && message.mediaUrl) {
@@ -38,6 +43,19 @@ const renderMessageContent = (message) => {
   }
 
   return <p className="whitespace-pre-wrap break-words">{message.text}</p>;
+};
+
+const ChatDateSeparator = ({ timestamp }) => {
+  const label = formatChatDateLabel(timestamp);
+  if (!label) return null;
+
+  return (
+    <div className="flex justify-center py-1">
+      <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-600 shadow-sm">
+        {label}
+      </span>
+    </div>
+  );
 };
 
 const mediaOptions = {
@@ -157,47 +175,70 @@ const WhatsAppChatPanel = ({ lead }) => {
             </p>
           )}
 
-          {messages.map((message) => {
-            const isTemplate = message.messageType === 'template';
-            const isOutbound = message.direction === 'outbound';
+          {messages.map((item, index) => {
+            const previous = messages[index - 1];
+            const showDate =
+              !previous ||
+              !isSameChatDay(
+                item.timestamp || item.time,
+                previous.timestamp || previous.time,
+              );
+
+            if (item.kind === 'call') {
+              return (
+                <div key={item.id} className="space-y-4">
+                  {showDate && (
+                    <ChatDateSeparator timestamp={item.timestamp || item.time} />
+                  )}
+                  <CallLogBubble call={item} />
+                </div>
+              );
+            }
+
+            const isTemplate = item.messageType === 'template';
+            const isOutbound = item.direction === 'outbound';
 
             return (
-            <div
-              key={message.id}
-              className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[min(75%,320px)] text-sm shadow-sm ${
-                  isTemplate
-                    ? `overflow-hidden rounded-lg ${isOutbound ? 'bg-[#d9fdd3]' : 'bg-white'}`
-                    : `rounded-2xl px-4 py-3 ${
-                        isOutbound
-                          ? 'rounded-br-md bg-[#d9fdd3] text-slate-800'
-                          : 'rounded-bl-md bg-white text-slate-800'
-                      }`
-                }`}
-              >
-                {message.messageType &&
-                  message.messageType !== 'text' &&
-                  message.messageType !== 'template' && (
-                  <p className="mb-1 px-4 pt-3 text-[10px] uppercase tracking-wide text-slate-500">
-                    {message.messageType}
-                  </p>
+              <div key={item.id} className="space-y-4">
+                {showDate && (
+                  <ChatDateSeparator timestamp={item.timestamp || item.time} />
                 )}
-                {renderMessageContent(message)}
-                <p
-                  className={`flex items-center justify-end gap-1 text-[11px] text-[#667781] ${
-                    isTemplate ? 'px-2 pb-1 pt-0' : 'mt-1'
-                  }`}
+                <div
+                  className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}
                 >
-                  {formatMessageTime(message.timestamp || message.time)}
-                  <MessageStatusIcon
-                    status={message.status}
-                    direction={message.direction}
-                  />
-                </p>
+                  <div
+                    className={`max-w-[min(75%,320px)] text-sm shadow-sm ${
+                      isTemplate
+                        ? `overflow-hidden rounded-lg ${isOutbound ? 'bg-[#d9fdd3]' : 'bg-white'}`
+                        : `rounded-2xl px-4 py-3 ${
+                            isOutbound
+                              ? 'rounded-br-md bg-[#d9fdd3] text-slate-800'
+                              : 'rounded-bl-md bg-white text-slate-800'
+                          }`
+                    }`}
+                  >
+                    {item.messageType &&
+                      item.messageType !== 'text' &&
+                      item.messageType !== 'template' && (
+                        <p className="mb-1 px-4 pt-3 text-[10px] uppercase tracking-wide text-slate-500">
+                          {item.messageType}
+                        </p>
+                      )}
+                    {renderMessageContent(item)}
+                    <p
+                      className={`flex items-center justify-end gap-1 text-[11px] text-[#667781] ${
+                        isTemplate ? 'px-2 pb-1 pt-0' : 'mt-1'
+                      }`}
+                    >
+                      {formatMessageTime(item.timestamp || item.time)}
+                      <MessageStatusIcon
+                        status={item.status}
+                        direction={item.direction}
+                      />
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
             );
           })}
         </div>

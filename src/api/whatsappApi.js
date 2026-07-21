@@ -85,6 +85,7 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
 
   return (data.messages || []).map((message) => ({
     id: message.id,
+    kind: 'message',
     direction: message.direction,
     text: message.text,
     messageType: message.messageType,
@@ -130,6 +131,11 @@ export const fetchCallHistory = async ({ phoneNumber }) => {
   return unwrap(response);
 };
 
+export const fetchActiveIncomingCalls = async () => {
+  const response = await authApi.get('/whatsapp/calls/incoming');
+  return unwrap(response);
+};
+
 export const initiateWhatsAppCall = async ({ phoneNumber, leadId, sdp }) => {
   try {
     const response = await authApi.post('/whatsapp/calls/initiate', {
@@ -143,17 +149,41 @@ export const initiateWhatsAppCall = async ({ phoneNumber, leadId, sdp }) => {
   }
 };
 
+export const preAcceptCall = async ({ callId, sdp }) => {
+  try {
+    const response = await authApi.post('/whatsapp/calls/pre-accept', {
+      callId,
+      sdp,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
 export const acceptCall = async ({ callId, sdp }) => {
-  const response = await authApi.post('/whatsapp/calls/accept', { callId, sdp });
-  return unwrap(response);
+  try {
+    const response = await authApi.post('/whatsapp/calls/accept', { callId, sdp });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
 };
 
 export const rejectCall = async ({ callId }) => {
-  const response = await authApi.post('/whatsapp/calls/reject', { callId });
-  return unwrap(response);
+  try {
+    const response = await authApi.post('/whatsapp/calls/reject', { callId });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
 };
 
 export const terminateCall = async ({ callId }) => {
-  const response = await authApi.post('/whatsapp/calls/terminate', { callId });
-  return unwrap(response);
+  try {
+    const response = await authApi.post('/whatsapp/calls/terminate', { callId });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
 };

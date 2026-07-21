@@ -6,18 +6,29 @@ const parseDate = (value) => {
   };
   
   export const formatTimelineDate = (value) => {
-    const date = parseDate(value);
-    if (!date) return '';
-  
-    return date.toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const date = parseDate(value);
+  if (!date) return '';
+
+  return date.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+/** WhatsApp-style duration mm:ss (e.g. 10:15). */
+const formatCallDurationMmSs = (durationSeconds) => {
+  const total = Number(durationSeconds);
+  if (!Number.isFinite(total) || total <= 0) return null;
+
+  const seconds = Math.round(total);
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${String(secs).padStart(2, '0')}`;
+};
   
   const formatStatusLabel = (status) => {
     if (!status) return 'Updated';
@@ -155,6 +166,46 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
     });
   
     whatsappMessages.forEach((message) => {
+      if (message.kind === 'call') {
+        const at = parseDate(message.timestamp);
+        if (!at) return;
+
+        const isOutbound = message.direction === 'outbound';
+        const durationLabel = formatCallDurationMmSs(message.duration);
+        const status = String(message.status || '').toLowerCase();
+        const answered = Boolean(durationLabel);
+
+        let outcome = 'No answer';
+        if (answered) {
+          outcome = 'Answered';
+        } else if (!isOutbound || status === 'rejected' || status === 'failed') {
+          outcome = isOutbound ? 'No answer' : 'Missed';
+        }
+
+        const details = [
+          `Type: Voice call`,
+          `Direction: ${isOutbound ? 'Outgoing' : 'Incoming'}`,
+          `Date: ${formatTimelineDate(at)}`,
+          durationLabel ? `Duration: ${durationLabel}` : `Duration: —`,
+          `Status: ${outcome}`,
+        ].join('\n');
+
+        push({
+          id: message.id || `wa-call-${message.callId || at.getTime()}`,
+          type: isOutbound ? 'whatsapp_call_outbound' : 'whatsapp_call_inbound',
+          timestamp: at.getTime(),
+          title: isOutbound ? 'Outgoing voice call' : 'Incoming voice call',
+          body: details,
+          meta: {
+            status: outcome,
+            duration: durationLabel,
+            direction: message.direction,
+            callStatus: message.status,
+          },
+        });
+        return;
+      }
+
       const at = parseDate(message.timestamp);
       const body = String(message.text || '').trim();
       if (!at || !body) return;
@@ -240,5 +291,15 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
     whatsapp_inbound: { badge: 'User', badgeClass: 'bg-[#128C7E]', cardClass: 'bg-white border border-slate-100' },
     whatsapp_bot: { badge: 'Bot', badgeClass: 'bg-[#075E54]', cardClass: 'bg-[#e7f8ef] border border-[#cdeedc]' },
     whatsapp_outbound: { badge: 'You', badgeClass: 'bg-brand-navy', cardClass: 'bg-brand-yellow-soft/60' },
+    whatsapp_call_outbound: {
+      badge: 'Call',
+      badgeClass: 'bg-[#25D366]',
+      cardClass: 'bg-[#e7f8ef] border border-[#cdeedc]',
+    },
+    whatsapp_call_inbound: {
+      badge: 'Call',
+      badgeClass: 'bg-[#128C7E]',
+      cardClass: 'bg-white border border-slate-100',
+    },
   };
   

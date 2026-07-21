@@ -2,32 +2,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { initiateWhatsAppCall, terminateCall } from '../api/whatsappApi';
 import { openWhatsAppConversationStream } from '../api/whatsappEventStream';
 import { normalizePhoneNumber } from '../utils/normalizePhone';
+import {
+  createAudioPeerConnection,
+  normalizeWhatsAppSdp,
+  playRemoteStream,
+  stopMediaStream,
+  waitForIceGathering,
+} from '../utils/webrtcCall';
 
-const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
-const ICE_GATHER_TIMEOUT_MS = 3000;
-
-const waitForIceGathering = (peerConnection) =>
-  new Promise((resolve) => {
-    if (peerConnection.iceGatheringState === 'complete') {
-      resolve(peerConnection.localDescription);
-      return;
-    }
-
-    const finish = () => {
-      peerConnection.removeEventListener('icegatheringstatechange', onStateChange);
-      clearTimeout(timeoutId);
-      resolve(peerConnection.localDescription);
-    };
-
-    const onStateChange = () => {
-      if (peerConnection.iceGatheringState === 'complete') {
-        finish();
-      }
-    };
-
-    const timeoutId = window.setTimeout(finish, ICE_GATHER_TIMEOUT_MS);
-    peerConnection.addEventListener('icegatheringstatechange', onStateChange);
-  });
+const isAnswerSdp = (call) => {
+  if (!call?.sdp) return false;
+  const type = String(call.sdpType || '').toLowerCase();
+  return !type || type === 'answer';
+};
 
 export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
   const [callState, setCallState] = useState('idle');
@@ -37,14 +24,16 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
   const localStreamRef = useRef(null);
   const remoteAudioRef = useRef(null);
   const activeCallIdRef = useRef(null);
+  const answerAppliedRef = useRef(false);
   const conversationId = phoneNumber ? normalizePhoneNumber(phoneNumber) : '';
 
   const cleanup = useCallback(() => {
     peerRef.current?.close();
     peerRef.current = null;
-    localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    stopMediaStream(localStreamRef.current);
     localStreamRef.current = null;
     activeCallIdRef.current = null;
+    answerAppliedRef.current = false;
   }, []);
 
   const resetCall = useCallback(() => {
@@ -69,12 +58,29 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
     setCallState('ended');
   }, [cleanup]);
 
+  const applyRemoteAnswer = useCallback(
+    async (call) => {
+      const peerConnection = peerRef.current;
+      if (!peerConnection || !call?.sdp || answerAppliedRef.current) return false;
+
+      await peerConnection.setRemoteDescription({
+        type: 'answer',
+        sdp: call.sdp,
+      });
+      answerAppliedRef.current = true;
+      setCallState('connected');
+      return true;
+    },
+    [],
+  );
+
   const startCall = useCallback(async () => {
     if (!phoneNumber || !conversationId) return;
 
     setError('');
     setNotice('');
     setCallState('calling');
+    answerAppliedRef.current = false;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -83,7 +89,7 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
       });
       localStreamRef.current = stream;
 
-      const peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const peerConnection = createAudioPeerConnection();
       peerRef.current = peerConnection;
 
       stream.getTracks().forEach((track) => {
@@ -91,22 +97,21 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
       });
 
       peerConnection.ontrack = (event) => {
-        const [remoteStream] = event.streams;
-
-        if (remoteAudioRef.current && remoteStream) {
-          remoteAudioRef.current.srcObject = remoteStream;
-          remoteAudioRef.current.play().catch(() => {});
-        }
+        playRemoteStream(remoteAudioRef.current, event);
       };
 
-      const offer = await peerConnection.createOffer();
+      const offer = await peerConnection.createOffer({
+        offerToReceiveAudio: true,
+      });
       await peerConnection.setLocalDescription(offer);
 
       const localDescription = await waitForIceGathering(peerConnection);
+      const sdp = normalizeWhatsAppSdp(localDescription?.sdp || offer.sdp);
+
       const result = await initiateWhatsAppCall({
         phoneNumber,
         leadId,
-        sdp: localDescription?.sdp || offer.sdp,
+        sdp,
       });
 
       if (result.code === 'CALL_PERMISSION_REQUESTED' || result.permissionRequested) {
@@ -167,32 +172,29 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
       if (!call?.id) return;
       if (activeCallIdRef.current && call.id !== activeCallIdRef.current) return;
 
+      // Meta sends the SDP answer on connect (BIC). Also accept answer on status updates.
       if (
-        event.type === 'outbound_call_connect' &&
-        call.sdp &&
-        call.sdpType === 'answer'
+        (event.type === 'outbound_call_connect' ||
+          event.type === 'call_status_update' ||
+          event.type === 'call_initiated') &&
+        isAnswerSdp(call)
       ) {
         try {
-          const peerConnection = peerRef.current;
-          if (!peerConnection) return;
-
-          await peerConnection.setRemoteDescription({
-            type: 'answer',
-            sdp: call.sdp,
-          });
-          setCallState('connected');
+          const applied = await applyRemoteAnswer(call);
+          if (applied) return;
         } catch (connectError) {
           setError(connectError.message || 'Failed to connect WhatsApp call');
           setCallState('failed');
           cleanup();
+          return;
         }
-        return;
       }
 
       if (
         event.type === 'call_ended' ||
         call.status === 'rejected' ||
-        call.status === 'terminated'
+        call.status === 'terminated' ||
+        call.status === 'failed'
       ) {
         cleanup();
         setCallState('ended');
@@ -200,14 +202,25 @@ export const useWhatsAppOutboundCall = ({ phoneNumber, leadId }) => {
       }
 
       if (call.status === 'accepted') {
-        setCallState('connected');
+        // Only mark connected if answer SDP was applied — otherwise stay ringing.
+        if (answerAppliedRef.current) {
+          setCallState('connected');
+        } else if (isAnswerSdp(call)) {
+          try {
+            await applyRemoteAnswer(call);
+          } catch (connectError) {
+            setError(connectError.message || 'Failed to connect WhatsApp call');
+            setCallState('failed');
+            cleanup();
+          }
+        }
       } else if (call.status === 'ringing') {
         setCallState('ringing');
       }
     });
 
     return closeStream;
-  }, [phoneNumber, conversationId, cleanup]);
+  }, [phoneNumber, conversationId, cleanup, applyRemoteAnswer]);
 
   useEffect(
     () => () => {

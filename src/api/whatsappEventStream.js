@@ -88,9 +88,12 @@ export const openWhatsAppGlobalStream = (onEvent) => {
 
   const removeConnectListener = subscribeOnConnect(socket, subscribe);
   socket.on('whatsapp:global', onEvent);
+  // Also listen on conversation events in case a call arrives only there.
+  socket.on('whatsapp:event', onEvent);
 
   return () => {
     socket.off('whatsapp:global', onEvent);
+    socket.off('whatsapp:event', onEvent);
     removeConnectListener();
 
     globalRefCount.value = Math.max(0, globalRefCount.value - 1);
