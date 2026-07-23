@@ -92,6 +92,7 @@ const WhatsAppChatPanel = ({ lead }) => {
     conversationId,
     handleSend,
     handleSendTemplate,
+    reloadMessages,
   } = useWhatsAppChat({ lead });
 
   const handleMediaSelect = (event) => {
@@ -159,12 +160,21 @@ const WhatsAppChatPanel = ({ lead }) => {
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{lead.name}</p>
               <p className="truncate text-xs text-white/80">{lead.contactNo}</p>
+              {lead.subject ? (
+                <p className="truncate text-[11px] text-white/70" title={lead.subject}>
+                  Subject: {lead.subject}
+                </p>
+              ) : null}
             </div>
           </div>
           <WhatsAppCallButton
             phoneNumber={lead.contactNo}
             leadId={lead.id}
+            subject={lead.subject || ''}
             className="shrink-0"
+            onAgentCallStarted={() => {
+              reloadMessages({ showLoading: false });
+            }}
           />
         </div>
 
@@ -190,7 +200,7 @@ const WhatsAppChatPanel = ({ lead }) => {
                   {showDate && (
                     <ChatDateSeparator timestamp={item.timestamp || item.time} />
                   )}
-                  <CallLogBubble call={item} />
+                  <CallLogBubble call={item} leadId={lead.id} />
                 </div>
               );
             }
@@ -217,6 +227,11 @@ const WhatsAppChatPanel = ({ lead }) => {
                           }`
                     }`}
                   >
+                    {item.isBot && (
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#128c7e]">
+                        Bot{item.senderName ? ` · ${item.senderName}` : ''}
+                      </p>
+                    )}
                     {item.messageType &&
                       item.messageType !== 'text' &&
                       item.messageType !== 'template' && (

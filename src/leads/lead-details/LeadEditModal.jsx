@@ -95,13 +95,13 @@ const LeadEditModal = ({ lead, onClose, onSaved }) => {
 
     try {
       const payload = buildStudentUpdatePayload(lead, form);
-      const data = await updateStudent(lead.id, payload);
+      const data = await updateStudent(lead.id, payload, { type: lead.type });
 
-      if (!data?.student) {
+      if (!data?.lead && !data?.student) {
         throw new Error(data?.message || 'Failed to update lead');
       }
 
-      onSaved(mapStudentToLead(data.student));
+      onSaved(mapStudentToLead(data.lead) || mapStudentToLead(data.student));
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to update lead');

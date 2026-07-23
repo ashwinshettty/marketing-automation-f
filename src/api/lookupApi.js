@@ -1,18 +1,18 @@
-import api from './axios';
+import authApi from './authAxios';
 
 export const fetchBoards = async () => {
-  const { data } = await api.get('/boards');
+  const { data } = await authApi.get('/lookups/boards');
   return Array.isArray(data) ? data : [];
 };
 
 export const fetchGrades = async () => {
-  const { data } = await api.get('/grades');
+  const { data } = await authApi.get('/lookups/grades');
   const gradesDoc = Array.isArray(data) ? data[0] : data;
   return Array.isArray(gradesDoc?.grades) ? gradesDoc.grades : [];
 };
 
 export const fetchCounsellors = async () => {
-  const { data } = await api.get('/marketing/users');
+  const { data } = await authApi.get('/lookups/counsellors');
 
   if (!data?.success) {
     return [];

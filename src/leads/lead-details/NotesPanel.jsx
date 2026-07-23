@@ -50,13 +50,14 @@ const NotesPanel = ({ lead, onLeadUpdate }) => {
 
     try {
       const payload = buildNotesUpdatePayload(lead, notesToSave);
-      const data = await updateStudent(lead.id, payload);
+      const data = await updateStudent(lead.id, payload, { type: lead.type });
 
-      if (!data?.student) {
+      if (!data?.lead && !data?.student) {
         throw new Error(data?.message || 'Failed to save notes');
       }
 
-      const updatedLead = mapStudentToLead(data.student);
+      const updatedLead =
+        mapStudentToLead(data.lead) || mapStudentToLead(data.student);
       setNotes(normalizeNotesFromLead(updatedLead));
       onLeadUpdate?.(updatedLead);
 

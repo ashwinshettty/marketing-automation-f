@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  agentCallOutcomeBadgeClass,
+  formatAgentCallOutcome,
+} from '../../utils/agentCallOutcomes';
 import LeadEditModal from './LeadEditModal';
 import StudentTab from './StudentTab';
 import CreateActionItemModal from './CreateActionItemModal';
@@ -36,7 +40,28 @@ const LeadInfoPanel = ({ lead, onLeadUpdate }) => {
             {lead.name.charAt(0)}
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-brand-navy">{lead.name}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-xl font-semibold text-brand-navy">{lead.name}</h2>
+              <span
+                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  lead.type === 'enquiry'
+                    ? 'bg-sky-100 text-sky-800'
+                    : 'bg-amber-100 text-amber-900'
+                }`}
+              >
+                {lead.tag || (lead.type === 'enquiry' ? 'Enquiry' : 'Admission Due')}
+              </span>
+              {lead.lastAgentOutcome ? (
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${agentCallOutcomeBadgeClass(
+                    lead.lastAgentOutcome,
+                  )}`}
+                  title={lead.lastAgentCallSummary || 'Latest agent call outcome'}
+                >
+                  Call: {formatAgentCallOutcome(lead.lastAgentOutcome)}
+                </span>
+              ) : null}
+            </div>
             <p className="text-sm text-brand-muted">
               {lead.grade} · {lead.board}
             </p>

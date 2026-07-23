@@ -1,5 +1,42 @@
 export const buildStudentUpdatePayload = (lead, form) => {
-  const raw = lead.rawStudent || {};
+  const raw = lead.rawStudent || lead.raw || {};
+  const isEnquiry = lead.type === 'enquiry';
+
+  if (isEnquiry) {
+    const contactInformation = Array.isArray(raw.contactInformation)
+      ? raw.contactInformation.map((contact) => ({ ...contact }))
+      : [];
+
+    if (contactInformation.length === 0) {
+      contactInformation.push({
+        phoneNumber: form.contactNo,
+        email: form.email,
+        contactPersonName: form.parentName || form.name,
+        relation: 'self',
+      });
+    } else {
+      contactInformation[0] = {
+        ...contactInformation[0],
+        phoneNumber: form.contactNo,
+        number: form.contactNo,
+        email: form.email,
+        contactPersonName:
+          form.parentName || contactInformation[0].contactPersonName || form.name,
+      };
+    }
+
+    return {
+      type: 'enquiry',
+      fullName: form.name.trim(),
+      standard: form.grade.trim(),
+      board: form.board.trim(),
+      source: form.source.trim(),
+      whatsappNumber: form.contactNo.trim(),
+      contactInformation,
+      address: form.city.trim(),
+      notes: form.notes.trim(),
+    };
+  }
 
   const contactInformation = Array.isArray(raw.contactInformation)
     ? raw.contactInformation.map((contact) => ({ ...contact }))
@@ -39,19 +76,21 @@ export const buildStudentUpdatePayload = (lead, form) => {
   }
 
   return {
-    ...raw,
+    type: 'student',
     studentName: form.name.trim(),
     grade: form.grade.trim(),
     board: form.board.trim(),
     source: form.source.trim(),
     contactInformation,
     address: {
-      ...(raw.address || {}),
+      ...(typeof raw.address === 'object' && raw.address ? raw.address : {}),
       city: form.city.trim(),
     },
     notes: form.notes.trim()
       ? [{ text: form.notes.trim() }]
-      : raw.notes || [],
+      : Array.isArray(raw.notes)
+        ? raw.notes
+        : [],
   };
 };
 
@@ -75,9 +114,30 @@ export const sortNotesByNewest = (notes) =>
   });
 
 export const normalizeNotesFromLead = (lead) => {
-  const rawNotes = lead?.rawStudent?.notes;
+  const rawNotes = lead?.rawStudent?.notes ?? lead?.raw?.notes;
+
+  if (typeof rawNotes === 'string' && rawNotes.trim()) {
+    return [
+      {
+        _id: 'legacy',
+        text: rawNotes.trim(),
+        createdAt: lead?.rawStudent?.updatedAt || lead?.rawStudent?.enquiryDate,
+        status: 'pending',
+      },
+    ];
+  }
 
   if (!Array.isArray(rawNotes)) {
+    if (lead?.notes?.trim()) {
+      return [
+        {
+          _id: 'primary',
+          text: lead.notes.trim(),
+          createdAt: '',
+          status: 'pending',
+        },
+      ];
+    }
     return [];
   }
 
@@ -108,7 +168,7 @@ export const sanitizeNotesForSave = (notes) =>
         status: note.status || 'pending',
       };
 
-      if (note._id) {
+      if (note._id && note._id !== 'legacy' && note._id !== 'primary') {
         payload._id = note._id;
       }
 
@@ -120,7 +180,18 @@ export const sanitizeNotesForSave = (notes) =>
     })
     .filter(Boolean);
 
-export const buildNotesUpdatePayload = (lead, notes) => ({
-  ...(lead.rawStudent || {}),
-  notes: sanitizeNotesForSave(notes),
-});
+export const buildNotesUpdatePayload = (lead, notes) => {
+  const sanitized = sanitizeNotesForSave(notes);
+
+  if (lead.type === 'enquiry') {
+    return {
+      type: 'enquiry',
+      notes: sanitized.map((note) => note.text).join('\n\n'),
+    };
+  }
+
+  return {
+    type: 'student',
+    notes: sanitized,
+  };
+};

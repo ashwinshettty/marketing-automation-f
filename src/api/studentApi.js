@@ -1,4 +1,4 @@
-import api from './axios';
+import authApi from './authAxios';
 
 const unwrap = (response) => response.data;
 
@@ -21,6 +21,10 @@ const buildFilterParams = (filters = {}) => {
     params.source = filters.source.trim();
   }
 
+  if (filters.type) {
+    params.type = filters.type;
+  }
+
   return params;
 };
 
@@ -30,7 +34,7 @@ export const fetchLeadManagerStudents = async ({
   signal,
   filters = {},
 } = {}) => {
-  const response = await api.get('/students/lead-manager', {
+  const response = await authApi.get('/leads', {
     params: {
       page,
       limit,
@@ -41,12 +45,16 @@ export const fetchLeadManagerStudents = async ({
   return unwrap(response);
 };
 
-export const fetchStudentById = async (studentId) => {
-  const response = await api.get(`/students/${studentId}`);
+export const fetchStudentById = async (studentId, { type } = {}) => {
+  const response = await authApi.get(`/leads/${studentId}`, {
+    params: type ? { type } : undefined,
+  });
   return unwrap(response);
 };
 
-export const updateStudent = async (studentId, payload) => {
-  const response = await api.put(`/students/${studentId}`, payload);
+export const updateStudent = async (studentId, payload, { type } = {}) => {
+  const response = await authApi.put(`/leads/${studentId}`, payload, {
+    params: type || payload?.type ? { type: type || payload.type } : undefined,
+  });
   return unwrap(response);
 };

@@ -54,6 +54,21 @@ const composeEventTimestamp = (event) => {
 
   return baseDate;
 };
+
+/** Notes may be an array (students) or a plain string (enquiries). */
+const coerceNotesList = (notes, fallbackCreatedAt) => {
+  if (Array.isArray(notes)) return notes;
+  if (typeof notes === 'string' && notes.trim()) {
+    return [
+      {
+        text: notes.trim(),
+        createdAt: fallbackCreatedAt || null,
+        status: 'pending',
+      },
+    ];
+  }
+  return [];
+};
   
 export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = []) => {
     if (!lead) return [];
@@ -92,7 +107,7 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
       });
     }
   
-    (student.statusHistory || []).forEach((entry, index) => {
+    (Array.isArray(student.statusHistory) ? student.statusHistory : []).forEach((entry, index) => {
       const changedAt = parseDate(entry.changedAt);
       if (!changedAt) return;
   
@@ -119,9 +134,17 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
     }
   
     const studentUpdatedAt = parseDate(student.updatedAt);
-  
-    (student.notes || []).forEach((note, index) => {
-      const noteText = (note.text || '').trim();
+
+    const notesList =
+      Array.isArray(lead.notesList) && lead.notesList.length > 0
+        ? lead.notesList
+        : coerceNotesList(
+            student.notes,
+            student.createdAt || student.enquiryDate || student.updatedAt,
+          );
+
+    notesList.forEach((note, index) => {
+      const noteText = (note.text || (typeof note === 'string' ? note : '') || '').trim();
       if (!noteText) return;
   
       const noteCreated = parseDate(note.createdAt);
@@ -183,24 +206,48 @@ export const buildLeadTimelineItems = (lead, whatsappMessages = [], events = [])
         }
 
         const details = [
-          `Type: Voice call`,
+          message.handledBy === 'agent' ? 'Type: Agent voice call (Ash)' : 'Type: Voice call',
           `Direction: ${isOutbound ? 'Outgoing' : 'Incoming'}`,
           `Date: ${formatTimelineDate(at)}`,
-          durationLabel ? `Duration: ${durationLabel}` : `Duration: —`,
+          durationLabel ? `Duration: ${durationLabel}` : 'Duration: —',
           `Status: ${outcome}`,
-        ].join('\n');
+        ];
+
+        if (message.handledBy === 'agent' && message.agentOutcome) {
+          const outcomeLabel = String(message.agentOutcome)
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+          details.push(`Call outcome: ${outcomeLabel}`);
+        }
+
+        if (message.subject) {
+          details.push(`Subject: ${message.subject}`);
+        }
+
+        if (message.summary) {
+          details.push(`Summary:\n${String(message.summary).trim()}`);
+        }
 
         push({
           id: message.id || `wa-call-${message.callId || at.getTime()}`,
           type: isOutbound ? 'whatsapp_call_outbound' : 'whatsapp_call_inbound',
           timestamp: at.getTime(),
-          title: isOutbound ? 'Outgoing voice call' : 'Incoming voice call',
-          body: details,
+          title:
+            message.handledBy === 'agent'
+              ? isOutbound
+                ? 'Agent voice call'
+                : 'Incoming agent call'
+              : isOutbound
+                ? 'Outgoing voice call'
+                : 'Incoming voice call',
+          body: details.join('\n'),
           meta: {
-            status: outcome,
+            status: message.agentOutcome || outcome,
             duration: durationLabel,
             direction: message.direction,
             callStatus: message.status,
+            handledBy: message.handledBy,
+            agentOutcome: message.agentOutcome || '',
           },
         });
         return;

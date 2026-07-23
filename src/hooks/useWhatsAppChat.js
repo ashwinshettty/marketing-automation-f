@@ -48,7 +48,14 @@ export const mapApiCall = (call) => {
     callDirection: call.direction,
     status: call.status,
     event: call.event,
+    handledBy: call.handledBy || 'human',
     duration: call.duration,
+    summary: call.summary || '',
+    subject: call.subject || '',
+    transcript: Array.isArray(call.transcript) ? call.transcript : [],
+    agentOutcome: call.agentOutcome || '',
+    agentOutcomeAt: call.agentOutcomeAt,
+    summaryGeneratedAt: call.summaryGeneratedAt,
     timestamp,
     time: formatMessageTime(timestamp),
   };
@@ -62,8 +69,10 @@ const sortTimelineNewestFirst = (items) =>
   );
 
 const upsertTimelineItem = (items, incoming) => {
+  const existing = items.find((item) => item.id === incoming.id);
+  const merged = existing ? { ...existing, ...incoming } : incoming;
   const withoutDuplicate = items.filter((item) => item.id !== incoming.id);
-  return sortTimelineNewestFirst([incoming, ...withoutDuplicate]);
+  return sortTimelineNewestFirst([merged, ...withoutDuplicate]);
 };
 
 export const useWhatsAppChat = ({ lead }) => {
@@ -150,7 +159,14 @@ export const useWhatsAppChat = ({ lead }) => {
           direction: event.call.direction,
           status: event.call.status,
           event: event.call.event,
+          handledBy: event.call.handledBy,
           duration: event.call.duration,
+          summary: event.call.summary,
+          subject: event.call.subject,
+          transcript: event.call.transcript,
+          agentOutcome: event.call.agentOutcome,
+          agentOutcomeAt: event.call.agentOutcomeAt,
+          summaryGeneratedAt: event.call.summaryGeneratedAt,
           startTime: event.call.startTime,
           endTime: event.call.endTime,
           createdAt: event.call.createdAt || new Date().toISOString(),
@@ -161,7 +177,8 @@ export const useWhatsAppChat = ({ lead }) => {
           event.type === 'call_status_update' ||
           event.type === 'incoming_call' ||
           event.type === 'call_initiated' ||
-          event.type === 'outbound_call_connect'
+          event.type === 'outbound_call_connect' ||
+          event.type === 'call_summary_ready'
         ) {
           setMessages((current) => upsertTimelineItem(current, callItem));
         }

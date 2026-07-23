@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchStudentById } from '../../api/studentApi';
 import { useLead } from '../../context/LeadContext';
 import { mapStudentToLead } from '../../utils/mapStudentToLead';
@@ -7,6 +7,8 @@ import LeadInfoPanel from './LeadInfoPanel';
 
 const LeadDetails = () => {
   const { leadId } = useParams();
+  const [searchParams] = useSearchParams();
+  const typeHint = searchParams.get('type') || undefined;
   const { leads, selectedLead, selectLead, clearSelectedLead, updateLeadInList } = useLead();
   const [detailLead, setDetailLead] = useState(null);
   const [isFetchingLead, setIsFetchingLead] = useState(true);
@@ -33,16 +35,18 @@ const LeadDetails = () => {
       setDetailLead(null);
 
       try {
-        const data = await fetchStudentById(leadId);
-        const student = data?.student;
+        const resolvedType = typeHint || fallbackLead?.type;
+        const data = await fetchStudentById(leadId, { type: resolvedType });
+        const mappedLead =
+          mapStudentToLead(data?.lead) ||
+          mapStudentToLead(data?.student);
 
-        if (!student) {
+        if (!mappedLead) {
           throw new Error('Lead not found');
         }
 
         if (!isMounted) return;
 
-        const mappedLead = mapStudentToLead(student);
         setDetailLead(mappedLead);
         selectLead(mappedLead);
       } catch (err) {
@@ -61,7 +65,9 @@ const LeadDetails = () => {
     return () => {
       isMounted = false;
     };
-  }, [leadId, selectLead]);
+    // fallbackLead intentionally omitted to avoid refetch loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leadId, typeHint, selectLead]);
 
   const handleLeadUpdate = (updatedLead) => {
     setDetailLead(updatedLead);

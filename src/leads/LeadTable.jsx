@@ -37,13 +37,29 @@ const DeleteIcon = () => (
 
 const COLUMNS = [
   { key: 'srNo', label: 'Sr No' },
-  { key: 'name', label: 'Student Name' },
+  { key: 'name', label: 'Name' },
+  { key: 'tag', label: 'Type' },
   { key: 'contactNo', label: 'Contact No' },
   { key: 'grade', label: 'Grade' },
   { key: 'board', label: 'Board' },
   { key: 'source', label: 'Source' },
   { key: 'createdAt', label: 'Created On' },
 ];
+
+const LeadTypeBadge = ({ lead }) => {
+  const isEnquiry = lead.type === 'enquiry';
+  return (
+    <span
+      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+        isEnquiry
+          ? 'bg-sky-100 text-sky-800'
+          : 'bg-amber-100 text-amber-900'
+      }`}
+    >
+      {lead.tag || (isEnquiry ? 'Enquiry' : 'Admission Due')}
+    </span>
+  );
+};
 
 const LeadTable = () => {
   const navigate = useNavigate();
@@ -54,7 +70,8 @@ const LeadTable = () => {
 
   const handleView = (lead) => {
     selectLead(lead);
-    navigate(`/leads/${lead.id}`);
+    const typeQuery = lead.type ? `?type=${encodeURIComponent(lead.type)}` : '';
+    navigate(`/leads/${lead.id}${typeQuery}`);
   };
 
   const handleEdit = (lead) => setEditingLead(lead);
@@ -111,6 +128,9 @@ const LeadTable = () => {
                   {(pagination.page - 1) * (pagination.limit || 10) + index + 1}
                 </td>
                 <td className="px-5 py-4 font-medium text-brand-navy">{lead.name}</td>
+                <td className="px-5 py-4">
+                  <LeadTypeBadge lead={lead} />
+                </td>
                 <td className="px-5 py-4 text-brand-muted">{lead.contactNo}</td>
                 <td className="px-5 py-4 text-brand-muted">{lead.grade}</td>
                 <td className="px-5 py-4 text-brand-muted">{lead.board}</td>

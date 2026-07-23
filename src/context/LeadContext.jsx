@@ -71,8 +71,12 @@ export const LeadProvider = ({ children }) => {
         return;
       }
 
-      const students = Array.isArray(data?.students) ? data.students : [];
-      const mappedLeads = students.map(mapStudentToLead);
+      const sourceLeads = Array.isArray(data?.leads)
+        ? data.leads
+        : Array.isArray(data?.students)
+          ? data.students
+          : [];
+      const mappedLeads = sourceLeads.map(mapStudentToLead).filter(Boolean);
 
       setLeads(mappedLeads);
       setPage(data?.pagination?.page || pageToLoad);

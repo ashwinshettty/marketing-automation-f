@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { formatAgentCallOutcome } from '../../utils/agentCallOutcomes';
 import { getLeadNotesList } from '../../utils/mapStudentToLead';
 import LeadEventsPanel from './LeadEventsPanel';
 import LeadTimeline from './LeadTimeline';
@@ -12,6 +13,9 @@ const INFO_FIELDS = [
   { key: 'grade', label: 'Grade' },
   { key: 'board', label: 'Board' },
   { key: 'source', label: 'Source' },
+  { key: 'subject', label: 'Subject' },
+  { key: 'enquiredFor', label: 'Enquired for (tuition)' },
+  { key: 'lastAgentOutcomeLabel', label: 'Last call outcome' },
   { key: 'parentName', label: 'Parent Name' },
   { key: 'city', label: 'City' },
   { key: 'status', label: 'Status' },
@@ -28,21 +32,39 @@ const TABS = [
 
 const isValidTab = (tab) => TABS.some((item) => item.id === tab);
 
-const StudentInfoContent = ({ lead }) => (
-  <dl className="grid gap-4 sm:grid-cols-2">
-    {INFO_FIELDS.map(({ key, label }) => (
-      <div
-        key={key}
-        className="rounded-xl border border-slate-100 bg-brand-cream/50 px-4 py-3"
-      >
-        <dt className="text-xs font-medium uppercase tracking-wide text-brand-muted">
-          {label}
-        </dt>
-        <dd className="mt-1 text-sm font-medium text-brand-navy">{lead[key]}</dd>
-      </div>
-    ))}
-  </dl>
-);
+const formatInfoValue = (value) => {
+  const text = String(value ?? '').trim();
+  return text && text !== '-' ? text : '-';
+};
+
+const StudentInfoContent = ({ lead }) => {
+  const displayLead = {
+    ...lead,
+    lastAgentOutcomeLabel: lead.lastAgentOutcome
+      ? formatAgentCallOutcome(lead.lastAgentOutcome)
+      : '-',
+  };
+
+  return (
+    <dl className="grid gap-4 sm:grid-cols-2">
+      {INFO_FIELDS.map(({ key, label }) => (
+        <div
+          key={key}
+          className={`rounded-xl border border-slate-100 bg-brand-cream/50 px-4 py-3${
+            key === 'subject' ? ' sm:col-span-2' : ''
+          }`}
+        >
+          <dt className="text-xs font-medium uppercase tracking-wide text-brand-muted">
+            {label}
+          </dt>
+          <dd className="mt-1 text-sm font-medium text-brand-navy whitespace-pre-wrap break-words">
+            {formatInfoValue(displayLead[key])}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+};
 
 const StudentTab = ({ lead, onLeadUpdate, eventsRefreshKey = 0 }) => {
   const [searchParams, setSearchParams] = useSearchParams();

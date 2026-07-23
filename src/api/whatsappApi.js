@@ -149,6 +149,40 @@ export const initiateWhatsAppCall = async ({ phoneNumber, leadId, sdp }) => {
   }
 };
 
+export const initiateAgentWhatsAppCall = async ({ phoneNumber, leadId, subject }) => {
+  try {
+    const response = await authApi.post('/whatsapp/calls/agent-outbound', {
+      phoneNumber,
+      leadId,
+      subject: subject || undefined,
+    });
+    return unwrap(response);
+  } catch (error) {
+    const data = error.response?.data;
+    if (data && typeof data === 'object') {
+      return {
+        success: false,
+        code: data.code,
+        message: data.message || error.message,
+        ...data,
+      };
+    }
+    throw parseApiError(error);
+  }
+};
+
+export const updateAgentCallOutcome = async ({ callId, outcome, leadId }) => {
+  try {
+    const response = await authApi.patch(`/whatsapp/calls/${encodeURIComponent(callId)}/outcome`, {
+      outcome,
+      leadId: leadId || undefined,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
 export const preAcceptCall = async ({ callId, sdp }) => {
   try {
     const response = await authApi.post('/whatsapp/calls/pre-accept', {
