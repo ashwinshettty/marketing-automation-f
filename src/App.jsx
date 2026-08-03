@@ -6,13 +6,13 @@ import { LeadProvider } from './context/LeadContext';
 import { PAGE_CONFIG } from './constants/pageConfig';
 import CampaignsPage from './campaigns/CampaignsPage';
 import EventsPage from './events/EventsPage';
-import CreateAccount from './login/CreateAccount';
 import Login from './login/Login';
 import LeadDetails from './leads/lead-details/LeadDetails';
 import LeadWhatsAppChat from './leads/lead-details/LeadWhatsAppChat';
 import LeadsPage from './leads/LeadsPage';
 import Home from './pages/Home';
 import SectionPage from './pages/SectionPage';
+import UsersPage from './users/UsersPage';
 import WhatsAppPage from './whatsapp/WhatsAppPage';
 
 const App = () => {
@@ -20,7 +20,6 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
 
         <Route
           path="/"
@@ -38,10 +37,14 @@ const App = () => {
           <Route path="event" element={<EventsPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
           <Route path="whatsapp" element={<WhatsAppPage />} />
+          <Route path="users" element={<UsersPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />
           {Object.entries(PAGE_CONFIG)
-            .filter(([path]) => !['/leads', '/event', '/campaign', '/whatsapp'].includes(path))
+            .filter(
+              ([path]) =>
+                !['/leads', '/event', '/campaign', '/whatsapp', '/users'].includes(path),
+            )
             .map(([path, { title }]) => (
               <Route
                 key={path}

@@ -7,6 +7,16 @@ export const createUser = async (payload) => {
   return unwrap(response);
 };
 
+export const listUsers = async () => {
+  const response = await authApi.get('/users');
+  return unwrap(response);
+};
+
+export const deleteUser = async (userId) => {
+  const response = await authApi.delete(`/users/${userId}`);
+  return unwrap(response);
+};
+
 export const sendOtp = async (payload) => {
   const response = await authApi.post('/users/send-otp', payload);
   return unwrap(response);

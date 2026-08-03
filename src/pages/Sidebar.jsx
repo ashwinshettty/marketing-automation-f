@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { SIDEBAR_WIDTH_CLASS } from '../constants/pageConfig';
 import Logout from '../login/Logout';
+import { getAuthSession } from '../utils/authStorage';
+
 const NAV_ITEMS = [
   {
     to: '/leads',
@@ -52,6 +54,18 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    to: '/users',
+    label: 'Users',
+    superadminOnly: true,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 8v6M22 11h-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 ];
 
 const linkClassName = ({ isActive }) =>
@@ -63,9 +77,15 @@ const linkClassName = ({ isActive }) =>
   ].join(' ');
 
 const Sidebar = () => {
+  const { role } = getAuthSession();
+  const navItems = NAV_ITEMS.filter(
+    (item) => !item.superadminOnly || role === 'superadmin',
+  );
+
   return (
     <aside className={`flex h-full ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col bg-brand-navy text-white`}>
-      <nav className="flex-1 space-y-1 px-3 py-5">        {NAV_ITEMS.map((item) => (
+      <nav className="flex-1 space-y-1 px-3 py-5">
+        {navItems.map((item) => (
           <NavLink key={item.to} to={item.to} className={linkClassName}>
             {item.icon}
             <span>{item.label}</span>

@@ -21,6 +21,10 @@ export const PAGE_CONFIG = {
     title: 'WhatsApp',
     description: 'Manage WhatsApp conversations and outreach.',
   },
+  '/users': {
+    title: 'Users',
+    description: 'Add admins and sales users and assign their portal roles.',
+  },
 };
 
 export const getPageConfig = (pathname) =>
