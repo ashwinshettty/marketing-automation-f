@@ -125,6 +125,11 @@ export const mapStudentToLead = (studentOrLead) => {
         '',
       enquiredFor:
         studentOrLead.enquiredFor || raw.enquiredFor || '',
+      lastActivityAt:
+        studentOrLead.lastActivityAt ||
+        formatDate(raw.lastActivityAt || raw.lastInboundAt || raw.updatedAt) ||
+        studentOrLead.createdAt ||
+        '',
       lastAgentOutcome: studentOrLead.lastAgentOutcome || raw.lastAgentOutcome || '',
       lastAgentOutcomeAt:
         studentOrLead.lastAgentOutcomeAt || raw.lastAgentOutcomeAt || null,

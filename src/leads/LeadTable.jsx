@@ -43,6 +43,7 @@ const COLUMNS = [
   { key: 'grade', label: 'Grade' },
   { key: 'board', label: 'Board' },
   { key: 'source', label: 'Source' },
+  { key: 'lastActivityAt', label: 'Last Activity' },
   { key: 'createdAt', label: 'Created On' },
 ];
 
@@ -100,7 +101,7 @@ const LeadTable = () => {
 
       {!loading && !error && leads.length > 0 && (
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] text-left text-sm">
+      <table className="w-full min-w-[980px] text-left text-sm">
           <thead>
             <tr className="border-b border-brand-yellow/30 bg-brand-cream">
               {COLUMNS.map((col) => (
@@ -139,6 +140,7 @@ const LeadTable = () => {
                     {lead.source}
                   </span>
                 </td>
+                <td className="px-5 py-4 text-brand-muted">{lead.lastActivityAt || lead.createdAt}</td>
                 <td className="px-5 py-4 text-brand-muted">{lead.createdAt}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1">
