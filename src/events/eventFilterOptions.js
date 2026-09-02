@@ -16,6 +16,7 @@ export const EMPTY_EVENT_FILTERS = {
     { value: 'counselling', label: 'Counselling' },
     { value: 'payments', label: 'Payments' },
     { value: 'reviews', label: 'Reviews' },
+    { value: 'recruitment', label: 'Recruitment' },
     { value: 'other', label: 'Other' },
   ];
   

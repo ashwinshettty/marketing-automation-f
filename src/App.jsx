@@ -6,6 +6,7 @@ import { LeadProvider } from './context/LeadContext';
 import { PAGE_CONFIG } from './constants/pageConfig';
 import CampaignsPage from './campaigns/CampaignsPage';
 import EventsPage from './events/EventsPage';
+import VacanciesPage from './vacancies/VacanciesPage';
 import Login from './login/Login';
 import LeadDetails from './leads/lead-details/LeadDetails';
 import LeadWhatsAppChat from './leads/lead-details/LeadWhatsAppChat';
@@ -35,6 +36,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="event" element={<EventsPage />} />
+          <Route path="vacancies" element={<VacanciesPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
           <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="users" element={<UsersPage />} />
@@ -43,7 +45,7 @@ const App = () => {
           {Object.entries(PAGE_CONFIG)
             .filter(
               ([path]) =>
-                !['/leads', '/event', '/campaign', '/whatsapp', '/users'].includes(path),
+                !['/leads', '/event', '/vacancies', '/campaign', '/whatsapp', '/users'].includes(path),
             )
             .map(([path, { title }]) => (
               <Route

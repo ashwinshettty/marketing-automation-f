@@ -90,7 +90,10 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
     text: message.text,
     messageType: message.messageType,
     mediaId: message.mediaId,
-    mediaUrl: getWhatsAppMediaUrl(message.mediaId),
+    mediaUrl: getWhatsAppMediaUrl(
+      message.mediaId,
+      getMediaDisplayName(message),
+    ),
     timestamp: message.time,
     time: formatMessageTime(message.time),
     status: message.status,
@@ -104,14 +107,29 @@ export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
   }));
 };
 
-export const getWhatsAppMediaUrl = (mediaId) => {
+export const getMediaDisplayName = (message) => {
+  const text = String(message?.text || '').trim();
+  if (!text) return '';
+  if (/^\[(image|document|audio|video|sticker)(\s+received)?\]$/i.test(text)) {
+    return '';
+  }
+  return text.replace(/^\[(image|document|audio|video)\]\s*/i, '').trim();
+};
+
+export const getWhatsAppMediaUrl = (mediaId, filename) => {
   const token = getAuthSession().token;
 
   if (!mediaId || !token) {
     return '';
   }
 
-  return `${getMarketingApiRoot()}/api/whatsapp/media/${encodeURIComponent(mediaId)}?token=${encodeURIComponent(token)}`;
+  const params = new URLSearchParams({ token });
+  const name = String(filename || '').trim();
+  if (name) {
+    params.set('filename', name.slice(0, 180));
+  }
+
+  return `${getMarketingApiRoot()}/api/whatsapp/media/${encodeURIComponent(mediaId)}?${params.toString()}`;
 };
 
 export const getTemplateHeaderImageUrl = (templateId) => {

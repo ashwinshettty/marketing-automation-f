@@ -8,6 +8,7 @@ export const EVENT_TYPE_OPTIONS = [
   { value: 'counselling', label: 'Counselling' },
   { value: 'payments', label: 'Payments' },
   { value: 'reviews', label: 'Reviews' },
+  { value: 'recruitment', label: 'Recruitment' },
   { value: 'other', label: 'Other' },
 ];
 

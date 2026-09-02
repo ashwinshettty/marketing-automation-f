@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchCallHistory,
   fetchWhatsAppMessages,
+  getMediaDisplayName,
   getWhatsAppMediaUrl,
   sendWhatsAppMedia,
   sendWhatsAppMessage,
@@ -22,7 +23,10 @@ export const mapApiMessage = (message) => {
     text: message.text,
     messageType: message.messageType,
     mediaId: message.mediaId,
-    mediaUrl: getWhatsAppMediaUrl(message.mediaId),
+    mediaUrl: getWhatsAppMediaUrl(
+      message.mediaId,
+      getMediaDisplayName(message),
+    ),
     status: message.status,
     senderName: message.senderName,
     isBot: Boolean(message.senderName) && message.direction === 'outbound',

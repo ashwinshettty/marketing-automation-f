@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { FaChevronDown, FaPaperclip, FaWhatsapp } from 'react-icons/fa';
+import {
+  FaChevronDown,
+  FaFileAlt,
+  FaPaperclip,
+  FaWhatsapp,
+} from 'react-icons/fa';
 import CallLogBubble from '../../components/whatsapp/CallLogBubble';
 import MessageStatusIcon from '../../components/whatsapp/MessageStatusIcon';
 import WhatsAppCallButton from '../../components/whatsapp/WhatsAppCallButton';
 import TemplateMessageContent from '../../components/whatsapp/TemplateMessageContent';
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
+import { getMediaDisplayName } from '../../api/whatsappApi';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
 import {
   formatChatDateLabel,
@@ -12,23 +18,96 @@ import {
   isSameChatDay,
 } from '../../utils/formatMessageTime';
 
+const isMediaPlaceholder = (text, type) => {
+  const value = String(text || '').trim().toLowerCase();
+  if (!value) return true;
+  return (
+    value === `[${type} received]` ||
+    value.startsWith(`[${type}]`)
+  );
+};
+
+const MediaDocumentCard = ({ message }) => {
+  const fileName = getMediaDisplayName(message) || 'Shared document';
+
+  if (!message.mediaUrl) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+        <FaFileAlt className="shrink-0 text-lg text-slate-400" />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-slate-700">{fileName}</p>
+          <p className="text-[11px] text-slate-500">Media no longer available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={message.mediaUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 transition hover:border-brand-navy/30 hover:bg-slate-50"
+      title="Open document"
+    >
+      <FaFileAlt className="shrink-0 text-lg text-brand-navy" />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-slate-800">{fileName}</p>
+        <p className="text-[11px] font-medium text-brand-navy">Open / download</p>
+      </div>
+    </a>
+  );
+};
+
 const renderMessageContent = (message) => {
   if (message.messageType === 'image' && message.mediaUrl) {
-    const isPlaceholderText =
-      !message.text ||
-      message.text === '[Image received]' ||
-      message.text.toLowerCase().startsWith('[image]');
+    const isPlaceholderText = isMediaPlaceholder(message.text, 'image');
 
     return (
       <div className="space-y-2">
-        <img
-          src={message.mediaUrl}
-          alt={message.text || 'WhatsApp image'}
-          className="max-h-64 w-full rounded-xl object-cover"
-        />
+        <a
+          href={message.mediaUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+          title="Open image"
+        >
+          <img
+            src={message.mediaUrl}
+            alt={message.text || 'WhatsApp image'}
+            className="max-h-64 w-full rounded-xl object-cover"
+          />
+        </a>
         {!isPlaceholderText && (
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
         )}
+      </div>
+    );
+  }
+
+  if (message.messageType === 'document') {
+    return <MediaDocumentCard message={message} />;
+  }
+
+  if (message.messageType === 'video' && message.mediaUrl) {
+    return (
+      <div className="space-y-2">
+        <video
+          controls
+          src={message.mediaUrl}
+          className="max-h-64 w-full rounded-xl bg-black"
+        />
+        {!isMediaPlaceholder(message.text, 'video') && (
+          <p className="whitespace-pre-wrap break-words">{message.text}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (message.messageType === 'audio' && message.mediaUrl) {
+    return (
+      <div className="space-y-2">
+        <audio controls src={message.mediaUrl} className="w-full max-w-[240px]" />
       </div>
     );
   }
@@ -234,8 +313,9 @@ const WhatsAppChatPanel = ({ lead }) => {
                     )}
                     {item.messageType &&
                       item.messageType !== 'text' &&
-                      item.messageType !== 'template' && (
-                        <p className="mb-1 px-4 pt-3 text-[10px] uppercase tracking-wide text-slate-500">
+                      item.messageType !== 'template' &&
+                      item.messageType !== 'document' && (
+                        <p className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
                           {item.messageType}
                         </p>
                       )}

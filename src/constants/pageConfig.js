@@ -9,6 +9,10 @@ export const PAGE_CONFIG = {
     title: 'Event',
     description: 'View and manage scheduled action items and follow-ups.',
   },
+  '/vacancies': {
+    title: 'Vacancies',
+    description: 'Current Inkstall openings and JDs the agent uses to brief candidates and score resumes.',
+  },
   '/analytics': {
     title: 'Analytics',
     description: 'View performance metrics and insights.',
