@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import { getWhatsAppMediaUrl } from '../api/whatsappApi';
 import { deleteVacancy, fetchVacancies, fetchVacancyApplications } from '../api/vacancyApi';
 import ConfirmModal from '../components/ConfirmModal';
 import VacancyModal from './VacancyModal';
@@ -380,9 +381,23 @@ const VacanciesPage = () => {
                       <p className="font-semibold text-brand-navy">
                         {app.candidateName || 'Candidate'} · {app.phone}
                       </p>
-                      <p className="text-xs text-brand-muted">
-                        {app.resumeFileName || 'Resume'} · {eligibilityLabel(app.eligibility)}
-                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-brand-muted">
+                        <span>
+                          {app.resumeFileName || 'Resume'} · {eligibilityLabel(app.eligibility)}
+                        </span>
+                        {app.mediaId ? (
+                          <a
+                            href={getWhatsAppMediaUrl(app.mediaId, app.resumeFileName)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-brand-navy underline-offset-2 hover:underline"
+                          >
+                            View resume
+                          </a>
+                        ) : (
+                          <span className="text-brand-muted/80">Resume file unavailable</span>
+                        )}
+                      </div>
                     </div>
                     <span className={`rounded-full px-3 py-1 text-sm font-semibold ${scoreTone(app.score)}`}>
                       {app.score}/100
