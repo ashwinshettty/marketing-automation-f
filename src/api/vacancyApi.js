@@ -42,7 +42,3 @@ export const deleteVacancy = async (vacancyId) => {
   return unwrap(response);
 };
 
-export const fetchVacancyApplications = async (vacancyId) => {
-  const response = await authApi.get(`/vacancies/${vacancyId}/applications`);
-  return unwrap(response);
-};

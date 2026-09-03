@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { getWhatsAppMediaUrl } from '../api/whatsappApi';
-import { deleteVacancy, fetchVacancies, fetchVacancyApplications } from '../api/vacancyApi';
+import { deleteVacancy, fetchVacancies } from '../api/vacancyApi';
 import ConfirmModal from '../components/ConfirmModal';
 import VacancyModal from './VacancyModal';
 import { EMPTY_VACANCY_FILTERS } from './vacancyOptions';
@@ -18,22 +17,6 @@ const formatLabel = (value) => {
   if (!value) return '-';
   const text = String(value).replace(/-/g, ' ');
   return text.charAt(0).toUpperCase() + text.slice(1);
-};
-
-const eligibilityLabel = (value) => {
-  const map = {
-    strong_fit: 'Strong fit',
-    possible_fit: 'Possible fit',
-    weak_fit: 'Weak fit',
-    not_a_fit: 'Not a fit',
-  };
-  return map[value] || formatLabel(value);
-};
-
-const scoreTone = (score) => {
-  if (score >= 75) return 'bg-emerald-50 text-emerald-800';
-  if (score >= 50) return 'bg-brand-yellow/30 text-brand-navy';
-  return 'bg-red-50 text-red-700';
 };
 
 const VacanciesPage = () => {
@@ -54,9 +37,6 @@ const VacanciesPage = () => {
   const [editing, setEditing] = useState(null);
   const [creating, setCreating] = useState(false);
   const [toDelete, setToDelete] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [applications, setApplications] = useState([]);
-  const [appsLoading, setAppsLoading] = useState(false);
 
   const loadIdRef = useRef(0);
 
@@ -117,28 +97,11 @@ const VacanciesPage = () => {
     loadVacancies(page, appliedFilters);
   }, [appliedFilters, page, loadVacancies]);
 
-  const loadApplications = async (vacancy) => {
-    setSelected(vacancy);
-    setAppsLoading(true);
-    try {
-      const data = await fetchVacancyApplications(vacancy._id);
-      setApplications(Array.isArray(data?.applications) ? data.applications : []);
-    } catch {
-      setApplications([]);
-    } finally {
-      setAppsLoading(false);
-    }
-  };
-
   const handleDelete = async () => {
     if (!toDelete) return;
     try {
       await deleteVacancy(toDelete._id);
       setToDelete(null);
-      if (selected?._id === toDelete._id) {
-        setSelected(null);
-        setApplications([]);
-      }
       loadVacancies(page, appliedFilters);
     } catch (err) {
       setError(err.message || 'Failed to delete vacancy');
@@ -152,7 +115,8 @@ const VacanciesPage = () => {
           <div>
             <h2 className="text-sm font-semibold text-brand-navy">Current openings</h2>
             <p className="text-xs text-brand-muted">
-              Staff JDs here are what Ash uses on WhatsApp chat and calls — and to score resumes.
+              Staff JDs here are what Ash shares on WhatsApp chat and calls. Teaching roles go via
+              Beacot; non-teaching roles get resume-on-WhatsApp / email steps. No resume scoring.
             </p>
           </div>
           <button
@@ -242,11 +206,11 @@ const VacanciesPage = () => {
               <tr>
                 <th className="px-5 py-3">Role</th>
                 <th className="px-5 py-3">Department</th>
+                <th className="px-5 py-3">Role type</th>
                 <th className="px-5 py-3">Location</th>
                 <th className="px-5 py-3">Type</th>
                 <th className="px-5 py-3">Positions</th>
                 <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Candidates</th>
                 <th className="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -261,7 +225,8 @@ const VacanciesPage = () => {
               {!loading && vacancies.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-5 py-10 text-center text-brand-muted">
-                    No vacancies yet. Add a JD so the agent can share openings and score resumes.
+                    No vacancies yet. Add a JD so the agent can share openings with the right apply
+                    steps (Beacot for teaching, resume for non-teaching).
                   </td>
                 </tr>
               )}
@@ -269,12 +234,13 @@ const VacanciesPage = () => {
                 vacancies.map((vacancy) => (
                   <tr
                     key={vacancy._id}
-                    className={`border-t border-brand-yellow/20 ${
-                      selected?._id === vacancy._id ? 'bg-brand-yellow/10' : 'hover:bg-brand-cream/60'
-                    }`}
+                    className="border-t border-brand-yellow/20 hover:bg-brand-cream/60"
                   >
                     <td className="px-5 py-3 font-medium text-brand-navy">{vacancy.title}</td>
                     <td className="px-5 py-3 text-brand-muted">{vacancy.department}</td>
+                    <td className="px-5 py-3 text-brand-muted">
+                      {formatLabel(vacancy.roleType || 'teaching')}
+                    </td>
                     <td className="px-5 py-3 text-brand-muted">{vacancy.location || '-'}</td>
                     <td className="px-5 py-3 text-brand-muted">{formatLabel(vacancy.employmentType)}</td>
                     <td className="px-5 py-3 text-brand-navy">
@@ -285,16 +251,8 @@ const VacanciesPage = () => {
                         {formatLabel(vacancy.status)}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-brand-navy">{vacancy.applicationCount || 0}</td>
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => loadApplications(vacancy)}
-                          className="rounded-lg border border-brand-yellow/40 px-2.5 py-1 text-xs font-medium text-brand-navy hover:bg-brand-yellow/20"
-                        >
-                          Scores
-                        </button>
                         <button
                           type="button"
                           onClick={() => setEditing(vacancy)}
@@ -343,80 +301,6 @@ const VacanciesPage = () => {
         )}
       </div>
 
-      {selected && (
-        <div className="mt-5 rounded-2xl border border-brand-yellow/40 bg-white p-5 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-semibold text-brand-navy">
-                Candidate scores — {selected.title}
-              </h3>
-              <p className="text-xs text-brand-muted">
-                Internal only. The candidate is not told this score on WhatsApp.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setSelected(null);
-                setApplications([]);
-              }}
-              className="text-xs font-medium text-brand-navy hover:underline"
-            >
-              Close
-            </button>
-          </div>
-          {appsLoading && <p className="text-sm text-brand-muted">Loading scores...</p>}
-          {!appsLoading && applications.length === 0 && (
-            <p className="text-sm text-brand-muted">No resumes scored for this opening yet.</p>
-          )}
-          {!appsLoading && applications.length > 0 && (
-            <div className="space-y-3">
-              {applications.map((app) => (
-                <div
-                  key={app._id}
-                  className="rounded-xl border border-brand-yellow/30 bg-brand-cream/40 p-4"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-brand-navy">
-                        {app.candidateName || 'Candidate'} · {app.phone}
-                      </p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-brand-muted">
-                        <span>
-                          {app.resumeFileName || 'Resume'} · {eligibilityLabel(app.eligibility)}
-                        </span>
-                        {app.mediaId ? (
-                          <a
-                            href={getWhatsAppMediaUrl(app.mediaId, app.resumeFileName)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-semibold text-brand-navy underline-offset-2 hover:underline"
-                          >
-                            View resume
-                          </a>
-                        ) : (
-                          <span className="text-brand-muted/80">Resume file unavailable</span>
-                        )}
-                      </div>
-                    </div>
-                    <span className={`rounded-full px-3 py-1 text-sm font-semibold ${scoreTone(app.score)}`}>
-                      {app.score}/100
-                    </span>
-                  </div>
-                  {app.summary && <p className="mt-2 text-sm text-brand-navy">{app.summary}</p>}
-                  {(app.strengths || app.gaps) && (
-                    <div className="mt-2 grid gap-2 text-xs text-brand-muted md:grid-cols-2">
-                      {app.strengths && <p><span className="font-semibold text-brand-navy">Strengths: </span>{app.strengths}</p>}
-                      {app.gaps && <p><span className="font-semibold text-brand-navy">Gaps: </span>{app.gaps}</p>}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {(creating || editing) && (
         <VacancyModal
           vacancy={editing}
@@ -431,7 +315,7 @@ const VacanciesPage = () => {
       {toDelete && (
         <ConfirmModal
           title="Delete vacancy"
-          message={`Delete “${toDelete.title}”? Candidate scores for this opening will also be removed.`}
+          message={`Delete “${toDelete.title}”? The agent will stop sharing this opening.`}
           confirmLabel="Delete"
           onCancel={() => setToDelete(null)}
           onConfirm={handleDelete}

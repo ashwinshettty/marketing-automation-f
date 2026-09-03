@@ -11,7 +11,7 @@ export const PAGE_CONFIG = {
   },
   '/vacancies': {
     title: 'Vacancies',
-    description: 'Current Inkstall openings and JDs the agent uses to brief candidates and score resumes.',
+    description: 'Current Inkstall openings and JDs the agent uses to brief candidates (Beacot for teaching, resume for non-teaching).',
   },
   '/analytics': {
     title: 'Analytics',

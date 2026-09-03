@@ -66,7 +66,8 @@ const VacancyModal = ({ vacancy, onClose, onSaved }) => {
             {isEdit ? 'Edit vacancy' : 'Add vacancy'}
           </h2>
           <p className="mt-1 text-sm text-brand-muted">
-            Job description here is what the agent uses to answer candidates and score resumes.
+            Job description here is what the agent shares with candidates. Set role type to
+            Teaching (Beacot apply steps) or Non-teaching (resume on WhatsApp / email).
           </p>
         </div>
 
