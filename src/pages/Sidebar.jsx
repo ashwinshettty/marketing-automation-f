@@ -65,6 +65,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    to: '/website-intelligence',
+    label: 'Website Intelligence',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     to: '/users',
     label: 'Users',
     superadminOnly: true,
@@ -94,7 +104,7 @@ const Sidebar = () => {
 
   return (
     <aside className={`flex h-full ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col bg-brand-navy text-white`}>
-      <nav className="flex-1 space-y-1 px-3 py-5">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
         {navItems.map((item) => (
           <NavLink key={item.to} to={item.to} className={linkClassName}>
             {item.icon}

@@ -1,0 +1,651 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Website Intelligence — design tokens (Inkstall palette).
+
+  Inkstall brand colours (from inkstall-frontend/src/index.css):
+    Yellow  #FECC00  — active nav, accents, secondary CTAs
+    Yellow  #FFE27A  — light yellow (gradients)
+    Yellow  #ffdb4d  — mid yellow (gradients)
+    Blue    #3366CC  — primary buttons, headings, scrollbars
+    Blue    #2196F3  — light blue (links, charts, gradients)
+    Blue    #254BA3  — hover state for primary blue
+    Tint    rgba(254,204,0,0.1) — active nav background
+
+  Semantic mapping:
+    --primary       → #3366CC  (main CTAs)
+    --brand         → #2196F3  (links, icons, analytical accent)
+    --brand-dark    → #3366CC  (headings, emphasis)
+    --highlight     → #FECC00  (nav active, badges, highlights)
+*/
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* shadcn surface + control tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* brand + status tokens */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-focus: var(--brand-focus);
+  --color-brand-border: var(--brand-border);
+  --color-highlight: var(--highlight);
+  --color-highlight-tint: var(--highlight-tint);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-subtle: var(--highlight-subtle);
+  --color-highlight-light: var(--highlight-light);
+  --color-highlight-mid: var(--highlight-mid);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-destructive-subtle: var(--destructive-subtle);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-chart-scale-pattern-color: var(--chart-scale-pattern-color);
+  --color-chart-scale-05: var(--chart-scale-05);
+  --color-chart-scale-04: var(--chart-scale-04);
+  --color-chart-scale-03: var(--chart-scale-03);
+  --color-chart-scale-02: var(--chart-scale-02);
+  --color-chart-scale-01: var(--chart-scale-01);
+  --color-chart-label: var(--chart-label);
+  --color-chart-marker-foreground: var(--chart-marker-foreground);
+  --color-chart-marker-border: var(--chart-marker-border);
+  --color-chart-marker-background: var(--chart-marker-background);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --chart-brush-border: var(--chart-brush-border);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --chart-line-secondary: var(--chart-line-secondary);
+  --chart-line-primary: var(--chart-line-primary);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-background: var(--chart-background);
+  --color-brand-light: var(--brand-light, oklch(0.78 0.15 352.53));
+  --color-brand-lighter: var(--brand-lighter, oklch(0.85 0.1 352.53));
+  --color-brand-secondary: var(--brand-secondary, oklch(0.66 0.21 354.31));
+  --color-amber: var(--amber);
+  --color-amber-fg: var(--amber-fg);
+  --color-amber-hover: var(--amber-hover);
+  --color-blue: var(--blue);
+  --color-blue-fg: var(--blue-fg);
+  --color-blue-hover: var(--blue-hover);
+  --color-green: var(--green);
+  --color-green-fg: var(--green-fg);
+  --color-green-hover: var(--green-hover);
+  --color-smooth-50: var(--smooth-50);
+  --color-smooth-100: var(--smooth-100);
+  --color-smooth-200: var(--smooth-200);
+  --color-smooth-300: var(--smooth-300);
+  --color-smooth-400: var(--smooth-400);
+  --color-smooth-500: var(--smooth-500);
+  --color-smooth-600: var(--smooth-600);
+  --color-smooth-700: var(--smooth-700);
+  --color-smooth-800: var(--smooth-800);
+  --color-smooth-900: var(--smooth-900);
+  --color-smooth-950: var(--smooth-950);
+  --color-smooth-1000: var(--smooth-1000);
+}
+
+:root {
+  --background: #fafaf8;
+  --foreground: #111111;
+
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+
+  /* Inkstall dark blue — primary CTAs (buttons, key actions) */
+  --primary: #3366cc;
+  --primary-foreground: #ffffff;
+  --primary-hover: #254ba3;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #111111;
+
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* neutral hover surface used by shadcn primitives */
+  --accent: #f1f5f9;
+  --accent-foreground: #111111;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2196f3;
+
+  /* Inkstall light blue — links, icons, charts */
+  --brand: #2196f3;
+  --brand-foreground: #ffffff;
+  --brand-subtle: #e3f2fd;
+  --brand-focus: #cfe0ff;
+  --brand-border: #c7d7ff;
+  --brand-dark: #3366cc;
+
+  /* Inkstall yellow — active nav, accents, secondary CTAs */
+  --highlight: #fecc00;
+  --highlight-foreground: #111111;
+  --highlight-subtle: #fff8e1;
+  --highlight-tint: rgba(254, 204, 0, 0.1);
+  --highlight-light: #ffe27a;
+  --highlight-mid: #ffdb4d;
+
+  --success: #16a34a;
+  --success-subtle: #edfaf1;
+
+  --warning: #d97706;
+  --warning-subtle: #fdf6e9;
+
+  --destructive: #dc2626;
+  --destructive-subtle: #fdf0f0;
+
+  --chart-1: #2196f3;
+  --chart-2: #fecc00;
+  --chart-3: #3366cc;
+  --chart-4: #64748b;
+  --chart-5: #111111;
+
+  --radius: 0.625rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #3366cc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(254, 204, 0, 0.1);
+  --sidebar-accent-foreground: #111111;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #2196f3;
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: oklch(0.21 0.006 285 / 0.8);
+  --chart-tooltip-foreground: oklch(0.985 0 0);
+  --chart-tooltip-muted: oklch(0.65 0.01 260);
+  --chart-marker-background: oklch(0.97 0.005 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+  --chart-label: oklch(0.45 0.01 260);
+  --chart-scale-01: oklch(0.98 0.003 106);
+  --chart-scale-02: oklch(0.92 0.008 106);
+  --chart-scale-03: oklch(0.82 0.015 106);
+  --chart-scale-04: oklch(0.68 0.02 106);
+  --chart-scale-05: oklch(0.55 0.025 106);
+  --chart-scale-pattern-color: oklch(0.96 0.005 106);
+  --amber: oklch(0.77 0.16 75);
+  --amber-fg: oklch(0.22 0 0);
+  --amber-hover: oklch(0.71 0.17 70);
+  --blue: oklch(0.62 0.19 256);
+  --blue-fg: #fff;
+  --blue-hover: oklch(0.56 0.2 256);
+  --green: oklch(0.7 0.17 152);
+  --green-fg: #fff;
+  --green-hover: oklch(0.64 0.18 152);
+  --smooth-50: oklch(0.99 0 0);
+  --smooth-100: oklch(0.972 0 0);
+  --smooth-200: oklch(0.945 0 0);
+  --smooth-300: oklch(0.91 0 0);
+  --smooth-400: oklch(0.865 0 0);
+  --smooth-500: oklch(0.81 0 0);
+  --smooth-600: oklch(0.74 0 0);
+  --smooth-700: oklch(0.66 0 0);
+  --smooth-800: oklch(0.56 0 0);
+  --smooth-900: oklch(0.47 0 0);
+  --smooth-950: oklch(0.36 0 0);
+  --smooth-1000: oklch(0.22 0 0);
+}
+
+.dark {
+  --background: #0c0c0c;
+  --foreground: #f2f2f0;
+
+  --card: #141414;
+  --card-foreground: #f2f2f0;
+  --popover: #141414;
+  --popover-foreground: #f2f2f0;
+
+  --primary: #64b5f6;
+  --primary-foreground: #0c0c0c;
+  --primary-hover: #42a5f5;
+
+  --secondary: #1c1c1c;
+  --secondary-foreground: #f2f2f0;
+
+  --muted: #1c1c1c;
+  --muted-foreground: #a1a1a0;
+
+  --accent: #232323;
+  --accent-foreground: #f2f2f0;
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: #64b5f6;
+
+  --brand: #64b5f6;
+  --brand-foreground: #0c0c0c;
+  --brand-subtle: oklch(0.65 0.12 240 / 14%);
+  --brand-dark: #42a5f5;
+
+  --highlight: #fecc00;
+  --highlight-foreground: #111111;
+  --highlight-subtle: oklch(0.88 0.12 95 / 18%);
+
+  --success: #4ade80;
+  --success-subtle: oklch(0.75 0.16 155 / 14%);
+
+  --warning: #fbbf24;
+  --warning-subtle: oklch(0.8 0.14 80 / 14%);
+
+  --destructive: #f87171;
+  --destructive-subtle: oklch(0.7 0.18 25 / 14%);
+
+  --sidebar: #101010;
+  --sidebar-foreground: #f2f2f0;
+  --sidebar-primary: #f2f2f0;
+  --sidebar-primary-foreground: #111111;
+  --sidebar-accent: #1c1c1c;
+  --sidebar-accent-foreground: #f2f2f0;
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: #60a5fa;
+  --chart-1: oklch(1 0 none);
+  --chart-2: oklch(0.73 0 none);
+  --chart-3: oklch(0.51 0 none);
+  --chart-4: oklch(0.39 0 none);
+  --chart-5: oklch(0.32 0 none);
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-foreground-muted: oklch(0.65 0.01 260);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-label: oklch(0.75 0.01 260);
+  --chart-scale-01: oklch(0.28 0.03 270);
+  --chart-scale-02: oklch(0.38 0.04 270);
+  --chart-scale-03: oklch(0.48 0.05 270);
+  --chart-scale-04: oklch(0.58 0.06 270);
+  --chart-scale-05: oklch(0.68 0.07 270);
+  --chart-scale-pattern-color: oklch(0.145 0 0);
+  --amber: oklch(0.8 0.15 75);
+  --amber-fg: oklch(0.2 0 0);
+  --amber-hover: oklch(0.85 0.14 72);
+  --blue: oklch(0.66 0.18 256);
+  --blue-fg: #fff;
+  --blue-hover: oklch(0.72 0.16 256);
+  --green: oklch(0.73 0.16 152);
+  --green-fg: oklch(0.2 0 0);
+  --green-hover: oklch(0.79 0.15 152);
+  --smooth-50: oklch(0.2 0 0);
+  --smooth-100: oklch(0.235 0 0);
+  --smooth-200: oklch(0.275 0 0);
+  --smooth-300: oklch(0.315 0 0);
+  --smooth-400: oklch(0.36 0 0);
+  --smooth-500: oklch(0.41 0 0);
+  --smooth-600: oklch(0.47 0 0);
+  --smooth-700: oklch(0.55 0 0);
+  --smooth-800: oklch(0.66 0 0);
+  --smooth-900: oklch(0.74 0 0);
+  --smooth-950: oklch(0.85 0 0);
+  --smooth-1000: oklch(0.96 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* Headings stay compact — this is a dashboard, not a landing page. */
+  h1 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h2 {
+    @apply text-base font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-sm font-semibold;
+  }
+}
+
+@layer components {
+  /* Typography scale */
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .section-title {
+    @apply text-base font-semibold tracking-tight text-foreground;
+  }
+
+  .card-title {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .body-text {
+    @apply text-sm leading-relaxed text-muted-foreground;
+  }
+
+  .meta-text {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .label-text {
+    @apply text-[11px] font-medium tracking-wide text-muted-foreground uppercase;
+  }
+
+  /* Surfaces — the UI leans on borders and spacing, not shadows. */
+  .panel {
+    @apply rounded-xl border border-border bg-card;
+  }
+
+  /* Inkstall-style primary button — blue gradient */
+  .btn-inkstall {
+    @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(33,150,243,0.3)] transition-all outline-none;
+    background-image: linear-gradient(to right, var(--brand-dark), var(--brand));
+    @apply hover:opacity-90 focus-visible:ring-4 focus-visible:ring-brand-focus disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  /* Inkstall-style highlight button — yellow gradient */
+  .btn-inkstall-highlight {
+    @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-highlight-foreground shadow-[0_8px_25px_rgba(254,204,0,0.35)] transition-all outline-none;
+    background-image: linear-gradient(to right, var(--highlight-light), var(--highlight));
+    @apply hover:opacity-90 focus-visible:ring-4 focus-visible:ring-highlight-subtle disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  /* Inputs */
+  .input-field {
+    @apply h-10 w-full rounded-lg border border-brand-border bg-card px-3 text-sm text-foreground transition-[border-color,box-shadow] outline-none;
+    @apply placeholder:text-muted-foreground focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand-focus/60;
+  }
+
+  .select-field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B6B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+  }
+
+  /* Tables */
+  .data-table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .data-table th {
+    @apply border-b border-border bg-muted/60 px-4 py-2.5 text-left text-xs font-medium text-muted-foreground;
+  }
+
+  .data-table td {
+    @apply border-b border-border px-4 py-3 align-middle;
+  }
+
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .data-table tbody tr {
+    @apply transition-colors hover:bg-muted/50;
+  }
+
+  .metric-value {
+    @apply text-2xl font-semibold tracking-tight tabular-nums text-foreground;
+  }
+
+  /* Progress */
+  .score-track,
+  .score-bar {
+    @apply h-1.5 overflow-hidden rounded-full bg-border;
+  }
+
+  .score-fill,
+  .score-bar-fill {
+    @apply h-full rounded-full bg-brand transition-[width] duration-500 ease-out;
+  }
+
+  /* Capability grid */
+  .cap-cell {
+    @apply flex min-h-9 items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs leading-tight;
+  }
+
+  .cap-cell-label {
+    @apply truncate text-foreground;
+  }
+
+  .cap-cell-detected {
+    @apply border-success/25 bg-success-subtle;
+  }
+
+  .cap-cell-missing {
+    @apply border-brand/25 bg-brand-subtle;
+  }
+
+  .cap-cell-dim {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  /* Live crawl log */
+  .scan-log {
+    @apply max-h-52 overflow-y-auto rounded-lg border border-border bg-muted/60 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-muted-foreground;
+    overscroll-behavior: contain;
+  }
+
+  .scan-log-line {
+    @apply block break-all whitespace-pre-wrap;
+  }
+
+  .scan-line-dim {
+    @apply text-muted-foreground;
+  }
+
+  .scan-line-signal {
+    @apply text-brand;
+  }
+
+  .scan-line-risk {
+    @apply text-destructive;
+  }
+
+  /* Tabs */
+  .tab-list {
+    @apply flex gap-1 border-b border-border;
+  }
+
+  .tab-trigger {
+    @apply -mb-px cursor-pointer border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none;
+    @apply hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40;
+  }
+
+  .tab-trigger-active {
+    @apply border-b-brand text-brand;
+  }
+
+  /* Command palette */
+  .command-overlay {
+    @apply fixed inset-0 z-50 flex items-start justify-center bg-foreground/25 pt-[15vh] backdrop-blur-[2px];
+  }
+
+  .command-dialog {
+    @apply w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover shadow-[0_16px_48px_rgba(17,17,17,0.12)];
+  }
+}
+
+@utility scan-log-line-new {
+  animation: log-line-in 200ms ease-out;
+}
+
+@keyframes log-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scan-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Indeterminate progress — used when the backend cannot report a percentage.
+   We never fabricate a number, so the bar communicates activity instead. */
+@keyframes indeterminate-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.score-fill--indeterminate {
+  width: 30%;
+  animation: indeterminate-sweep 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.score-fill--active {
+  background-image: linear-gradient(
+    90deg,
+    var(--brand) 0%,
+    color-mix(in oklch, var(--brand), white 45%) 50%,
+    var(--brand) 100%
+  );
+  background-size: 200% 100%;
+  animation: scan-shimmer 2s ease-in-out infinite;
+}
+
+/* Subtle grid backdrop for hero/analysis moments. */
+.grid-backdrop {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--brand), transparent 88%) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--brand), transparent 88%) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* Inkstall-style scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-dark) var(--muted);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

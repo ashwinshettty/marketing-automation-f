@@ -1,3 +1,4 @@
+import { lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import IncomingCallBanner from './components/whatsapp/IncomingCallBanner';
@@ -15,6 +16,37 @@ import Home from './pages/Home';
 import SectionPage from './pages/SectionPage';
 import UsersPage from './users/UsersPage';
 import WhatsAppPage from './whatsapp/WhatsAppPage';
+import WebsiteIntelligenceShell from './website-intelligence';
+import WiAppLayout from './website-intelligence/components/layout/AppLayout';
+import OverviewPage from './website-intelligence/pages/OverviewPage';
+import AnalyzePage from './website-intelligence/pages/AnalyzePage';
+import OpportunitiesPage from './website-intelligence/pages/OpportunitiesPage';
+
+const OpportunityDetailPage = lazy(() =>
+  import('./website-intelligence/pages/OpportunityDetailPage'),
+);
+const CapabilitiesPage = lazy(() =>
+  import('./website-intelligence/pages/CapabilitiesPage'),
+);
+const EvidencePage = lazy(() => import('./website-intelligence/pages/EvidencePage'));
+const PagesPage = lazy(() => import('./website-intelligence/pages/PagesPage'));
+const WebsitesPage = lazy(() => import('./website-intelligence/pages/WebsitesPage'));
+const EmailsPage = lazy(() => import('./website-intelligence/pages/EmailsPage'));
+const CatalogPage = lazy(() => import('./website-intelligence/pages/CatalogPage'));
+const ServiceDetailPage = lazy(() =>
+  import('./website-intelligence/pages/ServiceDetailPage'),
+);
+const ReportsPage = lazy(() => import('./website-intelligence/pages/ReportsPage'));
+
+const SECTION_SKIP = new Set([
+  '/leads',
+  '/event',
+  '/vacancies',
+  '/campaign',
+  '/whatsapp',
+  '/users',
+  '/website-intelligence',
+]);
 
 const App = () => {
   return (
@@ -42,11 +74,33 @@ const App = () => {
           <Route path="users" element={<UsersPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />
+
+          <Route path="website-intelligence" element={<WebsiteIntelligenceShell />}>
+            <Route element={<WiAppLayout />}>
+              <Route index element={<OverviewPage />} />
+              <Route path="analyze" element={<AnalyzePage />} />
+              <Route path="opportunities" element={<OpportunitiesPage />} />
+              <Route path="opportunities/:id" element={<OpportunityDetailPage />} />
+              <Route path="capabilities" element={<CapabilitiesPage />} />
+              <Route path="evidence" element={<EvidencePage />} />
+              <Route path="pages" element={<PagesPage />} />
+              <Route path="websites" element={<WebsitesPage />} />
+              <Route path="emails" element={<EmailsPage />} />
+              <Route
+                path="catalog"
+                element={<Navigate to="/website-intelligence/catalog/talecraftor" replace />}
+              />
+              <Route path="catalog/:catalogId" element={<CatalogPage />} />
+              <Route
+                path="catalog/:catalogId/services/:serviceId"
+                element={<ServiceDetailPage />}
+              />
+              <Route path="reports" element={<ReportsPage />} />
+            </Route>
+          </Route>
+
           {Object.entries(PAGE_CONFIG)
-            .filter(
-              ([path]) =>
-                !['/leads', '/event', '/vacancies', '/campaign', '/whatsapp', '/users'].includes(path),
-            )
+            .filter(([path]) => !SECTION_SKIP.has(path))
             .map(([path, { title }]) => (
               <Route
                 key={path}

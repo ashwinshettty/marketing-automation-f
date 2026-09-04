@@ -1,9 +1,22 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import ToastContainer from './ToastContainer';
 import Header from '../pages/Header';
 import Sidebar from '../pages/Sidebar';
 
 const AppLayout = () => {
+  const { pathname } = useLocation();
+  const isWebsiteIntelligence = pathname.startsWith('/website-intelligence');
+
+  // Website Intelligence takes over the full viewport with its own chrome.
+  if (isWebsiteIntelligence) {
+    return (
+      <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-background">
+        <ToastContainer />
+        <Outlet />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-brand-cream">
       <ToastContainer />

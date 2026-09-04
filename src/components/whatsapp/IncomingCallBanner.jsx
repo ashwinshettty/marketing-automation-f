@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useLocation } from 'react-router-dom';
 import { FaPhone, FaPhoneSlash } from 'react-icons/fa';
 import { openWhatsAppGlobalStream } from '../../api/whatsappEventStream';
 import {
@@ -47,6 +48,7 @@ const isIncomingRinging = (event) => {
 };
 
 const IncomingCallBanner = () => {
+  const { pathname } = useLocation();
   const [incomingCall, setIncomingCall] = useState(null);
   const [callState, setCallState] = useState('idle');
   const [error, setError] = useState('');
@@ -252,6 +254,7 @@ const IncomingCallBanner = () => {
     }
   };
 
+  if (pathname.startsWith('/website-intelligence')) return null;
   if (!incomingCall || typeof document === 'undefined') return null;
 
   const statusLabel =

@@ -25,14 +25,25 @@ export const PAGE_CONFIG = {
     title: 'WhatsApp',
     description: 'Manage WhatsApp conversations and outreach.',
   },
+  '/website-intelligence': {
+    title: 'Website Intelligence',
+    description: 'Crawl public sites, detect capabilities, and turn gaps into outreach.',
+  },
   '/users': {
     title: 'Users',
     description: 'Add admins and sales users and assign their portal roles.',
   },
 };
 
-export const getPageConfig = (pathname) =>
-  PAGE_CONFIG[pathname] ?? {
-    title: 'Dashboard',
-    description: 'Welcome to your sales dashboard.',
-  };
+export const getPageConfig = (pathname) => {
+  if (pathname.startsWith('/website-intelligence')) {
+    return PAGE_CONFIG['/website-intelligence'];
+  }
+
+  return (
+    PAGE_CONFIG[pathname] ?? {
+      title: 'Dashboard',
+      description: 'Welcome to your sales dashboard.',
+    }
+  );
+};
