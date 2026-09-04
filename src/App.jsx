@@ -1,4 +1,3 @@
-import { lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import IncomingCallBanner from './components/whatsapp/IncomingCallBanner';
@@ -21,22 +20,15 @@ import WiAppLayout from './website-intelligence/components/layout/AppLayout';
 import OverviewPage from './website-intelligence/pages/OverviewPage';
 import AnalyzePage from './website-intelligence/pages/AnalyzePage';
 import OpportunitiesPage from './website-intelligence/pages/OpportunitiesPage';
-
-const OpportunityDetailPage = lazy(() =>
-  import('./website-intelligence/pages/OpportunityDetailPage'),
-);
-const CapabilitiesPage = lazy(() =>
-  import('./website-intelligence/pages/CapabilitiesPage'),
-);
-const EvidencePage = lazy(() => import('./website-intelligence/pages/EvidencePage'));
-const PagesPage = lazy(() => import('./website-intelligence/pages/PagesPage'));
-const WebsitesPage = lazy(() => import('./website-intelligence/pages/WebsitesPage'));
-const EmailsPage = lazy(() => import('./website-intelligence/pages/EmailsPage'));
-const CatalogPage = lazy(() => import('./website-intelligence/pages/CatalogPage'));
-const ServiceDetailPage = lazy(() =>
-  import('./website-intelligence/pages/ServiceDetailPage'),
-);
-const ReportsPage = lazy(() => import('./website-intelligence/pages/ReportsPage'));
+import OpportunityDetailPage from './website-intelligence/pages/OpportunityDetailPage';
+import CapabilitiesPage from './website-intelligence/pages/CapabilitiesPage';
+import EvidencePage from './website-intelligence/pages/EvidencePage';
+import PagesPage from './website-intelligence/pages/PagesPage';
+import WebsitesPage from './website-intelligence/pages/WebsitesPage';
+import EmailsPage from './website-intelligence/pages/EmailsPage';
+import CatalogPage from './website-intelligence/pages/CatalogPage';
+import ServiceDetailPage from './website-intelligence/pages/ServiceDetailPage';
+import ReportsPage from './website-intelligence/pages/ReportsPage';
 
 const SECTION_SKIP = new Set([
   '/leads',

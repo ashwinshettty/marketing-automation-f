@@ -1,13 +1,10 @@
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
-import RouteFallback from './RouteFallback';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import TopBar from './TopBar';
 import CommandPalette from './CommandPalette';
 import { useAudit } from '../../context/AuditContext';
-import { pageVariants } from '@/lib/motion';
 
 const COLLAPSE_KEY = 'wi_sidebar_collapsed';
 
@@ -62,20 +59,9 @@ export default function AppLayout() {
         <TopBar onOpenSearch={openSearch} onOpenNav={() => setNavOpen(true)} />
 
         <main id="main-content" className="min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto overscroll-contain">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="min-h-0 min-w-0"
-            >
-              <Suspense fallback={<RouteFallback />}>
-                <Outlet />
-              </Suspense>
-            </motion.div>
-          </AnimatePresence>
+          <div className="min-h-0 min-w-0">
+            <Outlet />
+          </div>
         </main>
       </div>
 
