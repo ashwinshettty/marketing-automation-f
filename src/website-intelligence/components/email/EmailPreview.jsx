@@ -1,18 +1,54 @@
+import { useMemo } from 'react';
 import ButtonCopy from '@/components/smoothui/button-copy';
 import talecraftorLogo from '../../assets/talecraftor-logo.png';
+import { api } from '../../api/client';
+import { buildOutreachPreviewHtml } from '../../utils/buildOutreachPreviewHtml';
 
-function renderBody(body) {
-  return String(body || '')
-    .split('\n')
-    .map((line, index) => (
-      <p key={`${index}-${line.slice(0, 12)}`} className={line.trim() ? 'mb-3' : 'mb-1'}>
-        {line || '\u00A0'}
-      </p>
-    ));
-}
-
-export default function EmailPreview({ subject, body, to, showBranding = false }) {
+export default function EmailPreview({
+  subject,
+  body,
+  to,
+  showBranding = true,
+  imageAssets = [],
+  auditId,
+  emailId,
+  callToAction = 'open_conversation',
+}) {
   const copyPayload = [subject ? `Subject: ${subject}` : '', body || ''].filter(Boolean).join('\n\n');
+
+  const srcDoc = useMemo(() => {
+    if (!showBranding) {
+      return buildOutreachPreviewHtml({
+        body,
+        subject,
+        imageAssets,
+        callToAction,
+        logoUrl: null,
+        resolveImageSrc: (asset) =>
+          asset.previewUrl ||
+          asset.url ||
+          (auditId && emailId && asset.id
+            ? api.getOutreachImageUrl(auditId, emailId, asset.id)
+            : null),
+      });
+    }
+
+    return buildOutreachPreviewHtml({
+      body,
+      subject,
+      imageAssets,
+      callToAction,
+      brandName: 'Talecraftor',
+      website: 'https://talecraftor.com',
+      logoUrl: talecraftorLogo,
+      resolveImageSrc: (asset) =>
+        asset.previewUrl ||
+        asset.url ||
+        (auditId && emailId && asset.id
+          ? api.getOutreachImageUrl(auditId, emailId, asset.id)
+          : null),
+    });
+  }, [body, subject, imageAssets, callToAction, showBranding, auditId, emailId]);
 
   return (
     <article className="overflow-hidden rounded-lg border border-border">
@@ -35,20 +71,13 @@ export default function EmailPreview({ subject, body, to, showBranding = false }
           />
         )}
       </header>
-      <div className="px-4 py-4 text-sm leading-relaxed">
-        {showBranding ? (
-          <div className="mb-6 border-b border-border pb-4">
-            <img
-              src={talecraftorLogo}
-              alt="Talecraftor"
-              className="h-10 w-auto max-w-[200px]"
-            />
-            <p className="mt-2 text-xs text-muted-foreground">
-              AI systems, automation and digital products for growing businesses
-            </p>
-          </div>
-        ) : null}
-        {renderBody(body)}
+      <div className="bg-[#F4F4F6]">
+        <iframe
+          title="Email preview"
+          srcDoc={srcDoc}
+          className="block h-[640px] w-full border-0"
+          sandbox=""
+        />
       </div>
     </article>
   );

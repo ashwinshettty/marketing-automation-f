@@ -16,7 +16,8 @@ export default function RegenerateConfirmDialog({ open, onClose, onConfirm, rege
         <DialogHeader>
           <DialogTitle>Discard your edits and regenerate?</DialogTitle>
           <DialogDescription>
-            You have changed this draft since it was generated.
+            You have changed this draft since it was generated. Continue to choose recipient and findings again,
+            the same way as creating a new email.
           </DialogDescription>
         </DialogHeader>
 
@@ -33,7 +34,7 @@ export default function RegenerateConfirmDialog({ open, onClose, onConfirm, rege
             Keep my edits
           </Button>
           <Button onClick={onConfirm} disabled={regenerating}>
-            {regenerating ? 'Regenerating…' : 'Regenerate'}
+            Continue
           </Button>
         </DialogFooter>
       </DialogContent>

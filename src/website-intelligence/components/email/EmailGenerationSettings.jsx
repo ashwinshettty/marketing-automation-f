@@ -9,9 +9,16 @@ const TONE_ITEMS = [
 ];
 
 const CTA_ITEMS = [
-  { id: 'share_examples', label: 'Share examples', description: 'Offer relevant examples next' },
-  { id: 'book_a_call', label: 'Book a call', description: 'Invite a short introduction' },
-  { id: 'reply_if_interested', label: 'Reply if interested', description: 'Ask them to reply by email' },
+  {
+    id: 'open_conversation',
+    label: 'Open a conversation',
+    description: 'Invite general interest, no hard ask',
+  },
+];
+
+const LENGTH_ITEMS = [
+  { id: 'standard', label: 'Standard', hint: '180–220 words' },
+  { id: 'detailed', label: 'Detailed', hint: '420–520 words' },
 ];
 
 export default function EmailGenerationSettings({ settings, onChange }) {
@@ -48,16 +55,19 @@ export default function EmailGenerationSettings({ settings, onChange }) {
       <fieldset className="sm:col-span-2">
         <legend className="label-text mb-2">Length</legend>
         <div className="flex flex-wrap gap-4">
-          {['short', 'standard', 'detailed'].map((length) => (
-            <label key={length} className="flex cursor-pointer items-center gap-2 text-sm capitalize">
+          {LENGTH_ITEMS.map((item) => (
+            <label key={item.id} className="flex cursor-pointer items-center gap-2 text-sm">
               <input
                 type="radio"
                 name="email-length"
-                checked={settings.length === length}
-                onChange={() => update('length', length)}
+                checked={settings.length === item.id}
+                onChange={() => update('length', item.id)}
                 className="size-4 accent-brand"
               />
-              {length}
+              <span>
+                {item.label}
+                <span className="ml-1 text-xs text-muted-foreground">({item.hint})</span>
+              </span>
             </label>
           ))}
         </div>

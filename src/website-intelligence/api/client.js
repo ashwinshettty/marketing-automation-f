@@ -81,6 +81,30 @@ export const api = {
   deleteOutreachEmail: (auditId, emailId) =>
     request(`/api/audits/${auditId}/emails/${emailId}`, { method: 'DELETE' }),
 
+  uploadOutreachImage: async (auditId, emailId, file, insertAt) => {
+    const form = new FormData();
+    form.append('image', file);
+    if (insertAt != null) form.append('insertAt', String(insertAt));
+
+    const res = await fetch(`${API_BASE}/api/audits/${auditId}/emails/${emailId}/images`, {
+      method: 'POST',
+      body: form,
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error?.message || body.message || `Upload failed: ${res.status}`);
+    }
+
+    return res.json();
+  },
+
+  deleteOutreachImage: (auditId, emailId, assetId) =>
+    request(`/api/audits/${auditId}/emails/${emailId}/images/${assetId}`, { method: 'DELETE' }),
+
+  getOutreachImageUrl: (auditId, emailId, assetId) =>
+    `${API_BASE}/api/audits/${auditId}/emails/${emailId}/images/${assetId}`,
+
   previewOpportunityReport: (id, params = {}) => {
     const qs = new URLSearchParams(params).toString();
     return request(`/api/audits/${id}/report-preview${qs ? `?${qs}` : ''}`);

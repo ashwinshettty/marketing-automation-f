@@ -19,11 +19,12 @@ import SendEmailDialog from './SendEmailDialog';
 import RegenerateConfirmDialog from './RegenerateConfirmDialog';
 import ConfirmDeleteDialog from '../common/ConfirmDeleteDialog';
 import { useToast } from './useToast.jsx';
+import { stateSwapVariants } from '@/lib/motion';
 
 const DEFAULT_SETTINGS = {
   tone: 'professional',
-  length: 'standard',
-  callToAction: 'share_examples',
+  length: 'detailed',
+  callToAction: 'open_conversation',
   useAi: true,
 };
 
@@ -81,6 +82,7 @@ export default function OutreachEmailWorkflow({ audit }) {
   });
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('generate');
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -91,6 +93,7 @@ export default function OutreachEmailWorkflow({ audit }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showTechnicalError, setShowTechnicalError] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
 
   const auditId = audit?.auditId;
@@ -117,6 +120,7 @@ export default function OutreachEmailWorkflow({ audit }) {
       // Arriving from an opportunity means the user already chose what to pitch.
       if (preselected.length && !autoOpenedRef.current && !requestedEmailId) {
         autoOpenedRef.current = true;
+        setModalMode('generate');
         setModalOpen(true);
         return;
       }
@@ -172,6 +176,50 @@ export default function OutreachEmailWorkflow({ audit }) {
     };
   }, [state.draft, manualEmail]);
 
+  const seedModalFromDraft = useCallback(() => {
+    const draft = state.draft;
+    if (!draft) return;
+
+    const draftOpportunityIds = (draft.opportunities || [])
+      .map((opp) => opp.serviceId)
+      .filter(Boolean);
+    if (draftOpportunityIds.length) {
+      setSelectedOpportunityIds(draftOpportunityIds);
+    }
+
+    if (draft.recipient?.email) {
+      const fromContext = (state.context?.recipients || []).find(
+        (item) => item.email === draft.recipient.email
+      );
+      setSelectedRecipient(fromContext || draft.recipient);
+      setManualEmail(fromContext ? '' : draft.recipient.email);
+    }
+
+    if (draft.settings) {
+      setSettings({
+        ...DEFAULT_SETTINGS,
+        ...draft.settings,
+      });
+    }
+  }, [state.draft, state.context]);
+
+  const openGenerateModal = () => {
+    setModalMode('generate');
+    if (state.context) {
+      setSelectedOpportunityIds(state.context.defaultOpportunityIds || []);
+      setSelectedRecipient(state.context.defaultRecipient || null);
+      setManualEmail('');
+      setSettings(DEFAULT_SETTINGS);
+    }
+    setModalOpen(true);
+  };
+
+  const openRegenerateModal = () => {
+    seedModalFromDraft();
+    setModalMode('regenerate');
+    setModalOpen(true);
+  };
+
   const handleGenerate = async () => {
     if (!auditId) return;
     setModalOpen(false);
@@ -188,6 +236,30 @@ export default function OutreachEmailWorkflow({ audit }) {
       dispatch({ type: 'SET_HISTORY', history: historyResponse.emails || [] });
       setLastSavedAt(draft.updatedAt || draft.createdAt || new Date().toISOString());
       showToast('Draft saved. You can reopen it anytime from Email history.');
+    } catch (err) {
+      dispatch({ type: 'SET_ERROR', error: err.message });
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!auditId || !state.draft) return;
+    setRegenerateDialogOpen(false);
+    setModalOpen(false);
+    dispatch({ type: 'SET_PHASE', phase: 'generating' });
+    try {
+      const draft = await api.regenerateOutreachEmail(auditId, state.draft.id, {
+        opportunityIds: selectedOpportunityIds,
+        recipientEmail: selectedRecipient?.email || manualEmail || composerValues.to,
+        recipientName: selectedRecipient?.name,
+        recipient: selectedRecipient || state.draft.recipient,
+        ...settings,
+      });
+      dispatch({ type: 'SET_DRAFT', draft });
+      const historyResponse = await api.listOutreachEmails(auditId);
+      dispatch({ type: 'SET_HISTORY', history: historyResponse.emails || [] });
+      setLastSavedAt(draft.updatedAt || draft.createdAt || new Date().toISOString());
+      showToast('Email regenerated.');
     } catch (err) {
       dispatch({ type: 'SET_ERROR', error: err.message });
       showToast(err.message, 'error');
@@ -218,21 +290,60 @@ export default function OutreachEmailWorkflow({ audit }) {
     }
   };
 
-  const handleRegenerate = async () => {
-    if (!auditId || !state.draft) return;
-    setRegenerateDialogOpen(false);
-    dispatch({ type: 'SET_PHASE', phase: 'generating' });
+  const handleUploadImage = async (file, insertAt) => {
+    if (!auditId || !state.draft?.id) {
+      throw new Error('Save or generate a draft before adding images.');
+    }
+
+    setUploadingImage(true);
     try {
-      const draft = await api.regenerateOutreachEmail(auditId, state.draft.id, {
-        opportunityIds: selectedOpportunityIds,
-        recipientEmail: composerValues.to,
-        ...settings,
-      });
-      dispatch({ type: 'SET_DRAFT', draft });
-      showToast('Email regenerated.');
+      if (state.dirty) {
+        await api.updateOutreachEmail(auditId, state.draft.id, {
+          recipient: { ...state.draft.recipient, email: composerValues.to },
+          cc: composerValues.cc,
+          bcc: composerValues.bcc,
+          subject: composerValues.subject,
+          body: composerValues.body,
+        });
+      }
+
+      const result = await api.uploadOutreachImage(auditId, state.draft.id, file, insertAt);
+      dispatch({ type: 'SET_DRAFT', draft: result.email });
+      dispatch({ type: 'SET_MODE', mode: 'editing' });
+      showToast('Image uploaded.');
+      return result;
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', error: err.message });
-      showToast(err.message, 'error');
+      showToast(err.message || 'Failed to upload image.', 'error');
+      throw err;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = async (assetId) => {
+    if (!auditId || !state.draft?.id) {
+      throw new Error('Draft is required to remove images.');
+    }
+
+    try {
+      if (state.dirty) {
+        await api.updateOutreachEmail(auditId, state.draft.id, {
+          recipient: { ...state.draft.recipient, email: composerValues.to },
+          cc: composerValues.cc,
+          bcc: composerValues.bcc,
+          subject: composerValues.subject,
+          body: composerValues.body,
+        });
+      }
+
+      const result = await api.deleteOutreachImage(auditId, state.draft.id, assetId);
+      dispatch({ type: 'SET_DRAFT', draft: result.email });
+      dispatch({ type: 'SET_MODE', mode: 'editing' });
+      showToast('Image removed.');
+      return result;
+    } catch (err) {
+      showToast(err.message || 'Failed to remove image.', 'error');
+      throw err;
     }
   };
 
@@ -282,14 +393,6 @@ export default function OutreachEmailWorkflow({ audit }) {
     } finally {
       setDeletingDraft(false);
     }
-  };
-
-  const openGenerateModal = () => {
-    if (state.context) {
-      setSelectedOpportunityIds(state.context.defaultOpportunityIds || []);
-      setSelectedRecipient(state.context.defaultRecipient || null);
-    }
-    setModalOpen(true);
   };
 
   const canSend =
@@ -369,7 +472,7 @@ export default function OutreachEmailWorkflow({ audit }) {
               <p className="text-sm font-medium">Sending is disabled</p>
               <p className="body-text mt-0.5">
                 SMTP is not configured, so you can generate and edit drafts but not send them. Add SMTP credentials
-                to <code className="font-mono text-xs">backend/.env</code> to enable sending.
+                to <code className="font-mono text-xs">marketing-automation-b/.env</code> to enable sending.
               </p>
             </div>
           </div>
@@ -434,12 +537,23 @@ export default function OutreachEmailWorkflow({ audit }) {
                   to={composerValues.to}
                   subject={composerValues.subject}
                   body={composerValues.body}
+                  imageAssets={state.draft?.imageAssets || []}
+                  auditId={auditId}
+                  emailId={state.draft?.id}
+                  callToAction={state.draft?.settings?.callToAction || settings.callToAction}
                   showBranding
                 />
               ) : (
                 <EmailEditor
                   value={composerValues.body}
                   onChange={(value) => dispatch({ type: 'UPDATE_DRAFT_FIELD', fields: { body: value } })}
+                  onUploadImage={handleUploadImage}
+                  onRemoveImage={handleRemoveImage}
+                  uploadingImage={uploadingImage}
+                  imageUploadDisabled={!state.draft?.id}
+                  imageAssets={state.draft?.imageAssets || []}
+                  auditId={auditId}
+                  emailId={state.draft?.id}
                 />
               )}
             </div>
@@ -551,7 +665,9 @@ export default function OutreachEmailWorkflow({ audit }) {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => (state.dirty ? setRegenerateDialogOpen(true) : handleRegenerate())}
+                onClick={() =>
+                  state.dirty ? setRegenerateDialogOpen(true) : openRegenerateModal()
+                }
               >
                 <RefreshCw />
                 Regenerate
@@ -601,7 +717,10 @@ export default function OutreachEmailWorkflow({ audit }) {
 
       <EmailGenerationModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setModalMode('generate');
+        }}
         context={state.context}
         selectedOpportunityIds={selectedOpportunityIds}
         onOpportunityChange={setSelectedOpportunityIds}
@@ -611,8 +730,9 @@ export default function OutreachEmailWorkflow({ audit }) {
         onManualEmailChange={setManualEmail}
         settings={settings}
         onSettingsChange={setSettings}
-        onGenerate={handleGenerate}
+        onGenerate={modalMode === 'regenerate' ? handleRegenerate : handleGenerate}
         generating={state.phase === 'generating'}
+        mode={modalMode}
       />
 
       <EmailGeneratingDialog
@@ -631,8 +751,11 @@ export default function OutreachEmailWorkflow({ audit }) {
       <RegenerateConfirmDialog
         open={regenerateDialogOpen}
         onClose={() => setRegenerateDialogOpen(false)}
-        onConfirm={handleRegenerate}
-        regenerating={state.phase === 'generating'}
+        onConfirm={() => {
+          setRegenerateDialogOpen(false);
+          openRegenerateModal();
+        }}
+        regenerating={false}
       />
 
       <ConfirmDeleteDialog

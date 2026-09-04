@@ -27,9 +27,11 @@ export default function EmailGenerationModal({
   onSettingsChange,
   onGenerate,
   generating,
+  mode = 'generate',
 }) {
   const selectedCount = selectedOpportunityIds.length;
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const isRegenerate = mode === 'regenerate';
 
   return (
     <Dialog
@@ -48,9 +50,13 @@ export default function EmailGenerationModal({
         <DialogHeader className="shrink-0 space-y-1.5 border-b border-border px-5 py-4 pr-12">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 space-y-1.5">
-              <DialogTitle>Generate outreach email</DialogTitle>
+              <DialogTitle>
+                {isRegenerate ? 'Regenerate outreach email' : 'Generate outreach email'}
+              </DialogTitle>
               <DialogDescription>
-                Choose who to contact and which findings the message should mention.
+                {isRegenerate
+                  ? 'Review recipient and findings, then regenerate with the same options as a new draft.'
+                  : 'Choose who to contact and which findings the message should mention.'}
               </DialogDescription>
             </div>
             <Button
@@ -100,8 +106,12 @@ export default function EmailGenerationModal({
           </Button>
           <Button onClick={onGenerate} disabled={generating || selectedCount === 0}>
             {generating
-              ? 'Generating…'
-              : `Generate email${selectedCount ? ` from ${selectedCount} finding${selectedCount === 1 ? '' : 's'}` : ''}`}
+              ? isRegenerate
+                ? 'Regenerating…'
+                : 'Generating…'
+              : isRegenerate
+                ? `Regenerate email${selectedCount ? ` from ${selectedCount} finding${selectedCount === 1 ? '' : 's'}` : ''}`
+                : `Generate email${selectedCount ? ` from ${selectedCount} finding${selectedCount === 1 ? '' : 's'}` : ''}`}
           </Button>
         </DialogFooter>
       </DialogContent>

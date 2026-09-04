@@ -91,6 +91,10 @@ export default function EmailDraftDialog({
             to={email.recipient?.email}
             subject={email.subject}
             body={email.body}
+            imageAssets={email.imageAssets || []}
+            auditId={email.analysisId}
+            emailId={email.id}
+            callToAction={email.settings?.callToAction || 'open_conversation'}
             showBranding
           />
 
