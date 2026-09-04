@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_WI_API_URL || '/wi-api';
+// Amplify: https://api.bot.inkstall.in  |  local: http://localhost:3000
+const API_BASE = (import.meta.env.VITE_WI_API_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
