@@ -1,3 +1,4 @@
+// Unused by MainTemplate — kept for restore. Create UI is in ../template-composer/
 import React, { useState } from 'react';
 import { FaBullhorn, FaBell } from 'react-icons/fa';
 import { useTemplate } from '../../context/TemplateContext';

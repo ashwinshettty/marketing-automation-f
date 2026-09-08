@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useTemplate } from '../../context/TemplateContext';
-import SetUp from './SetUp';
-import Edit from './Edit';
+import TemplateComposer from '../template-composer/TemplateComposer';
 import ViewTemplates from './ViewTemplates';
 import { tabClass, tabIndicatorClass } from './templateUi';
 
 const MainTemplate = () => {
-  const { currentStep, isEditMode } = useTemplate();
+  const { isEditMode } = useTemplate();
   const [activeTab, setActiveTab] = useState('create');
 
   return (
@@ -18,7 +17,7 @@ const MainTemplate = () => {
             {activeTab === 'view' && <span className={tabIndicatorClass} />}
           </button>
           <button type="button" onClick={() => setActiveTab('create')} className={tabClass(activeTab === 'create')}>
-            {isEditMode && currentStep === 'edit' ? 'Edit Template' : 'Create Template'}
+            {isEditMode ? 'Edit Template' : 'Create Template'}
             {activeTab === 'create' && <span className={tabIndicatorClass} />}
           </button>
         </div>
@@ -26,7 +25,7 @@ const MainTemplate = () => {
 
       <div className="p-6">
         {activeTab === 'create' ? (
-          currentStep === 'edit' ? <Edit setActiveTab={setActiveTab} /> : <SetUp />
+          <TemplateComposer setActiveTab={setActiveTab} />
         ) : (
           <ViewTemplates setActiveTab={setActiveTab} />
         )}

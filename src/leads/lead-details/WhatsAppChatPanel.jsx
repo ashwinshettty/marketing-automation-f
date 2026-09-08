@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FaChevronDown,
   FaFileAlt,
   FaPaperclip,
+  FaPencilAlt,
   FaWhatsapp,
 } from 'react-icons/fa';
 import CallLogBubble from '../../components/whatsapp/CallLogBubble';
@@ -12,12 +13,38 @@ import TemplateMessageContent from '../../components/whatsapp/TemplateMessageCon
 import TemplateSendModal from '../../components/whatsapp/TemplateSendModal';
 import { getMediaDisplayName } from '../../api/whatsappApi';
 import { useWhatsAppChat } from '../../hooks/useWhatsAppChat';
+import EditContactModal from '../../messages/EditContactModal';
 import {
   formatChatDateLabel,
   formatMessageTime,
   isSameChatDay,
 } from '../../utils/formatMessageTime';
 
+const matchesMessageFilter = (item, messageFilter) => {
+  if (!messageFilter) return true;
+  if (item.kind === 'call') {
+    return messageFilter.messageType === 'all' && !messageFilter.templateName;
+  }
+
+  const type = messageFilter.messageType || 'all';
+  if (type === 'template' && item.messageType !== 'template') return false;
+  if (type === 'text' && item.messageType === 'template') return false;
+
+  const templateName = String(messageFilter.templateName || '').trim().toLowerCase();
+  if (!templateName) return true;
+
+  if (item.messageType !== 'template') return false;
+
+  const candidates = [
+    item.templateContent?.name,
+    item.templateContent?.templateName,
+    item.text,
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+
+  return candidates.some((value) => value.includes(templateName));
+};
 const isMediaPlaceholder = (text, type) => {
   const value = String(text || '').trim().toLowerCase();
   if (!value) return true;
@@ -152,8 +179,14 @@ const mediaOptions = {
   },
 };
 
-const WhatsAppChatPanel = ({ lead }) => {
+const WhatsAppChatPanel = ({
+  lead,
+  messageFilter = null,
+  onLeadUpdate,
+  heightClassName = 'h-[420px]',
+}) => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
   const [showMediaMenu, setShowMediaMenu] = useState(false);
   const [mediaAccept, setMediaAccept] = useState(mediaOptions.image.accept);
   const fileInputRef = useRef(null);
@@ -174,6 +207,10 @@ const WhatsAppChatPanel = ({ lead }) => {
     reloadMessages,
   } = useWhatsAppChat({ lead });
 
+  const visibleMessages = useMemo(
+    () => messages.filter((item) => matchesMessageFilter(item, messageFilter)),
+    [messages, messageFilter],
+  );
   const handleMediaSelect = (event) => {
     const file = event.target.files?.[0] || null;
     setSelectedMedia(file);
@@ -228,9 +265,13 @@ const WhatsAppChatPanel = ({ lead }) => {
     );
   }
 
+  const canEditContact = Boolean(lead?.leadId || lead?.id);
+
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200">
-      <div className="flex h-[420px] flex-col">
+    <div
+      className={`overflow-hidden rounded-xl border border-slate-200 ${heightClassName}`}
+    >
+      <div className="flex h-full flex-col">
         <div className="flex items-center justify-between gap-3 border-b border-[#075e54]/20 bg-[#075e54] px-4 py-3 text-white">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
@@ -246,27 +287,41 @@ const WhatsAppChatPanel = ({ lead }) => {
               ) : null}
             </div>
           </div>
-          <WhatsAppCallButton
-            phoneNumber={lead.contactNo}
-            leadId={lead.id}
-            subject={lead.subject || ''}
-            className="shrink-0"
-            onAgentCallStarted={() => {
-              reloadMessages({ showLoading: false });
-            }}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            {canEditContact && (
+              <button
+                type="button"
+                onClick={() => setShowEditContact(true)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                aria-label={`Edit ${lead.name}`}
+                title="Edit contact info"
+              >
+                <FaPencilAlt className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <WhatsAppCallButton
+              phoneNumber={lead.contactNo}
+              leadId={lead.id}
+              subject={lead.subject || ''}
+              className="shrink-0"
+              onAgentCallStarted={() => {
+                reloadMessages({ showLoading: false });
+              }}
+            />
+          </div>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto bg-[#efeae2] px-4 py-5">
-          {messages.length === 0 && (
+          {visibleMessages.length === 0 && (
             <p className="text-center text-sm text-brand-muted">
-              Send a WhatsApp message to {lead.name}
+              {messages.length === 0
+                ? `Send a WhatsApp message to ${lead.name}`
+                : 'No messages match the current filters.'}
             </p>
           )}
 
-          {messages.map((item, index) => {
-            const previous = messages[index - 1];
-            const showDate =
+          {visibleMessages.map((item, index) => {
+            const previous = visibleMessages[index - 1];            const showDate =
               !previous ||
               !isSameChatDay(
                 item.timestamp || item.time,
@@ -440,6 +495,16 @@ const WhatsAppChatPanel = ({ lead }) => {
           setShowTemplateModal(false);
         }}
       />
+
+      {showEditContact && (
+        <EditContactModal
+          lead={lead}
+          onClose={() => setShowEditContact(false)}
+          onSaved={(contact) => {
+            onLeadUpdate?.(contact);
+          }}
+        />
+      )}
     </div>
   );
 };

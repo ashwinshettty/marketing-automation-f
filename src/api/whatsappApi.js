@@ -77,6 +77,92 @@ export const sendWhatsAppTemplate = async ({
   }
 };
 
+export const fetchWhatsAppConversations = async ({
+  page = 1,
+  limit = 20,
+  search,
+  messageType,
+  templateName,
+  templateId,
+  signal,
+} = {}) => {
+  try {
+    const response = await authApi.get('/whatsapp/conversations', {
+      params: {
+        page,
+        limit,
+        ...(search?.trim() ? { search: search.trim() } : {}),
+        ...(messageType && messageType !== 'all' ? { messageType } : {}),
+        ...(templateName?.trim() ? { templateName: templateName.trim() } : {}),
+        ...(templateId ? { templateId } : {}),
+      },
+      signal,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
+export const searchWhatsAppMessages = async ({
+  q,
+  page = 1,
+  limit = 20,
+  signal,
+} = {}) => {
+  try {
+    const response = await authApi.get('/whatsapp/search/messages', {
+      params: {
+        q,
+        page,
+        limit,
+      },
+      signal,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
+export const createWhatsAppContact = async ({
+  phoneNumber,
+  name = '',
+  subject = '',
+} = {}) => {
+  try {
+    const response = await authApi.post('/whatsapp/contacts', {
+      phoneNumber,
+      name,
+      subject,
+    });
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
+export const updateWhatsAppContact = async ({
+  leadId,
+  phoneNumber,
+  name = '',
+  subject = '',
+} = {}) => {
+  try {
+    const response = await authApi.put(
+      `/whatsapp/contacts/${encodeURIComponent(leadId)}`,
+      {
+        phoneNumber,
+        name,
+        subject,
+      },
+    );
+    return unwrap(response);
+  } catch (error) {
+    throw parseApiError(error);
+  }
+};
+
 export const fetchWhatsAppMessages = async ({ leadId, phoneNumber }) => {
   const response = await authApi.get(`/whatsapp/messages/${leadId}`, {
     params: { phoneNumber },

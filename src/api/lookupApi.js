@@ -7,8 +7,23 @@ export const fetchBoards = async () => {
 
 export const fetchGrades = async () => {
   const { data } = await authApi.get('/lookups/grades');
-  const gradesDoc = Array.isArray(data) ? data[0] : data;
-  return Array.isArray(gradesDoc?.grades) ? gradesDoc.grades : [];
+
+  if (Array.isArray(data)) {
+    // Shape A: [{ grades: ['1','2',...] }]
+    if (data[0]?.grades && Array.isArray(data[0].grades)) {
+      return data[0].grades.filter(Boolean);
+    }
+    // Shape B: ['1','2'] or [{ name: '1' }]
+    return data
+      .map((item) => (typeof item === 'string' ? item : item?.name || item?.grade))
+      .filter(Boolean);
+  }
+
+  if (Array.isArray(data?.grades)) {
+    return data.grades.filter(Boolean);
+  }
+
+  return [];
 };
 
 export const fetchCounsellors = async () => {

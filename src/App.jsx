@@ -11,6 +11,7 @@ import Login from './login/Login';
 import LeadDetails from './leads/lead-details/LeadDetails';
 import LeadWhatsAppChat from './leads/lead-details/LeadWhatsAppChat';
 import LeadsPage from './leads/LeadsPage';
+import MessagesPage from './messages/MessagesPage';
 import Home from './pages/Home';
 import SectionPage from './pages/SectionPage';
 import UsersPage from './users/UsersPage';
@@ -35,6 +36,7 @@ const SECTION_SKIP = new Set([
   '/event',
   '/vacancies',
   '/campaign',
+  '/messages',
   '/whatsapp',
   '/users',
   '/website-intelligence',
@@ -62,6 +64,7 @@ const App = () => {
           <Route path="event" element={<EventsPage />} />
           <Route path="vacancies" element={<VacanciesPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
+          <Route path="messages" element={<MessagesPage />} />
           <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />

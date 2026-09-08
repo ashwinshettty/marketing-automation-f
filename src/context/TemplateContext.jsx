@@ -192,6 +192,7 @@ export const TemplateProvider = ({ children }) => {
       footerText: template.footerText || '',
       variables: template.variables || [],
       buttons: template.buttons || [],
+      media: template.media || null,
       isActive: template.isActive,
       status: template.status
     });

@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaChevronDown, FaSearch, FaTimes } from 'react-icons/fa';
 import { getTemplates } from '../../api/templateApi';
+import TemplatePreview from '../../leads/lead-details/TemplatePreview';
+import { useTemplatePreview } from '../../leads/lead-details/TemplatePreviewContext';
 import { getTemplateBodyVariableCount } from '../../utils/whatsappTemplateValidation';
 import { resolveTemplateBodyParams } from '../../utils/resolveTemplateBodyParams';
 
 const labelClassName = 'mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-muted';
 
 const TemplateSendModal = ({ isOpen, onClose, onSend, isSending, lead }) => {
+  const { setTemplatePreview, clearTemplatePreview } = useTemplatePreview();
   const [templates, setTemplates] = useState([]);
   const [selectedName, setSelectedName] = useState('');
   const [bodyParams, setBodyParams] = useState(['']);
@@ -39,8 +42,9 @@ const TemplateSendModal = ({ isOpen, onClose, onSend, isSending, lead }) => {
       setTemplateSearch('');
       setSelectedName('');
       setIsDropdownOpen(false);
+      clearTemplatePreview();
     }
-  }, [isOpen]);
+  }, [isOpen, clearTemplatePreview]);
 
   useEffect(() => {
     if (!isDropdownOpen) return undefined;
@@ -80,6 +84,27 @@ const TemplateSendModal = ({ isOpen, onClose, onSend, isSending, lead }) => {
 
     setBodyParams(resolveTemplateBodyParams(selectedTemplate, lead));
   }, [selectedName, variableCount, selectedTemplate, lead]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (!selectedTemplate) {
+      clearTemplatePreview();
+      return;
+    }
+
+    setTemplatePreview({
+      template: selectedTemplate,
+      bodyParams: bodyParams.slice(0, variableCount),
+    });
+  }, [
+    isOpen,
+    selectedTemplate,
+    bodyParams,
+    variableCount,
+    setTemplatePreview,
+    clearTemplatePreview,
+  ]);
 
   if (!isOpen) return null;
 
@@ -204,6 +229,8 @@ const TemplateSendModal = ({ isOpen, onClose, onSend, isSending, lead }) => {
                   </div>
                 )}
               </div>
+
+              {!isDropdownOpen && <TemplatePreview />}
             </div>
 
             <div className="flex shrink-0 items-center justify-end gap-3 border-t border-brand-yellow/30 bg-white px-5 py-4">

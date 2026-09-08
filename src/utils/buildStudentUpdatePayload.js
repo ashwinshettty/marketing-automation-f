@@ -29,6 +29,7 @@ export const buildStudentUpdatePayload = (lead, form) => {
       type: 'enquiry',
       fullName: form.name.trim(),
       standard: form.grade.trim(),
+      grade: form.grade.trim(),
       board: form.board.trim(),
       source: form.source.trim(),
       whatsappNumber: form.contactNo.trim(),
@@ -94,17 +95,27 @@ export const buildStudentUpdatePayload = (lead, form) => {
   };
 };
 
-export const leadToEditForm = (lead) => ({
-  name: lead.name === '-' ? '' : lead.name,
-  contactNo: lead.contactNo === '-' ? '' : lead.contactNo,
-  email: lead.email === '-' ? '' : lead.email,
-  grade: lead.grade === '-' ? '' : lead.grade,
-  board: lead.board === '-' ? '' : lead.board,
-  source: lead.source === '-' ? '' : lead.source,
-  parentName: lead.parentName === '-' ? '' : lead.parentName,
-  city: lead.city === '-' ? '' : lead.city,
-  notes: lead.notes || '',
-});
+export const leadToEditForm = (lead) => {
+  const raw = lead.rawStudent || lead.raw || {};
+  const gradeValue =
+    lead.grade && lead.grade !== '-'
+      ? lead.grade
+      : raw.standard || raw.grade || '';
+  const boardValue =
+    lead.board && lead.board !== '-' ? lead.board : raw.board || '';
+
+  return {
+    name: lead.name === '-' ? '' : lead.name || '',
+    contactNo: lead.contactNo === '-' ? '' : lead.contactNo || '',
+    email: lead.email === '-' ? '' : lead.email || '',
+    grade: gradeValue ? String(gradeValue) : '',
+    board: boardValue ? String(boardValue) : '',
+    source: lead.source === '-' ? '' : lead.source || '',
+    parentName: lead.parentName === '-' ? '' : lead.parentName || '',
+    city: lead.city === '-' ? '' : lead.city || '',
+    notes: lead.notes || '',
+  };
+};
 
 export const sortNotesByNewest = (notes) =>
   [...(notes || [])].sort((a, b) => {

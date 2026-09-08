@@ -11,18 +11,19 @@ const inputClassName =
   'w-full rounded-xl border border-brand-yellow/40 bg-white px-4 py-2.5 text-sm text-brand-navy outline-none transition focus:border-brand-navy';
 
 const TEXT_FIELDS = [
-  { key: 'name', label: 'Student Name', required: true },
+  { key: 'name', label: 'Student Name', required: true, fullWidth: true },
   { key: 'contactNo', label: 'Contact No', required: true },
   { key: 'email', label: 'Email', type: 'email' },
   { key: 'source', label: 'Source' },
   { key: 'parentName', label: 'Parent Name' },
-  { key: 'city', label: 'City' },
+  { key: 'city', label: 'City', fullWidth: true },
 ];
 
 const withCurrentValue = (options, currentValue) => {
-  const normalized = options.filter(Boolean);
-  if (currentValue && !normalized.includes(currentValue)) {
-    return [currentValue, ...normalized];
+  const normalized = options.map((item) => String(item)).filter(Boolean);
+  const current = currentValue ? String(currentValue) : '';
+  if (current && !normalized.includes(current)) {
+    return [current, ...normalized];
   }
   return normalized;
 };
@@ -53,8 +54,8 @@ const LeadEditModal = ({ lead, onClose, onSaved }) => {
 
         if (!isMounted) return;
 
-        setBoards(boardsData.map((board) => board.name).filter(Boolean));
-        setGrades(gradesData);
+        setBoards(boardsData.map((board) => board.name).filter(Boolean).map(String));
+        setGrades((gradesData || []).map(String).filter(Boolean));
       } catch (err) {
         if (isMounted) {
           setError(err.message || 'Failed to load grade and board options');
@@ -135,8 +136,8 @@ const LeadEditModal = ({ lead, onClose, onSaved }) => {
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {TEXT_FIELDS.map(({ key, label, type = 'text', required = false }) => (
-              <div key={key} className={key === 'name' ? 'sm:col-span-2' : ''}>
+            {TEXT_FIELDS.map(({ key, label, type = 'text', required = false, fullWidth = false }) => (
+              <div key={key} className={fullWidth ? 'sm:col-span-2' : ''}>
                 <label
                   htmlFor={`edit-lead-${key}`}
                   className="mb-1.5 block text-sm font-medium text-brand-navy"
@@ -165,7 +166,6 @@ const LeadEditModal = ({ lead, onClose, onSaved }) => {
               <select
                 id="edit-lead-grade"
                 name="grade"
-                required
                 value={form.grade}
                 onChange={handleChange}
                 disabled={isLoadingOptions}
@@ -192,7 +192,6 @@ const LeadEditModal = ({ lead, onClose, onSaved }) => {
               <select
                 id="edit-lead-board"
                 name="board"
-                required
                 value={form.board}
                 onChange={handleChange}
                 disabled={isLoadingOptions}

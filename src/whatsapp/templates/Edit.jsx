@@ -1,3 +1,4 @@
+// Unused by MainTemplate — kept for restore. Create UI is in ../template-composer/
 import React, { useState, useEffect } from 'react';
 import { 
   FaCheck, 

@@ -4,6 +4,7 @@ import { fetchStudentById } from '../../api/studentApi';
 import { useLead } from '../../context/LeadContext';
 import { mapStudentToLead } from '../../utils/mapStudentToLead';
 import LeadInfoPanel from './LeadInfoPanel';
+import { TemplatePreviewProvider } from './TemplatePreviewContext';
 
 const LeadDetails = () => {
   const { leadId } = useParams();
@@ -92,9 +93,11 @@ const LeadDetails = () => {
   }
 
   return (
-    <div className="px-8 py-8">
-      <LeadInfoPanel lead={lead} onLeadUpdate={handleLeadUpdate} />
-    </div>
+    <TemplatePreviewProvider>
+      <div className="px-8 py-8">
+        <LeadInfoPanel lead={lead} onLeadUpdate={handleLeadUpdate} />
+      </div>
+    </TemplatePreviewProvider>
   );
 };
 

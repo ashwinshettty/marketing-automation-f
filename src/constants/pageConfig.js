@@ -21,9 +21,13 @@ export const PAGE_CONFIG = {
     title: 'Campaigns',
     description: 'Create Meta-style campaigns with targeting, placements, budgets, and ad creatives.',
   },
+  '/messages': {
+    title: 'Messages',
+    description: 'Browse all WhatsApp chats in one place.',
+  },
   '/whatsapp': {
-    title: 'WhatsApp',
-    description: 'Manage WhatsApp conversations and outreach.',
+    title: 'Template',
+    description: 'Manage WhatsApp message templates and outreach.',
   },
   '/website-intelligence': {
     title: 'Website Intelligence',
