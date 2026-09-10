@@ -29,6 +29,14 @@ export const PAGE_CONFIG = {
     title: 'Template',
     description: 'Manage WhatsApp message templates and outreach.',
   },
+  '/sms-templates': {
+    title: 'SMS Templates',
+    description: 'Manage approved DLT promotional SMS templates and IDs.',
+  },
+  '/sms-history': {
+    title: 'SMS History',
+    description: 'See which promotional SMS templates were sent to leads.',
+  },
   '/website-intelligence': {
     title: 'Website Intelligence',
     description: 'Crawl public sites, detect capabilities, and turn gaps into outreach.',

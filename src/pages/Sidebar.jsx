@@ -74,6 +74,26 @@ const NAV_ITEMS = [
     ),
   },
   {
+    to: '/sms-templates',
+    label: 'SMS Templates',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 8h8M8 12h5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    to: '/sms-history',
+    label: 'SMS History',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     to: '/website-intelligence',
     label: 'Website Intelligence',
     icon: (

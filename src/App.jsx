@@ -16,6 +16,8 @@ import Home from './pages/Home';
 import SectionPage from './pages/SectionPage';
 import UsersPage from './users/UsersPage';
 import WhatsAppPage from './whatsapp/WhatsAppPage';
+import SmsTemplatesPage from './sms/SmsTemplatesPage';
+import SmsHistoryPage from './sms/SmsHistoryPage';
 import WebsiteIntelligenceShell from './website-intelligence';
 import WiAppLayout from './website-intelligence/components/layout/AppLayout';
 import OverviewPage from './website-intelligence/pages/OverviewPage';
@@ -38,6 +40,8 @@ const SECTION_SKIP = new Set([
   '/campaign',
   '/messages',
   '/whatsapp',
+  '/sms-templates',
+  '/sms-history',
   '/users',
   '/website-intelligence',
 ]);
@@ -66,6 +70,8 @@ const App = () => {
           <Route path="campaign" element={<CampaignsPage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="whatsapp" element={<WhatsAppPage />} />
+          <Route path="sms-templates" element={<SmsTemplatesPage />} />
+          <Route path="sms-history" element={<SmsHistoryPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />

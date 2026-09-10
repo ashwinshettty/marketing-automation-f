@@ -5,6 +5,7 @@ import { getLeadNotesList } from '../../utils/mapStudentToLead';
 import LeadEventsPanel from './LeadEventsPanel';
 import LeadTimeline from './LeadTimeline';
 import NotesPanel from './NotesPanel';
+import SmsPanel from './SmsPanel';
 import WhatsAppChatPanel from './WhatsAppChatPanel';
 
 const INFO_FIELDS = [
@@ -28,6 +29,7 @@ const TABS = [
   { id: 'events', label: 'Event' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'whatsapp', label: 'WhatsApp' },
+  { id: 'sms', label: 'SMS' },
 ];
 
 const isValidTab = (tab) => TABS.some((item) => item.id === tab);
@@ -143,6 +145,7 @@ const StudentTab = ({ lead, onLeadUpdate, eventsRefreshKey = 0 }) => {
           <LeadTimeline lead={lead} eventsRefreshKey={eventsRefreshKey} />
         )}
         {activeTab === 'whatsapp' && <WhatsAppChatPanel lead={lead} />}
+        {activeTab === 'sms' && <SmsPanel lead={lead} />}
       </div>
     </div>
   );
