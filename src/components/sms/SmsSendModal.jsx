@@ -142,7 +142,7 @@ const SmsSendModal = ({
   const targetLabel = useMemo(() => {
     if (mode === 'single') return lead?.name || 'this lead';
     if (mode === 'bulk-selected') return `${selectedLeads.length} selected lead(s)`;
-    return `first ${parsedCount || '—'} lead(s) matching current filters`;
+    return `first ${parsedCount || '—'} lead(s) with a phone number`;
   }, [mode, lead, selectedLeads.length, parsedCount]);
 
   const startDeliveryPolling = (summary) => {
@@ -423,7 +423,7 @@ const SmsSendModal = ({
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-brand-navy"
               />
               <span className="mt-1 block text-[11px] font-normal normal-case text-brand-muted">
-                Uses current lead filters. Max 500 per run.
+                First leads that have a phone number, using current filters. Leads with no number are skipped. Max 500 per run.
               </span>
             </label>
           )}
