@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketing Intelligence Workspace - Places</title>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with forms/container plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Injected Tailwind Config strictly from Design Tokens -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#ffffff",
+            "surface-container": "#f2eede",
+            "inverse-surface": "#323126",
+            "on-primary-container": "#777eea",
+            "inverse-primary": "#bfc2ff",
+            "secondary-container": "#fcd000",
+            "on-primary": "#ffffff",
+            "background": "#fdf9e9",
+            "surface": "#fdf9e9",
+            "on-secondary": "#ffffff",
+            "on-tertiary-fixed-variant": "#424271",
+            "secondary-fixed-dim": "#ecc300",
+            "secondary-fixed": "#ffe17a",
+            "primary": "#00003c",
+            "on-surface-variant": "#464653",
+            "on-secondary-container": "#6e5a00",
+            "on-secondary-fixed-variant": "#554500",
+            "primary-fixed-dim": "#bfc2ff",
+            "inverse-on-surface": "#f5f1e1",
+            "surface-container-low": "#f8f4e4",
+            "on-surface": "#1c1c13",
+            "primary-container": "#000080",
+            "tertiary-fixed-dim": "#c2c1f9",
+            "tertiary-fixed": "#e2dfff",
+            "outline-variant": "#c6c5d5",
+            "outline": "#767684",
+            "surface-container-high": "#ece8d9",
+            "on-tertiary": "#ffffff",
+            "primary-fixed": "#e0e0ff",
+            "on-tertiary-fixed": "#161543",
+            "on-tertiary-container": "#8584b8",
+            "on-primary-fixed-variant": "#3239a3",
+            "surface-bright": "#fdf9e9",
+            "surface-dim": "#dedacb",
+            "surface-container-highest": "#e6e3d3",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#231b00",
+            "on-primary-fixed": "#00006e",
+            "error": "#ba1a1a",
+            "surface-variant": "#e6e3d3",
+            "on-background": "#1c1c13",
+            "on-error": "#ffffff",
+            "surface-tint": "#4b53bc",
+            "tertiary-container": "#1c1c4a",
+            "on-error-container": "#93000a",
+            "tertiary": "#050333",
+            "secondary": "#715c00"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "margin-desktop": "2.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "space-lg": "1.5rem",
+            "gutter-desktop": "1.5rem",
+            "margin": "2rem",
+            "gutter": "1.5rem"
+          },
+          "fontFamily": {
+            "title-lg": ["Inter"],
+            "display-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "title-md": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "metric-val": ["Inter"],
+            "headline-md": ["Inter"]
+          },
+          "fontSize": {
+            "title-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "title-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "metric-val": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Design system compliance: complete flat aesthetic, strict containment line borders, tabular digits for metrics */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 20px;
+    }
+    .border-accent-subtle {
+      border-color: rgba(252, 208, 0, 0.40);
+    }
+    .border-row-divider {
+      border-color: rgba(70, 70, 83, 0.12);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex selection:bg-secondary-container selection:text-primary">
+<!-- ========================================================================= -->
+<!-- SHARED COMPONENT: SideNavBar                                              -->
+<!-- ========================================================================= -->
+
+<!-- ========================================================================= -->
+<!-- MAIN WORKSPACE CANVAS                                                     -->
+<!-- ========================================================================= -->
+<div class="ml-0 w-full flex-1 flex flex-col min-w-0 bg-background pb-16">
+<!-- ======================================================================= -->
+<!-- SHARED COMPONENT: TopNavBar                                             -->
+<!-- ======================================================================= -->
+<header class="docked full-width top sticky top-0 z-20 bg-surface-container-lowest border-b border-accent-subtle h-16 px-margin-desktop flex items-center justify-between">
+<!-- Left: Product Identity & Search -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">Marketing Intelligence Workspace</span>
+<span class="bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm px-2 py-0.5 rounded border border-accent-subtle">PRO</span>
+</div>
+<!-- Search Bar on left -->
+<div class="relative w-72">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</div>
+<input class="block w-full pl-9 pr-3 py-1.5 h-9 bg-surface-container-lowest border border-accent-subtle rounded-lg text-primary placeholder-on-surface-variant font-body-md text-body-sm focus:border-primary-container focus:ring-0 focus:outline-none transition-colors" placeholder="Search parameters, cities, leads..." type="text"/>
+</div>
+</div>
+<!-- Right: Action Cluster & Profile -->
+<div class="flex items-center gap-3">
+<!-- Secondary Action: Filter View -->
+<button class="h-9 px-3.5 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container hover:bg-background text-primary-container font-title-md text-title-md rounded-lg flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+<span>Filter View</span>
+</button>
+<!-- Primary Action: Create Campaign -->
+<button class="h-9 px-4 bg-primary-container hover:bg-primary text-on-primary font-title-md text-title-md rounded-lg flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span>Create Campaign</span>
+</button>
+<!-- Action Icons (notifications, help_outline) -->
+<div class="h-6 w-[1px] bg-outline-variant/40 mx-1"></div>
+<button class="h-9 w-9 rounded-lg border border-accent-subtle flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="h-9 w-9 rounded-lg border border-accent-subtle flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Help &amp; Documentation">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<!-- Profile Avatar (User Profile Picture) -->
+<div class="flex items-center gap-2 pl-2 cursor-pointer">
+<div class="w-9 h-9 rounded-full bg-primary-container text-secondary-container flex items-center justify-center font-bold text-title-md border border-secondary-container" title="User profile picture">
+            JD
+          </div>
+</div>
+</div>
+</header>
+<!-- Sub-Header / Workspace Title & Orientation -->
+<div class="px-margin-desktop pt-6 pb-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-display-lg font-display-lg text-primary tracking-tight">Marketing Intelligence</h1>
+<p class="text-body-md font-body-md text-on-surface-variant">Understand performance, improve lead quality, and measure marketing ROI.</p>
+</div>
+</div>
+<!-- Global Filter Bar & Meta Data Info Strip -->
+<div class="px-margin-desktop mb-4">
+<div class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-md flex flex-col gap-3">
+<!-- Interactive Filter Chips and Dropdowns -->
+<div class="flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center gap-2 flex-wrap">
+<!-- Date Filter -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary font-body-md text-body-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="calendar_today">calendar_today</span>
+<span>Last 30 days</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+<!-- Platform Filter -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary font-body-md text-body-sm flex items-center gap-2">
+<span class="text-on-surface-variant font-label-sm">Platform:</span>
+<span class="font-semibold text-primary">All</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+<!-- Campaign Filter -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary font-body-md text-body-sm flex items-center gap-2">
+<span class="text-on-surface-variant font-label-sm">Campaign:</span>
+<span class="font-semibold text-primary">All Campaigns</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+<!-- City Filter -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary font-body-md text-body-sm flex items-center gap-2">
+<span class="text-on-surface-variant font-label-sm">City:</span>
+<span class="font-semibold text-primary">All Cities</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+<!-- Owner Filter -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary font-body-md text-body-sm flex items-center gap-2">
+<span class="text-on-surface-variant font-label-sm">Owner:</span>
+<span class="font-semibold text-primary">All Owners</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+<!-- Reset Action -->
+<button class="h-9 px-3 text-on-surface-variant hover:text-primary font-body-md text-body-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="restart_alt">restart_alt</span>
+<span>Reset</span>
+</button>
+</div>
+<!-- Secondary Export in Filter Strip -->
+<button class="h-9 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container rounded-lg text-primary-container font-title-md text-body-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="file_download">file_download</span>
+<span>Export</span>
+</button>
+</div>
+<!-- Connection and Timezone Status Notification Strip -->
+<div class="pt-2 border-t border-row-divider flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary" data-icon="schedule">schedule</span>
+              Timezone: <strong class="text-primary font-medium">Asia/Kolkata</strong>
+</span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+              Currency not connected
+            </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+              Meta Ads not connected
+            </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+              Google Ads not connected
+            </span>
+</div>
+<div class="text-label-sm font-label-sm text-outline">
+            Last cache update: Today, 08:30 IST
+          </div>
+</div>
+</div>
+</div>
+<!-- Secondary Navigation Tabs -->
+<div class="px-margin-desktop mb-4">
+<div class="flex items-center gap-8 border-b border-accent-subtle">
+<a class="pb-3 text-on-surface-variant hover:text-primary font-title-md text-title-md transition-colors" href="#">Overview</a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-title-md text-title-md transition-colors" href="#">Campaigns</a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-title-md text-title-md transition-colors" href="#">Leads (128)</a>
+<!-- ACTIVE / SELECTED TAB: Places -->
+<a class="pb-3 text-primary-container font-title-md text-title-md border-b-2 border-secondary-container flex items-center gap-2" href="#">
+<span>Places</span>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-title-md text-title-md transition-colors" href="#">Creatives</a>
+</div>
+</div>
+<!-- Content Workspace Area -->
+<main class="px-margin-desktop flex flex-col gap-6">
+<!-- Informational Warning Banner (Sample Data Callout) -->
+<div class="bg-secondary-fixed/40 border border-secondary-container rounded-xl p-space-md flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="info">info</span>
+<div class="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<p class="text-body-md font-body-md text-primary font-medium">
+            Sample data for layout only. Spend is unavailable until an ad account is connected, so it is shown as a dash, not zero.
+          </p>
+<button class="inline-flex items-center gap-1 text-label-md font-label-md text-primary underline underline-offset-4 hover:text-primary-container whitespace-nowrap">
+            Connect Ad Account
+            <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- SECTION 1: Main Page Title & City Horizontal Bar Visualization -->
+<section class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-lg flex flex-col gap-6">
+<!-- Header & Explicit Geo Disclaimer Caption -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-row-divider">
+<div class="flex flex-col gap-1 max-w-3xl">
+<div class="flex items-center gap-2.5">
+<h2 class="text-headline-lg font-headline-lg text-primary tracking-tight">Where leads said they are</h2>
+<span class="bg-secondary-container text-primary font-label-sm text-label-sm px-2 py-0.5 rounded font-bold uppercase tracking-wider">Sample</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant italic">
+              this is the city stored on the lead, not where an ad was delivered, and it is not a radius of people who saw an ad.
+            </p>
+</div>
+<!-- Utility Sorting and Controls -->
+<div class="flex items-center gap-2 self-start md:self-auto">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Rank by:</span>
+<div class="inline-flex rounded-lg border border-accent-subtle p-0.5 bg-surface-container-lowest">
+<button class="px-2.5 py-1 text-label-sm font-label-sm bg-primary text-on-primary rounded font-medium">Total Volume</button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-primary rounded font-medium">Conversion %</button>
+</div>
+</div>
+</div>
+<!-- Structured Data Table with Horizontal Bar Progress Indicators -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-2 border-secondary-container/40 text-on-surface-variant text-label-md font-label-md uppercase tracking-wider">
+<th class="py-3 px-3 w-56">City Location</th>
+<th class="py-3 px-3">Lead Share Distribution</th>
+<th class="py-3 px-4 text-right w-36">Total Leads</th>
+<th class="py-3 px-4 text-right w-36">Qualified</th>
+<th class="py-3 px-4 text-right w-36">Converted</th>
+<th class="py-3 px-4 text-right w-36">Conv. Rate</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-row-divider font-body-md text-body-md">
+<!-- Row 1: Mumbai -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Mumbai</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 37.5%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">37.5%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    48
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">29</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">14</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">29.1%</span>
+</td>
+</tr>
+<!-- Row 2: Bengaluru -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Bengaluru</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 25.0%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">25.0%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    32
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">21</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">11</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">34.3%</span>
+</td>
+</tr>
+<!-- Row 3: Delhi NCR -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Delhi NCR</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 17.1%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">17.1%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    22
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">12</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">5</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">22.7%</span>
+</td>
+</tr>
+<!-- Row 4: Hyderabad -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Hyderabad</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 10.1%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">10.1%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    13
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">8</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">4</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">30.7%</span>
+</td>
+</tr>
+<!-- Row 5: Pune -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Pune</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 6.2%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">6.2%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    8
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">5</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">2</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">25.0%</span>
+</td>
+</tr>
+<!-- Row 6: Chennai -->
+<tr class="hover:bg-background/80 transition-colors">
+<td class="py-3.5 px-3 font-semibold text-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+<span>Chennai</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 3.9%"></div>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant w-10 text-right tabular-nums">3.9%</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-right font-medium text-primary tabular-nums">
+<span class="inline-flex items-center gap-1.5">
+                    5
+                    <span class="text-[10px] bg-secondary-fixed/50 text-on-secondary-fixed-variant px-1 rounded font-semibold border border-accent-subtle">Sample</span>
+</span>
+</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums">3</td>
+<td class="py-3.5 px-4 text-right text-primary tabular-nums font-semibold">1</td>
+<td class="py-3.5 px-4 text-right font-bold text-primary tabular-nums">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container border border-accent-subtle">20.0%</span>
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr class="border-t-2 border-secondary-container/40 bg-surface-container-low/60 font-semibold text-primary">
+<td class="py-3 px-3">Total Stored (Sample)</td>
+<td class="py-3 px-3 text-body-sm font-body-sm text-on-surface-variant">Top 6 Metros (99.8% capture)</td>
+<td class="py-3 px-4 text-right tabular-nums">128</td>
+<td class="py-3 px-4 text-right tabular-nums">78</td>
+<td class="py-3 px-4 text-right tabular-nums">37</td>
+<td class="py-3 px-4 text-right tabular-nums">28.9%</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<!-- Footnote regarding geo accuracy -->
+<div class="flex items-center justify-between text-body-sm font-body-sm text-outline pt-2 border-t border-row-divider">
+<span>Self-reported in lead qualification forms. Geo-IP verification is inactive.</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+            Data validated against CRM pipeline stages
+          </span>
+</div>
+</section>
+<!-- SECTION 2: Device & Placement Sync Status Cards -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-headline-md font-headline-md text-primary tracking-tight">Device &amp; Placement Sync Status</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Ad delivery platform telemetry, target inventory channels, and ad spend attribution.</p>
+</div>
+<span class="text-label-md font-label-md text-on-surface-variant bg-surface-container px-3 py-1 rounded-lg border border-accent-subtle">
+            Integrations pending: 4
+          </span>
+</div>
+<!-- 4 Distinct Strict Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-desktop">
+<!-- Card 1: Mobile Devices -->
+<div class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="smartphone">smartphone</span>
+</div>
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold border border-error/20">
+                  Not synced
+                </span>
+</div>
+<div>
+<h4 class="text-title-lg font-title-lg text-primary">Mobile Devices</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">iOS &amp; Android App Traffic</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-row-divider flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Attributed Spend</span>
+<span class="text-primary font-bold tabular-nums">—</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Cost per Lead</span>
+<span class="text-outline italic text-label-sm">Spend required</span>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="sync_disabled">sync_disabled</span>
+<span>Spend unavailable (Not connected)</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Desktop Devices -->
+<div class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="laptop_mac">laptop_mac</span>
+</div>
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold border border-error/20">
+                  Not synced
+                </span>
+</div>
+<div>
+<h4 class="text-title-lg font-title-lg text-primary">Desktop Devices</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">macOS &amp; Windows Web Browsers</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-row-divider flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Attributed Spend</span>
+<span class="text-primary font-bold tabular-nums">—</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Cost per Lead</span>
+<span class="text-outline italic text-label-sm">Spend required</span>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="sync_disabled">sync_disabled</span>
+<span>Spend unavailable (Not connected)</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Instagram Feed -->
+<div class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+</div>
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold border border-error/20">
+                  Not synced
+                </span>
+</div>
+<div>
+<h4 class="text-title-lg font-title-lg text-primary">Instagram Feed</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Meta Placement Network</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-row-divider flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Attributed Spend</span>
+<span class="text-primary font-bold tabular-nums">—</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Cost per Lead</span>
+<span class="text-outline italic text-label-sm">Spend required</span>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="sync_disabled">sync_disabled</span>
+<span>Spend unavailable (Not connected)</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Google Networks -->
+<div class="bg-surface-container-lowest border border-accent-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+</div>
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold border border-error/20">
+                  Not synced
+                </span>
+</div>
+<div>
+<h4 class="text-title-lg font-title-lg text-primary">Google Networks</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Search &amp; Display Placements</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-row-divider flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Attributed Spend</span>
+<span class="text-primary font-bold tabular-nums">—</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Cost per Lead</span>
+<span class="text-outline italic text-label-sm">Spend required</span>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="sync_disabled">sync_disabled</span>
+<span>Spend unavailable (Not connected)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Diagnostic Note -->
+<div class="bg-surface-container-low border border-accent-subtle rounded-lg p-space-md flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="link">link</span>
+<span>To enable automatic UTM geo-tagging and placement mapping, connect your ad accounts via Enterprise Integrations settings.</span>
+</div>
+<button class="h-8 px-3 bg-surface-container-lowest border border-accent-subtle hover:border-secondary-container text-primary font-title-md text-label-md rounded transition-colors">
+          Manage Integrations
+        </button>
+</div>
+</main>
+</div>
+<script>
+document.addEventListener('click', function (event) {
+  var button = event.target.closest('button');
+  if (!button) return;
+  var label = button.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+  var views = ['overview', 'campaigns', 'leads', 'places', 'creatives'];
+  if (views.indexOf(label) !== -1) {
+    event.preventDefault();
+    parent.postMessage({ type: 'stitch-view', view: label }, '*');
+  }
+  if (label.indexOf('create campaign') !== -1) {
+    parent.postMessage({ type: 'stitch-nav', path: '/campaign' }, '*');
+  }
+});
+</script></body></html>

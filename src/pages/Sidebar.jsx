@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { SIDEBAR_WIDTH_CLASS } from '../constants/pageConfig';
 import Logout from '../login/Logout';
 import { getAuthSession } from '../utils/authStorage';
@@ -125,15 +126,27 @@ const linkClassName = ({ isActive }) =>
       : 'text-white/85 hover:bg-white/10 hover:text-brand-yellow',
   ].join(' ');
 
+const PRIMARY_PATHS = ['/leads', '/messages', '/analytics', '/campaign'];
+
 const Sidebar = () => {
   const { role } = getAuthSession();
+  const { pathname } = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
   const navItems = NAV_ITEMS.filter(
     (item) => !item.superadminOnly || role === 'superadmin',
   );
+  const primaryItems = PRIMARY_PATHS.map((path) => navItems.find((item) => item.to === path)).filter(Boolean);
+  const moreItems = navItems.filter((item) => !PRIMARY_PATHS.includes(item.to));
+  const moreActive = moreItems.some((item) => pathname === item.to || pathname.startsWith(`${item.to}/`));
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
 
   return (
-    <aside className={`flex h-full ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col bg-brand-navy text-white`}>
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+    <>
+    <aside className={`hidden h-full min-h-0 ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col overflow-hidden bg-brand-navy text-white lg:flex`}>
+      <nav className="no-scrollbar min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-5">
         {navItems.map((item) => (
           <NavLink key={item.to} to={item.to} className={linkClassName}>
             {item.icon}
@@ -146,6 +159,62 @@ const Sidebar = () => {
         <Logout />
       </div>
     </aside>
+
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-brand-navy pb-[env(safe-area-inset-bottom)] text-white lg:hidden"
+      aria-label="Primary"
+    >
+      <div className="grid h-16 grid-cols-5">
+        {primaryItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+                isActive ? 'text-brand-yellow' : 'text-white/80'
+              }`
+            }
+          >
+            {item.icon}
+            {item.label}
+          </NavLink>
+        ))}
+        <button
+          type="button"
+          onClick={() => setMoreOpen(true)}
+          className={`flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+            moreActive ? 'text-brand-yellow' : 'text-white/80'
+          }`}
+          aria-expanded={moreOpen}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+          </svg>
+          More
+        </button>
+      </div>
+    </nav>
+
+    {moreOpen && (
+      <div className="fixed inset-0 z-50 lg:hidden">
+        <button type="button" aria-label="Close menu" className="absolute inset-0 bg-brand-navy/40" onClick={() => setMoreOpen(false)} />
+        <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-brand-navy px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 text-white">
+          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/30" />
+          <div className="space-y-1">
+            {moreItems.map((item) => (
+              <NavLink key={item.to} to={item.to} className={linkClassName} onClick={() => setMoreOpen(false)}>
+                {item.icon}
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
+          <div className="mt-2 border-t border-white/10 pt-2">
+            <Logout onLogout={() => setMoreOpen(false)} />
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

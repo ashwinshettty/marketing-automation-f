@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import CurrentCampaignPage from './CurrentCampaignPage';
+import { SHOW_CURRENT_CAMPAIGN_UI } from './campaignUiFlag';
 import CampaignFormSection from './CampaignFormSection';
 import CampaignSummaryCard from './CampaignSummaryCard';
 import {
@@ -440,4 +442,9 @@ const CampaignsPage = () => {
   );
 };
 
-export default CampaignsPage;
+const CampaignRoute = () => {
+  if (SHOW_CURRENT_CAMPAIGN_UI) return <CurrentCampaignPage />;
+  return <CampaignsPage />;
+};
+
+export default CampaignRoute;

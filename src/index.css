@@ -8,6 +8,31 @@
   --color-brand-yellow-soft: #fff3b0;
   --color-brand-cream: #fffbeb;
   --color-brand-muted: #4a4a7a;
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%,
+  35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%,
+  85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
 }
 
 html,
@@ -92,4 +117,34 @@ body,
 
 .auth-rise-late {
   animation: auth-rise 0.55s ease-out 0.26s both;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.campaign-map.leaflet-container {
+  z-index: 0;
+  height: 12rem;
+  width: 100%;
+  font-family: inherit;
+  background: #fffbeb;
+}
+
+.campaign-map .leaflet-pane,
+.campaign-map .leaflet-top,
+.campaign-map .leaflet-bottom {
+  z-index: 1;
+}
+
+.campaign-map img {
+  max-width: none;
+  max-height: none;
 }

@@ -14,12 +14,12 @@ export const PAGE_CONFIG = {
     description: 'Current Inkstall openings and JDs the agent uses to brief candidates (Beacot for teaching, resume for non-teaching).',
   },
   '/analytics': {
-    title: 'Analytics',
-    description: 'View performance metrics and insights.',
+    title: 'Marketing Intelligence',
+    description: 'Understand performance, improve lead quality, and measure marketing ROI.',
   },
   '/campaign': {
     title: 'Campaigns',
-    description: 'Create Meta-style campaigns with targeting, placements, budgets, and ad creatives.',
+    description: 'Create a campaign the way Ads Manager does: buying type, objective, campaign, ad set, then ad.',
   },
   '/messages': {
     title: 'Messages',

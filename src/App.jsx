@@ -4,6 +4,7 @@ import IncomingCallBanner from './components/whatsapp/IncomingCallBanner';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LeadProvider } from './context/LeadContext';
 import { PAGE_CONFIG } from './constants/pageConfig';
+import AnalyticsPage from './analytics/AnalyticsPage';
 import CampaignsPage from './campaigns/CampaignsPage';
 import EventsPage from './events/EventsPage';
 import VacanciesPage from './vacancies/VacanciesPage';
@@ -35,6 +36,7 @@ import ReportsPage from './website-intelligence/pages/ReportsPage';
 
 const SECTION_SKIP = new Set([
   '/leads',
+  '/analytics',
   '/event',
   '/vacancies',
   '/campaign',
@@ -65,6 +67,7 @@ const App = () => {
         >
           <Route index element={<Home />} />
           <Route path="leads" element={<LeadsPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="event" element={<EventsPage />} />
           <Route path="vacancies" element={<VacanciesPage />} />
           <Route path="campaign" element={<CampaignsPage />} />

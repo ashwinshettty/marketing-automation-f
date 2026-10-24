@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketing Intelligence Workspace - Creatives</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-surface": "#323126",
+            "primary-fixed-dim": "#bfc2ff",
+            "on-secondary": "#ffffff",
+            "surface-container-high": "#ece8d9",
+            "on-primary-fixed": "#00006e",
+            "surface-container-highest": "#e6e3d3",
+            "secondary-container": "#fcd000",
+            "on-primary": "#ffffff",
+            "error-container": "#ffdad6",
+            "surface-dim": "#dedacb",
+            "outline-variant": "#c6c5d5",
+            "surface-bright": "#fdf9e9",
+            "on-tertiary-fixed-variant": "#424271",
+            "on-surface-variant": "#464653",
+            "surface-variant": "#e6e3d3",
+            "tertiary-fixed": "#e2dfff",
+            "surface": "#fdf9e9",
+            "error": "#ba1a1a",
+            "primary-fixed": "#e0e0ff",
+            "on-primary-fixed-variant": "#3239a3",
+            "secondary": "#715c00",
+            "on-secondary-fixed": "#231b00",
+            "tertiary": "#050333",
+            "outline": "#767684",
+            "on-tertiary": "#ffffff",
+            "on-secondary-container": "#6e5a00",
+            "surface-container-low": "#f8f4e4",
+            "on-error-container": "#93000a",
+            "inverse-primary": "#bfc2ff",
+            "surface-tint": "#4b53bc",
+            "on-error": "#ffffff",
+            "inverse-on-surface": "#f5f1e1",
+            "secondary-fixed-dim": "#ecc300",
+            "surface-container": "#f2eede",
+            "on-tertiary-container": "#8584b8",
+            "background": "#fdf9e9",
+            "tertiary-fixed-dim": "#c2c1f9",
+            "on-background": "#1c1c13",
+            "secondary-fixed": "#ffe17a",
+            "tertiary-container": "#1c1c4a",
+            "on-tertiary-fixed": "#161543",
+            "primary": "#00003c",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#554500",
+            "primary-container": "#000080",
+            "on-surface": "#1c1c13",
+            "on-primary-container": "#777eea"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "margin": "2rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.5rem",
+            "margin-desktop": "2.5rem"
+          },
+          fontFamily: {
+            "headline-md": ["Inter"],
+            "metric-val": ["Inter"],
+            "title-md": ["Inter"],
+            "display-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "title-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"]
+          },
+          fontSize: {
+            "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "metric-val": ["28px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "title-md": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "600" }],
+            "display-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }],
+            "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "500" }],
+            "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
+            "title-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.005em", fontWeight: "600" }],
+            "body-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "400" }],
+            "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "600" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex selection:bg-secondary-container selection:text-primary">
+<!-- SideNavBar Component -->
+
+<!-- Main Workspace Canvas -->
+<div class="ml-0 w-full flex-1 flex flex-col min-w-0 bg-surface">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-secondary-container/40 h-16 flex items-center justify-between px-margin-desktop">
+<!-- Left: Workspace Identity & Search Input -->
+<div class="flex items-center gap-6">
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight whitespace-nowrap">
+          Marketing Intelligence Workspace
+        </span>
+<!-- Search Bar -->
+<div class="relative w-80">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-10 pl-9 pr-4 bg-surface-container-lowest text-primary placeholder-on-surface-variant font-body-md text-body-md rounded-lg border border-secondary-container/40 focus:outline-none focus:border-primary-container" placeholder="Search parameters, cities, leads..." type="text"/>
+</div>
+</div>
+<!-- Right: Secondary & Primary Actions -->
+<div class="flex items-center gap-3">
+<!-- Filter View Action -->
+<button class="h-10 px-4 bg-surface-container-lowest text-primary-container border border-secondary-container/40 hover:border-secondary-container hover:bg-surface rounded-lg font-title-md text-title-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+          Filter View
+        </button>
+<!-- Primary Create Campaign Action -->
+<button class="h-10 px-4 bg-primary-container hover:bg-[#1a1a9a] text-on-primary rounded-lg font-title-md text-title-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+          Create Campaign
+        </button>
+<div class="h-6 w-px bg-secondary-container/40 mx-1"></div>
+<!-- Trailing Icon Actions -->
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors" title="Help">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+</button>
+<!-- User Profile Pill -->
+<div class="flex items-center gap-2 ml-1 pl-2 border-l border-secondary-container/40">
+<div class="w-9 h-9 rounded-full bg-primary-container text-secondary-container font-title-md font-bold flex items-center justify-center text-sm border border-secondary-container/60">
+            JD
+          </div>
+</div>
+</div>
+</header>
+<!-- Sub-Header & Main Content Canvas -->
+<main class="flex-1 px-margin-desktop py-space-lg space-y-6 max-w-[1440px] mx-auto w-full">
+<!-- Header Title Section -->
+<div class="flex flex-col gap-1">
+<h2 class="text-headline-lg font-headline-lg font-bold text-primary">Marketing Intelligence</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Understand performance, improve lead quality, and measure marketing ROI.</p>
+</div>
+<!-- Navigation Tabs Anchor -->
+<div class="border-b border-secondary-container/40 flex items-center gap-8">
+<a class="pb-3 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors" href="#">
+          Overview
+        </a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors" href="#">
+          Campaigns
+        </a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors" href="#">
+          Leads
+        </a>
+<a class="pb-3 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors" href="#">
+          Places
+        </a>
+<a class="pb-3 text-primary border-b-2 border-secondary-container font-title-md text-title-md flex items-center gap-2" href="#">
+<span>Creatives</span>
+<span class="bg-secondary-container text-primary text-[10px] font-bold px-1.5 py-0.5 rounded">SAMPLE</span>
+</a>
+</div>
+<!-- Global Filter Bar -->
+<div class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-md flex items-center justify-between flex-wrap gap-3">
+<div class="flex items-center gap-3 flex-wrap">
+<!-- Date Picker -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-secondary-container/40 text-primary font-title-md text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_today</span>
+<span>Last 30 days</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Platform Selector -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-secondary-container/40 text-primary font-title-md text-body-sm">
+<span class="text-on-surface-variant font-label-sm">Platform:</span>
+<span>All</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Campaign Selector -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-secondary-container/40 text-primary font-title-md text-body-sm">
+<span class="text-on-surface-variant font-label-sm">Campaign:</span>
+<span>All Campaigns</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- City Selector -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-secondary-container/40 text-primary font-title-md text-body-sm">
+<span class="text-on-surface-variant font-label-sm">City:</span>
+<span>All Cities</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Owner Selector -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-secondary-container/40 text-primary font-title-md text-body-sm">
+<span class="text-on-surface-variant font-label-sm">Owner:</span>
+<span>All Owners</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<!-- Reset -->
+<button class="h-8 px-3 rounded-lg border border-secondary-container/40 text-primary hover:bg-surface font-title-md text-body-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+            Reset
+          </button>
+<!-- Export -->
+<button class="h-8 px-3 rounded-lg bg-surface border border-secondary-container/40 text-primary hover:border-secondary-container font-title-md text-body-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+            Export
+          </button>
+</div>
+</div>
+<!-- Sub-bar Metadata Status -->
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant px-1">
+<div class="flex items-center gap-5 flex-wrap">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+            Timezone: <strong class="text-primary font-semibold">Asia/Kolkata</strong>
+</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+            Currency: <span class="italic">Not connected</span>
+</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+            Meta Ads: <span class="italic">Not connected</span>
+</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+            Google Ads: <span class="italic">Not connected</span>
+</span>
+</div>
+<div>
+          Last cache update: <strong>12 mins ago</strong>
+</div>
+</div>
+<!-- Yellow Alert Warning Banner -->
+<div class="bg-secondary-fixed/30 border border-secondary-container rounded-xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary font-bold text-[22px]">warning</span>
+<p class="text-body-md font-body-md text-on-background">
+            Sample data for layout only. Spend is unavailable until an ad account is connected, so it is shown as a dash, not zero.
+          </p>
+</div>
+<a class="inline-flex items-center gap-1 font-title-md text-title-md text-primary font-bold hover:underline whitespace-nowrap" href="#integration-settings">
+          Connect Ad Account
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- MAIN SECTION 1: Top Performing Creatives (Sample Telemetry) -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<h3 class="text-headline-md font-headline-md font-bold text-primary">Top Performing Creatives</h3>
+<span class="bg-secondary-container text-primary font-label-md text-label-md px-2 py-0.5 rounded">SAMPLE</span>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Sample layout telemetry demonstrating creative attribution structure</span>
+</div>
+<!-- 3-Card Bento / Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-desktop">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg flex flex-col justify-between">
+<div class="space-y-4">
+<!-- Visual Placeholder Preview with Format Tag -->
+<div class="w-full h-44 bg-surface-container border border-secondary-container/30 rounded-lg flex flex-col items-center justify-center p-4 relative text-center">
+<span class="material-symbols-outlined text-[36px] text-on-surface-variant mb-1">image</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Single Image (1080×1080)</span>
+<span class="text-label-sm font-label-sm text-outline mt-1">PNG • 1.2 MB</span>
+<div class="absolute top-2.5 right-2.5 bg-surface-container-lowest border border-secondary-container/50 text-primary text-[10px] font-bold px-2 py-0.5 rounded">
+                  Sample Preview
+                </div>
+</div>
+<!-- Metadata & Title -->
+<div>
+<div class="flex items-center justify-between gap-2 mb-1">
+<span class="inline-block bg-primary text-on-primary text-[11px] font-semibold px-2 py-0.5 rounded">Meta Ads</span>
+<span class="text-label-sm font-label-sm text-outline">ID: CR-0928</span>
+</div>
+<h4 class="text-title-lg font-title-lg text-primary font-bold">Enterprise Cloud - ROI Focus</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Campaign: Q3 Cloud Infrastructure Wave</p>
+</div>
+<!-- CRM Verified Metrics Row -->
+<div class="grid grid-cols-2 gap-2 pt-2 border-t border-secondary-container/30">
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Leads</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">52 <span class="text-body-sm font-normal text-on-surface-variant">Sample</span></span>
+</div>
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Conversions</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">14 <span class="text-body-sm font-normal text-on-surface-variant">Converted</span></span>
+</div>
+</div>
+<!-- Unconnected Platform Telemetry Metrics (Strictly Dashes) -->
+<div class="grid grid-cols-4 gap-1 text-center py-2 px-1 bg-surface-container-low rounded-lg border border-secondary-container/20">
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">Spend</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CTR</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CPA</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">ROAS</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+</div>
+</div>
+<!-- Card Action Footer -->
+<div class="pt-4 mt-4 border-t border-secondary-container/30 flex items-center justify-between">
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                View Asset
+              </button>
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+                Creative Details
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg flex flex-col justify-between">
+<div class="space-y-4">
+<!-- Visual Placeholder Preview with Format Tag -->
+<div class="w-full h-44 bg-surface-container border border-secondary-container/30 rounded-lg flex flex-col items-center justify-center p-4 relative text-center">
+<span class="material-symbols-outlined text-[36px] text-on-surface-variant mb-1">play_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Supply Chain Automation Video</span>
+<span class="text-label-sm font-label-sm text-outline mt-1">MP4 16:9 • 0:30s</span>
+<div class="absolute top-2.5 right-2.5 bg-surface-container-lowest border border-secondary-container/50 text-primary text-[10px] font-bold px-2 py-0.5 rounded">
+                  Sample Preview
+                </div>
+</div>
+<!-- Metadata & Title -->
+<div>
+<div class="flex items-center justify-between gap-2 mb-1">
+<span class="inline-block bg-primary text-on-primary text-[11px] font-semibold px-2 py-0.5 rounded">Google Ads</span>
+<span class="text-label-sm font-label-sm text-outline">ID: CR-0814</span>
+</div>
+<h4 class="text-title-lg font-title-lg text-primary font-bold">Logistics &amp; Supply Chain Video</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Campaign: Enterprise Automation Awareness</p>
+</div>
+<!-- Informative Pill Callout Requirement -->
+<div class="px-2.5 py-1.5 bg-secondary-fixed/20 border border-secondary-container/60 rounded-lg text-body-sm font-body-sm text-on-secondary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>High click-through is not available without ad reporting.</span>
+</div>
+<!-- CRM Verified Metrics Row -->
+<div class="grid grid-cols-2 gap-2 pt-1 border-t border-secondary-container/30">
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Leads</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">44 <span class="text-body-sm font-normal text-on-surface-variant">Sample</span></span>
+</div>
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Conversions</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">11 <span class="text-body-sm font-normal text-on-surface-variant">Converted</span></span>
+</div>
+</div>
+<!-- Unconnected Platform Telemetry Metrics (Strictly Dashes) -->
+<div class="grid grid-cols-4 gap-1 text-center py-2 px-1 bg-surface-container-low rounded-lg border border-secondary-container/20">
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">Spend</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CTR</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CPA</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">ROAS</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+</div>
+</div>
+<!-- Card Action Footer -->
+<div class="pt-4 mt-4 border-t border-secondary-container/30 flex items-center justify-between">
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                View Asset
+              </button>
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+                Creative Details
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg flex flex-col justify-between">
+<div class="space-y-4">
+<!-- Visual Placeholder Preview with Format Tag -->
+<div class="w-full h-44 bg-surface-container border border-secondary-container/30 rounded-lg flex flex-col items-center justify-center p-4 relative text-center">
+<span class="material-symbols-outlined text-[36px] text-on-surface-variant mb-1">view_carousel</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">B2B Talent Solutions Carousel</span>
+<span class="text-label-sm font-label-sm text-outline mt-1">Multi-Card 1:1 • 4 Slides</span>
+<div class="absolute top-2.5 right-2.5 bg-surface-container-lowest border border-secondary-container/50 text-primary text-[10px] font-bold px-2 py-0.5 rounded">
+                  Sample Preview
+                </div>
+</div>
+<!-- Metadata & Title -->
+<div>
+<div class="flex items-center justify-between gap-2 mb-1">
+<span class="inline-block bg-primary text-on-primary text-[11px] font-semibold px-2 py-0.5 rounded">Meta Ads</span>
+<span class="text-label-sm font-label-sm text-outline">ID: CR-0641</span>
+</div>
+<h4 class="text-title-lg font-title-lg text-primary font-bold">B2B Talent Solutions Carousel</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Campaign: Executive Talent Acquisition</p>
+</div>
+<!-- CRM Verified Metrics Row -->
+<div class="grid grid-cols-2 gap-2 pt-2 border-t border-secondary-container/30">
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Leads</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">32 <span class="text-body-sm font-normal text-on-surface-variant">Sample</span></span>
+</div>
+<div class="p-2.5 bg-surface rounded-lg border border-secondary-container/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block">Conversions</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">8 <span class="text-body-sm font-normal text-on-surface-variant">Converted</span></span>
+</div>
+</div>
+<!-- Unconnected Platform Telemetry Metrics (Strictly Dashes) -->
+<div class="grid grid-cols-4 gap-1 text-center py-2 px-1 bg-surface-container-low rounded-lg border border-secondary-container/20">
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">Spend</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CTR</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">CPA</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">ROAS</span>
+<span class="text-title-md font-title-md text-primary font-bold">—</span>
+</div>
+</div>
+</div>
+<!-- Card Action Footer -->
+<div class="pt-4 mt-4 border-t border-secondary-container/30 flex items-center justify-between">
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                View Asset
+              </button>
+<button class="text-body-sm font-title-md text-primary hover:underline flex items-center gap-1">
+                Creative Details
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- MAIN SECTION 2: Budget & Revenue Sync Status -->
+<section class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg space-y-6" id="integration-settings">
+<div class="flex items-center justify-between border-b border-secondary-container/30 pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[24px]">account_balance_wallet</span>
+<div>
+<h3 class="text-headline-md font-headline-md font-bold text-primary">Budget &amp; Revenue Sync Status</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ad platform integration reconciler and attribution sync pipeline</p>
+</div>
+</div>
+<span class="px-2.5 py-1 bg-surface-container-high border border-outline-variant/40 rounded text-label-md font-label-md text-on-surface-variant">
+            SYNC STATUS: DISCONNECTED
+          </span>
+</div>
+<!-- Distinct Informative Explanatory Callout Box -->
+<div class="bg-surface-container-low border border-secondary-container/40 rounded-xl p-space-md space-y-2">
+<div class="flex items-start gap-2.5 text-body-md font-body-md text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">info</span>
+<div class="space-y-1">
+<p class="font-medium text-primary">Total budget, actual spend, and pacing are unavailable until an ad account is connected.</p>
+<p class="text-on-surface-variant text-body-sm font-body-sm">
+                CRM revenue is not platform conversion value — platform-reported ROAS and conversion values require active ad network tracking integration.
+              </p>
+</div>
+</div>
+</div>
+<!-- Metrics Summary Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Total Planned Budget -->
+<div class="p-space-md bg-surface border border-secondary-container/30 rounded-lg">
+<span class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Total Planned Budget</span>
+<div class="text-metric-val font-metric-val text-primary tracking-tight">—</div>
+<span class="text-label-sm font-label-sm text-outline mt-1 block italic">Connect Ad Account</span>
+</div>
+<!-- Actual Spend -->
+<div class="p-space-md bg-surface border border-secondary-container/30 rounded-lg">
+<span class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Actual Spend</span>
+<div class="text-metric-val font-metric-val text-primary tracking-tight">—</div>
+<span class="text-label-sm font-label-sm text-outline mt-1 block">Awaiting platform sync</span>
+</div>
+<!-- Spend Pacing -->
+<div class="p-space-md bg-surface border border-secondary-container/30 rounded-lg">
+<span class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Spend Pacing</span>
+<div class="text-metric-val font-metric-val text-primary tracking-tight">—</div>
+<span class="text-label-sm font-label-sm text-outline mt-1 block">Calculation inactive</span>
+</div>
+<!-- Recorded CRM Revenue -->
+<div class="p-space-md bg-surface border border-secondary-container/30 rounded-lg">
+<span class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Recorded CRM Revenue</span>
+<div class="text-metric-val font-metric-val text-primary tracking-tight">₹4.2L</div>
+<span class="text-label-sm font-label-sm text-secondary-container bg-primary px-1.5 py-0.5 rounded font-bold mt-1 inline-block">
+              Sample CRM closed-won value
+            </span>
+</div>
+</div>
+<!-- Enterprise Integration Action Banner -->
+<div class="bg-surface border border-secondary-container/60 rounded-xl p-space-md flex items-center justify-between flex-wrap gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">hub</span>
+</div>
+<div>
+<p class="font-title-md text-title-md text-primary font-bold">
+                Connect Meta &amp; Google Ad accounts to sync live creative spend and ROAS attribution.
+              </p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                Enables deterministic attribution match-back with CRM deals and accurate creative cost-per-acquisition.
+              </p>
+</div>
+</div>
+<button class="h-10 px-5 bg-surface-container-lowest text-primary-container hover:bg-surface border border-secondary-container hover:border-secondary-container font-title-md text-title-md rounded-lg flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings_input_composite</span>
+            Configure Integration Settings
+          </button>
+</div>
+</section>
+<!-- Workspace Footer Telemetry Stamp -->
+<footer class="pt-6 pb-8 border-t border-secondary-container/30 text-center text-body-sm font-body-sm text-outline flex items-center justify-between">
+<div>Enterprise Analytics Workspace v4.8.2 • Creative Telemetry Engine</div>
+<div class="flex items-center gap-4">
+<span>Security &amp; Compliance</span>
+<span>•</span>
+<span>API Connector Status</span>
+<span>•</span>
+<span>Documentation</span>
+</div>
+</footer>
+</main>
+</div>
+<script>
+document.addEventListener('click', function (event) {
+  var button = event.target.closest('button');
+  if (!button) return;
+  var label = button.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+  var views = ['overview', 'campaigns', 'leads', 'places', 'creatives'];
+  if (views.indexOf(label) !== -1) {
+    event.preventDefault();
+    parent.postMessage({ type: 'stitch-view', view: label }, '*');
+  }
+  if (label.indexOf('create campaign') !== -1) {
+    parent.postMessage({ type: 'stitch-nav', path: '/campaign' }, '*');
+  }
+});
+</script></body></html>

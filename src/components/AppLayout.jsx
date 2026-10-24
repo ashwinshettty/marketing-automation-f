@@ -26,8 +26,8 @@ const AppLayout = () => {
       <div className="flex min-h-0 flex-1">
         <Sidebar />
         <main
-          className={`min-h-0 min-w-0 flex-1 ${
-            isMessages ? 'overflow-hidden' : 'overflow-y-auto'
+          className={`min-h-0 min-w-0 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0 ${
+            isMessages ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
           }`}
         >
           <Outlet />

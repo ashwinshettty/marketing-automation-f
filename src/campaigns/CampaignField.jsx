@@ -1,6 +1,6 @@
 const wrapperClass = 'space-y-2';
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-brand-yellow';
+  'w-full rounded-xl border border-brand-yellow/40 bg-white px-4 py-2.5 text-sm text-brand-navy outline-none transition placeholder:text-brand-muted/70 focus:border-brand-navy';
 
 export const CampaignInput = ({
   label,
@@ -64,13 +64,13 @@ export const CampaignCheckboxGroup = ({
       {options.map((option) => (
         <label
           key={option.value}
-          className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800"
+          className="flex items-start gap-3 rounded-xl border border-brand-yellow/40 bg-white px-4 py-3 text-sm text-brand-navy"
         >
           <input
             type="checkbox"
             checked={values.includes(option.value)}
             onChange={() => onToggle(option.value)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-navy focus:ring-brand-yellow"
+            className="mt-0.5 h-4 w-4 accent-brand-navy"
           />
           <span>{option.label}</span>
         </label>
@@ -116,5 +116,24 @@ export const CampaignRadioCards = ({
         );
       })}
     </div>
+  </div>
+);
+
+export const CampaignSwitch = ({ label, description, checked, onChange }) => (
+  <div className="flex items-start justify-between gap-4 rounded-2xl border border-brand-yellow/30 bg-brand-cream px-4 py-4">
+    <div>
+      <p className="text-sm font-semibold text-brand-navy">{label}</p>
+      {description ? <p className="mt-1 text-sm text-brand-muted">{description}</p> : null}
+    </div>
+    <button
+      type="button"
+      role="switch"
+      aria-label={label}
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative mt-1 h-6 w-11 shrink-0 rounded-full ${checked ? 'bg-brand-navy' : 'bg-slate-300'}`}
+    >
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full ${checked ? 'left-5 bg-brand-yellow' : 'left-0.5 bg-white'}`} />
+    </button>
   </div>
 );

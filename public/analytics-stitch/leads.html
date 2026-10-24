@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketing Intelligence - Leads</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-background": "#1c1c13",
+            "error-container": "#ffdad6",
+            "on-surface": "#1c1c13",
+            "on-primary-container": "#777eea",
+            "background": "#fdf9e9",
+            "on-primary-fixed": "#00006e",
+            "inverse-surface": "#323126",
+            "tertiary-fixed": "#e2dfff",
+            "secondary-fixed": "#ffe17a",
+            "on-tertiary-container": "#8584b8",
+            "on-secondary-container": "#6e5a00",
+            "on-tertiary-fixed": "#161543",
+            "on-primary": "#ffffff",
+            "outline-variant": "#c6c5d5",
+            "tertiary": "#050333",
+            "primary-container": "#000080",
+            "primary": "#00003c",
+            "surface-container-high": "#ece8d9",
+            "error": "#ba1a1a",
+            "secondary-fixed-dim": "#ecc300",
+            "surface-tint": "#4b53bc",
+            "on-error-container": "#93000a",
+            "surface-bright": "#fdf9e9",
+            "primary-fixed-dim": "#bfc2ff",
+            "outline": "#767684",
+            "surface-dim": "#dedacb",
+            "secondary-container": "#fcd000",
+            "surface-container-lowest": "#ffffff",
+            "primary-fixed": "#e0e0ff",
+            "on-tertiary-fixed-variant": "#424271",
+            "on-tertiary": "#ffffff",
+            "surface-variant": "#e6e3d3",
+            "surface-container": "#f2eede",
+            "on-surface-variant": "#464653",
+            "inverse-on-surface": "#f5f1e1",
+            "tertiary-container": "#1c1c4a",
+            "on-secondary-fixed": "#231b00",
+            "surface": "#fdf9e9",
+            "on-secondary-fixed-variant": "#554500",
+            "tertiary-fixed-dim": "#c2c1f9",
+            "secondary": "#715c00",
+            "on-error": "#ffffff",
+            "inverse-primary": "#bfc2ff",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed-variant": "#3239a3",
+            "surface-container-highest": "#e6e3d3",
+            "surface-container-low": "#f8f4e4"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "2rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem",
+            "margin-desktop": "2.5rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "gutter-desktop": "1.5rem"
+          },
+          "fontFamily": {
+            "title-md": ["Inter"],
+            "headline-md": ["Inter"],
+            "display-lg": ["Inter"],
+            "metric-val": ["Inter"],
+            "title-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-lg": ["Inter"]
+          },
+          "fontSize": {
+            "title-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "metric-val": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "title-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-full flex overflow-x-hidden">
+<!-- LEFT SIDENAVBAR (Shared Component: SideNavBar) -->
+
+<!-- MAIN WORKSPACE WRAPPER (Offset by SideNav 260px) -->
+<div class="flex-1 ml-0 w-full min-w-0 flex flex-col min-h-screen bg-background">
+<!-- TOPNAVBAR (Shared Component: TopNavBar) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-secondary-container/40 h-16 w-full px-margin-desktop py-space-sm flex justify-between items-center">
+<!-- Search on Left with Product Name -->
+<div class="flex items-center gap-6">
+<span class="text-headline-md font-headline-md font-bold text-primary">Marketing Intelligence Workspace</span>
+<div class="relative w-72">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-base" data-icon="search">search</span>
+<input class="w-full h-10 pl-9 pr-4 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-primary placeholder-on-surface-variant focus:outline-none focus:border-2 focus:border-primary" placeholder="Search leads, campaigns, owners..." type="text"/>
+</div>
+</div>
+<!-- Trailing Action Cluster -->
+<div class="flex items-center gap-3">
+<!-- Secondary Action: Filter View -->
+<button class="h-10 px-3.5 bg-surface-container-lowest text-primary border border-secondary-container/40 rounded-lg font-title-md text-title-md hover:border-secondary-container hover:bg-surface flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+<span>Filter View</span>
+</button>
+<!-- Primary Action: + Create Campaign -->
+<button class="h-10 px-4 bg-primary text-on-primary rounded-lg font-title-md text-title-md hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>Create Campaign</span>
+</button>
+<!-- Icon Actions: notifications, help_outline -->
+<div class="h-6 w-px bg-outline-variant/40 mx-1"></div>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" title="Help">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<!-- Profile Avatar -->
+<div class="w-9 h-9 rounded-full bg-primary text-on-primary font-title-md flex items-center justify-center border border-secondary-container ml-1" title="User profile picture">
+          JD
+        </div>
+</div>
+</header>
+<!-- MAIN CANVAS CONTENT -->
+<main class="p-margin-desktop flex flex-col gap-6">
+<!-- Header & Subtitle Block -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<h1 class="text-display-lg font-display-lg text-primary tracking-tight">Marketing Intelligence</h1>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-secondary-container/30 border border-secondary-container text-secondary text-label-sm font-label-sm tracking-wide">LEAD INTELLIGENCE ENGINE</span>
+<span class="px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant/50 text-on-surface-variant text-label-sm font-label-sm">SAMPLE MODE</span>
+</div>
+</div>
+<p class="text-body-lg font-body-lg text-on-surface-variant">Understand performance, improve lead quality, and measure marketing ROI.</p>
+</div>
+<!-- Secondary Filter Bar -->
+<div class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-md flex items-center justify-between flex-wrap gap-3">
+<div class="flex items-center gap-3 flex-wrap">
+<!-- Last 30 days -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-title-md font-title-md text-primary cursor-pointer hover:border-secondary-container">
+<span class="material-symbols-outlined text-base" data-icon="calendar_today">calendar_today</span>
+<span>Last 30 days</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Platform: All -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-on-surface-variant cursor-pointer hover:border-secondary-container">
+<span class="text-label-md font-label-md text-outline">Platform:</span>
+<span class="font-title-md text-primary">All</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Campaign: All Campaigns -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-on-surface-variant cursor-pointer hover:border-secondary-container">
+<span class="text-label-md font-label-md text-outline">Campaign:</span>
+<span class="font-title-md text-primary">All Campaigns</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<!-- City: All Cities -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-on-surface-variant cursor-pointer hover:border-secondary-container">
+<span class="text-label-md font-label-md text-outline">City:</span>
+<span class="font-title-md text-primary">All Cities</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Owner: All Owners -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-on-surface-variant cursor-pointer hover:border-secondary-container">
+<span class="text-label-md font-label-md text-outline">Owner:</span>
+<span class="font-title-md text-primary">All Owners</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<!-- Reset -->
+<button class="px-3 py-1.5 bg-surface-container-lowest text-on-surface-variant hover:text-primary rounded-lg text-title-md font-title-md transition-colors">
+            Reset
+          </button>
+<!-- Export Button -->
+<button class="px-3.5 py-1.5 bg-surface-container-lowest border border-secondary-container/40 text-primary hover:border-secondary-container hover:bg-surface rounded-lg text-title-md font-title-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-base" data-icon="file_download">file_download</span>
+<span>Export</span>
+</button>
+</div>
+</div>
+<!-- Notice / Status line -->
+<div class="flex items-center gap-2 text-label-md font-label-md text-outline px-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="info">info</span>
+<span>Timezone: Asia/Kolkata</span>
+<span>•</span>
+<span class="text-error">Currency not connected</span>
+<span>•</span>
+<span class="text-outline">Meta Ads not connected</span>
+<span>•</span>
+<span class="text-outline">Google Ads not connected</span>
+</div>
+<!-- Tabs Row -->
+<div class="flex items-center gap-8 border-b border-secondary-container/40 px-2 pt-1">
+<a class="text-on-surface-variant hover:text-primary pb-3 font-body-md transition-colors flex items-center gap-2" href="#">
+<span>Overview</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary pb-3 font-body-md transition-colors flex items-center gap-2" href="#">
+<span>Campaigns</span>
+</a>
+<!-- ACTIVE TAB: Leads -->
+<a class="text-primary border-b-2 border-secondary-container pb-3 font-title-md flex items-center gap-2" href="#">
+<span>Leads</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-label-sm font-label-sm font-bold">128</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary pb-3 font-body-md transition-colors flex items-center gap-2" href="#">
+<span>Places</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary pb-3 font-body-md transition-colors flex items-center gap-2" href="#">
+<span>Creatives</span>
+</a>
+</div>
+<!-- Warning / Info Alert Banner -->
+<div class="bg-surface-container-lowest border border-secondary-container/60 rounded-xl p-space-md flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/30 border border-secondary-container flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-lg" data-icon="announcement">announcement</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-title-md font-title-md text-primary">Simulated Analytics Mode Active</span>
+<span class="px-2 py-0.2 rounded bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm">Sample Environment</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mt-0.5">
+              Sample data for layout only. Spend and ad metrics are unavailable until an ad account is connected, so they are shown as a dash, not zero.
+            </p>
+</div>
+</div>
+<button class="px-3.5 py-1.5 bg-primary text-on-primary rounded-lg text-title-md font-title-md shrink-0 hover:bg-primary-container transition-colors">
+          Connect Ad Account
+        </button>
+</div>
+<!-- LEAD JOURNEY FUNNEL CARD -->
+<section class="bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<h2 class="text-title-lg font-title-lg text-primary">Lead Journey &amp; Funnel Velocity</h2>
+<span class="px-2 py-0.5 rounded bg-surface-container-low border border-secondary-container/40 text-secondary text-label-sm font-label-sm font-bold">Sample Flow</span>
+</div>
+<span class="text-label-md font-label-md text-on-surface-variant">Last 30 Days Cohort Tracking</span>
+</div>
+<!-- Horizontal Flow Stages Container -->
+<div class="grid grid-cols-12 gap-3 items-center pt-2">
+<!-- Funnel Stages Container (10 cols) -->
+<div class="col-span-10 grid grid-cols-5 gap-2 items-center bg-surface-container-low/40 p-3 rounded-xl border border-secondary-container/30">
+<!-- Stage 1: New -->
+<div class="flex flex-col gap-1.5 p-3 rounded-lg bg-surface-container-lowest border border-secondary-container/50 relative">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-on-surface-variant">1. New</span>
+<span class="text-label-sm font-label-sm text-secondary px-1.5 py-0.2 bg-secondary-container/20 rounded">Sample</span>
+</div>
+<div class="text-metric-val font-metric-val text-primary leading-none">128</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<span>100% of initial</span>
+<span class="text-outline font-semibold">Start</span>
+</div>
+<div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-lowest border border-secondary-container text-secondary text-xs">
+                →
+              </div>
+</div>
+<!-- Stage 2: Contacted -->
+<div class="flex flex-col gap-1.5 p-3 rounded-lg bg-surface-container-lowest border border-secondary-container/50 relative">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-on-surface-variant">2. Contacted</span>
+<span class="text-label-sm font-label-sm text-secondary px-1.5 py-0.2 bg-secondary-container/20 rounded">Sample</span>
+</div>
+<div class="text-metric-val font-metric-val text-primary leading-none">74</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<span>57.8% volume</span>
+<span class="text-error font-medium">-42.2% drop</span>
+</div>
+<div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-lowest border border-secondary-container text-secondary text-xs">
+                →
+              </div>
+</div>
+<!-- Stage 3: Engaged -->
+<div class="flex flex-col gap-1.5 p-3 rounded-lg bg-surface-container-lowest border border-secondary-container/50 relative">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-on-surface-variant">3. Engaged</span>
+<span class="text-label-sm font-label-sm text-secondary px-1.5 py-0.2 bg-secondary-container/20 rounded">Sample</span>
+</div>
+<div class="text-metric-val font-metric-val text-primary leading-none">41</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<span>32.0% volume</span>
+<span class="text-error font-medium">-44.6% drop</span>
+</div>
+<div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-lowest border border-secondary-container text-secondary text-xs">
+                →
+              </div>
+</div>
+<!-- Stage 4: Qualified -->
+<div class="flex flex-col gap-1.5 p-3 rounded-lg bg-surface-container-lowest border border-secondary-container/50 relative">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-on-surface-variant">4. Qualified</span>
+<span class="text-label-sm font-label-sm text-secondary px-1.5 py-0.2 bg-secondary-container/20 rounded">Sample</span>
+</div>
+<div class="text-metric-val font-metric-val text-primary leading-none">29</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<span>22.7% volume</span>
+<span class="text-error font-medium">-29.3% drop</span>
+</div>
+<div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-lowest border border-secondary-container text-secondary text-xs">
+                →
+              </div>
+</div>
+<!-- Stage 5: Converted -->
+<div class="flex flex-col gap-1.5 p-3 rounded-lg bg-surface-container-lowest border-2 border-secondary-container relative">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-primary font-bold">5. Converted</span>
+<span class="text-label-sm font-label-sm text-on-secondary-fixed px-1.5 py-0.2 bg-secondary-container rounded font-bold">Win</span>
+</div>
+<div class="text-metric-val font-metric-val text-primary leading-none">18</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<span class="font-bold text-primary">14.1% conversion</span>
+<span class="text-error font-medium">-37.9% drop</span>
+</div>
+</div>
+</div>
+<!-- Separate Lost Callout Card (2 cols) -->
+<div class="col-span-2 h-full flex flex-col justify-between p-3.5 bg-surface-container-lowest border border-secondary-container/40 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md uppercase text-outline">Exit / Lost</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm">Sample</span>
+</div>
+<div class="my-2">
+<div class="text-metric-val font-metric-val text-on-surface-variant leading-none">11</div>
+<span class="text-body-sm font-body-sm text-outline mt-1 inline-block">Disqualified or Unresponsive</span>
+</div>
+<div class="pt-2 border-t border-secondary-container/30 flex items-center justify-between text-label-sm font-label-sm text-outline">
+<span>Overall Loss Rate</span>
+<span class="font-bold text-on-surface-variant">8.6%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- MAIN SPLIT WORKSPACE: TABLE (68%) & DETAIL DRAWER (32%) -->
+<section class="grid grid-cols-12 gap-gutter items-start mb-8">
+<!-- LEFT: COMPACT LEAD TABLE (Col span 8 -> approx 67%) -->
+<div class="col-span-8 bg-surface-container-lowest border border-secondary-container/40 rounded-xl flex flex-col">
+<!-- Table Search & Filter Header -->
+<div class="p-space-md border-b border-secondary-container/40 flex flex-col gap-3">
+<div class="flex items-center justify-between gap-4">
+<!-- Search Input -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-base" data-icon="search">search</span>
+<input class="w-full h-10 pl-9 pr-4 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-md font-body-md text-primary placeholder-on-surface-variant focus:outline-none focus:border-2 focus:border-primary" placeholder="Search leads by name, owner, campaign..." type="text"/>
+</div>
+<!-- Action button in table header -->
+<div class="flex items-center gap-2">
+<button class="h-10 px-3 border border-secondary-container/40 rounded-lg text-title-md font-title-md text-primary hover:border-secondary-container hover:bg-surface flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-base" data-icon="view_column">view_column</span>
+<span>Columns</span>
+</button>
+<button class="h-10 px-3 border border-secondary-container/40 rounded-lg text-title-md font-title-md text-primary hover:border-secondary-container hover:bg-surface flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-base" data-icon="sort">sort</span>
+<span>Sort</span>
+</button>
+</div>
+</div>
+<!-- Quick Filter Chips -->
+<div class="flex items-center gap-2 overflow-x-auto pt-1 pb-0.5">
+<!-- Selected Chip -->
+<button class="h-7 px-2.5 rounded-lg bg-primary text-on-primary font-title-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>All Leads</span>
+<span class="px-1.5 py-0.2 rounded bg-primary-container text-on-primary text-label-sm font-label-sm">128</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>New</span>
+<span class="text-outline text-label-sm font-label-sm">43</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>Contacted</span>
+<span class="text-outline text-label-sm font-label-sm">33</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>Engaged</span>
+<span class="text-outline text-label-sm font-label-sm">12</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>Qualified</span>
+<span class="text-outline text-label-sm font-label-sm">11</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>Converted</span>
+<span class="text-outline text-label-sm font-label-sm">18</span>
+</button>
+<button class="h-7 px-2.5 rounded-lg bg-surface-container-lowest border border-secondary-container/40 text-on-surface-variant hover:text-primary font-body-md text-body-sm shrink-0 flex items-center gap-1.5">
+<span>Lost</span>
+<span class="text-outline text-label-sm font-label-sm">11</span>
+</button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-2 border-secondary-container/40 bg-surface-container-low/50 text-label-md font-label-md text-on-surface-variant uppercase">
+<th class="py-3 px-4 w-10 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</th>
+<th class="py-3 px-3">Lead Name</th>
+<th class="py-3 px-3">Source</th>
+<th class="py-3 px-3">Campaign</th>
+<th class="py-3 px-3">Created Date</th>
+<th class="py-3 px-3">Status</th>
+<th class="py-3 px-3">Owner</th>
+<th class="py-3 px-3 text-right">Last Contact</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 text-body-md font-body-md">
+<!-- ROW 1: SELECTED LEAD (Aarav Sharma) -->
+<tr class="bg-surface-container border-l-4 border-l-primary cursor-pointer hover:bg-surface-container transition-colors">
+<td class="py-3.5 px-4 text-center">
+<input checked="" class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary text-on-primary text-label-sm font-label-sm flex items-center justify-center font-bold">AS</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary font-bold">Aarav Sharma</span>
+<span class="text-label-sm font-label-sm text-outline">Apex Industrial Solutions</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="search">search</span> Google Ads
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Q4 High Intent B2B</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 10, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/20 font-semibold">
+                      Qualified
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Rohan Verma</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">Today, 11:30 AM</td>
+</tr>
+<!-- ROW 2: Priya Patel -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-fixed text-label-sm font-label-sm flex items-center justify-center font-bold">PP</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Priya Patel</span>
+<span class="text-label-sm font-label-sm text-outline">Zenith Logistics Ltd.</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="campaign">campaign</span> Meta Ads
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Supply Chain Retargeting</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 12, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary-container/30 text-secondary border border-secondary-container font-semibold">
+                      Contacted
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Neha Gupta</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">Yesterday</td>
+</tr>
+<!-- ROW 3: Vikram Mehta -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-primary text-label-sm font-label-sm flex items-center justify-center font-bold">VM</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Vikram Mehta</span>
+<span class="text-label-sm font-label-sm text-outline">Kalyan Infrastructure</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="language">language</span> Organic Search
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Direct Portal Visit</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 14, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-fixed text-primary border border-primary-fixed-dim font-semibold">
+                      New
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Unassigned</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-outline font-mono">-</td>
+</tr>
+<!-- ROW 4: Ananya Sen -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary text-label-sm font-label-sm flex items-center justify-center font-bold">AS</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Ananya Sen</span>
+<span class="text-label-sm font-label-sm text-outline">Tricon Enterprises</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="share">share</span> Referral
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Executive Network</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Sep 28, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold">
+                      Converted
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Rohan Verma</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">3 days ago</td>
+</tr>
+<!-- ROW 5: Rajesh Kothari -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm flex items-center justify-center font-bold">RK</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Rajesh Kothari</span>
+<span class="text-label-sm font-label-sm text-outline">Nexus Petrochemicals</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="search">search</span> Google Ads
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Q4 Enterprise Direct</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 05, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-variant text-outline border border-outline-variant font-semibold">
+                      Lost
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Sanjay Roy</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">Oct 11, 2024</td>
+</tr>
+<!-- ROW 6: Sneha Mukherjee -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-primary text-label-sm font-label-sm flex items-center justify-center font-bold">SM</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Sneha Mukherjee</span>
+<span class="text-label-sm font-label-sm text-outline">Horizon Power Corp</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="campaign">campaign</span> Meta Ads
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Clean Energy Leaders</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 09, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/20 font-semibold">
+                      Qualified
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Rohan Verma</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">Yesterday</td>
+</tr>
+<!-- ROW 7: Devendra Rao -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
+<td class="py-3.5 px-4 text-center">
+<input class="rounded border-outline text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm flex items-center justify-center font-bold">DR</div>
+<div class="flex flex-col">
+<span class="font-title-md text-primary">Devendra Rao</span>
+<span class="text-label-sm font-label-sm text-outline">AeroTech Dynamic</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="search">search</span> Google Ads
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-on-surface text-body-sm font-body-sm truncate max-w-[140px]">Defense Supplier Expansion</td>
+<td class="py-3.5 px-3 text-on-surface-variant text-body-sm font-body-sm">Oct 13, 2024</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary-container/30 text-secondary border border-secondary-container font-semibold">
+                      Contacted
+                    </span>
+</td>
+<td class="py-3.5 px-3 text-body-sm font-body-sm text-on-surface">Neha Gupta</td>
+<td class="py-3.5 px-3 text-right text-label-sm font-label-sm text-on-surface-variant font-mono">2 days ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination Footer -->
+<div class="p-space-md border-t border-secondary-container/30 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<span>Showing 1-7 of 128 sample leads</span>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded border border-secondary-container/40 text-on-surface-variant hover:text-primary disabled:opacity-40" disabled="">Previous</button>
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-semibold">1</button>
+<button class="px-2.5 py-1 rounded border border-secondary-container/40 hover:bg-surface-container-low text-primary">2</button>
+<button class="px-2.5 py-1 rounded border border-secondary-container/40 hover:bg-surface-container-low text-primary">3</button>
+<span class="px-1 text-outline">...</span>
+<button class="px-2.5 py-1 rounded border border-secondary-container/40 hover:bg-surface-container-low text-primary">19</button>
+<button class="px-2.5 py-1 rounded border border-secondary-container/40 text-primary hover:border-secondary-container">Next</button>
+</div>
+</div>
+</div>
+<!-- RIGHT: LEAD DETAIL PANEL (Col span 4 -> approx 33%) -->
+<div class="col-span-4 bg-surface-container-lowest border border-secondary-container/40 rounded-xl p-space-lg flex flex-col gap-5 sticky top-20">
+<!-- Detail Panel Header -->
+<div class="flex flex-col gap-3 pb-4 border-b border-secondary-container/30">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-full bg-primary text-on-primary font-title-lg font-bold flex items-center justify-center">
+                  AS
+                </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h3 class="text-title-lg font-title-lg text-primary font-bold">Aarav Sharma</h3>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/20 font-semibold">
+                      Qualified
+                    </span>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Apex Industrial Solutions • VP Procurement</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Quick Action Button Row -->
+<div class="grid grid-cols-4 gap-1.5 pt-1">
+<button class="py-1.5 px-2 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-label-md font-label-md text-primary hover:border-secondary-container hover:bg-surface transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="person_add">person_add</span>
+<span>Assign</span>
+</button>
+<button class="py-1.5 px-2 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-label-md font-label-md text-primary hover:border-secondary-container hover:bg-surface transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="chat">chat</span>
+<span>Contact</span>
+</button>
+<button class="py-1.5 px-2 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-label-md font-label-md text-primary hover:border-secondary-container hover:bg-surface transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="verified">verified</span>
+<span>Qualify</span>
+</button>
+<button class="py-1.5 px-2 bg-secondary-container text-on-secondary-fixed rounded-lg text-label-md font-label-md font-bold hover:bg-secondary-fixed transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="task_alt">task_alt</span>
+<span>Convert</span>
+</button>
+</div>
+</div>
+<!-- Metadata 2-Column Grid -->
+<div class="grid grid-cols-2 gap-3 py-1 text-body-sm font-body-sm border-b border-secondary-container/30 pb-4">
+<div>
+<span class="text-label-sm font-label-sm uppercase text-outline block">Lead Source</span>
+<span class="font-title-md text-primary mt-0.5 inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="search">search</span> Google Ads
+              </span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm uppercase text-outline block">Campaign Name</span>
+<span class="font-title-md text-primary mt-0.5 block truncate" title="Q4 High Intent B2B">Q4 High Intent B2B</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm uppercase text-outline block">Account Owner</span>
+<span class="font-title-md text-primary mt-0.5 block">Rohan Verma</span>
+</div>
+<div>
+<span class="text-label-sm font-label-sm uppercase text-outline block">Created Date</span>
+<span class="font-title-md text-primary mt-0.5 block">Oct 10, 2024</span>
+</div>
+</div>
+<!-- Activity Timeline -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-title-md font-title-md text-primary">Activity Timeline</span>
+<span class="text-label-sm font-label-sm text-outline">Realtime Audit</span>
+</div>
+<div class="relative pl-6 flex flex-col gap-3.5 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-secondary-container/50">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-primary border-2 border-surface-container-lowest"></div>
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<span class="text-title-md text-body-sm font-title-md text-primary">Qualified stage reached</span>
+<span class="text-label-sm font-label-sm text-outline font-mono">Today, 11:30 AM</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Updated by Rohan Verma after initial scope evaluation call.</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-secondary-container border-2 border-surface-container-lowest"></div>
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<span class="text-title-md text-body-sm font-title-md text-primary">Product demo call completed</span>
+<span class="text-label-sm font-label-sm text-outline font-mono">Yesterday, 4:15 PM</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Presented enterprise telemetry features &amp; multi-tenant workflows.</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-outline-variant border-2 border-surface-container-lowest"></div>
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<span class="text-title-md text-body-sm font-title-md text-primary">First contact logged via CRM</span>
+<span class="text-label-sm font-label-sm text-outline font-mono">Oct 12, 10:00 AM</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Introductory scheduling note dispatched and received positive acknowledgment.</p>
+</div>
+</div>
+<!-- Timeline Item 4 -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-outline-variant border-2 border-surface-container-lowest"></div>
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<span class="text-title-md text-body-sm font-title-md text-primary">Lead captured via Google Search</span>
+<span class="text-label-sm font-label-sm text-outline font-mono">Oct 10, 09:20 AM</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Inbound conversion from keyword group "industrial procurement software".</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Note Field -->
+<div class="pt-2 flex flex-col gap-2 border-t border-secondary-container/30">
+<label class="text-label-md font-label-md uppercase text-on-surface-variant">Internal Lead Note</label>
+<textarea class="w-full p-2.5 bg-surface-container-lowest border border-secondary-container/40 rounded-lg text-body-sm font-body-sm text-primary placeholder-outline focus:outline-none focus:border-2 focus:border-primary resize-none" placeholder="Add an internal note or update..." rows="3"></textarea>
+<div class="flex justify-end">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg text-title-md font-title-md hover:bg-primary-container transition-colors">
+                Save Note
+              </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<script>
+document.addEventListener('click', function (event) {
+  var button = event.target.closest('button');
+  if (!button) return;
+  var label = button.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+  var views = ['overview', 'campaigns', 'leads', 'places', 'creatives'];
+  if (views.indexOf(label) !== -1) {
+    event.preventDefault();
+    parent.postMessage({ type: 'stitch-view', view: label }, '*');
+  }
+  if (label.indexOf('create campaign') !== -1) {
+    parent.postMessage({ type: 'stitch-nav', path: '/campaign' }, '*');
+  }
+});
+</script></body></html>

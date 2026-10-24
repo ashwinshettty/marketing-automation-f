@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketing Intelligence Workspace</title>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Container Queries & Forms -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-container": "#000080",
+            "on-secondary-container": "#6e5a00",
+            "primary": "#00003c",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#e6e3d3",
+            "tertiary": "#050333",
+            "on-tertiary-fixed-variant": "#424271",
+            "secondary-fixed": "#ffe17a",
+            "surface-tint": "#4b53bc",
+            "on-tertiary-container": "#8584b8",
+            "on-background": "#1c1c13",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#bfc2ff",
+            "secondary-fixed-dim": "#ecc300",
+            "surface-container": "#f2eede",
+            "outline-variant": "#c6c5d5",
+            "on-error-container": "#93000a",
+            "inverse-surface": "#323126",
+            "tertiary-fixed": "#e2dfff",
+            "secondary-container": "#ffd300",
+            "surface-bright": "#fdf9e9",
+            "on-primary-fixed": "#00006e",
+            "inverse-on-surface": "#f5f1e1",
+            "inverse-primary": "#bfc2ff",
+            "primary-fixed": "#e0e0ff",
+            "surface-container-low": "#f8f4e4",
+            "on-surface-variant": "#4a4a7a",
+            "surface-dim": "#dedacb",
+            "tertiary-container": "#1c1c4a",
+            "on-primary-container": "#777eea",
+            "secondary": "#715c00",
+            "error-container": "#ffdad6",
+            "surface": "#ffffff",
+            "on-primary-fixed-variant": "#3239a3",
+            "tertiary-fixed-dim": "#c2c1f9",
+            "outline": "#767684",
+            "surface-container-high": "#ece8d9",
+            "surface-variant": "#e6e3d3",
+            "on-surface": "#1c1c13",
+            "on-tertiary-fixed": "#161543",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#554500",
+            "background": "#fffbeb",
+            "on-secondary-fixed": "#231b00"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "space-xl": "2rem",
+            "space-lg": "1.5rem",
+            "margin": "2rem",
+            "margin-desktop": "2.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["Inter"],
+            "title-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "display-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "metric-val": ["Inter"],
+            "title-lg": ["Inter"],
+            "body-md": ["Inter"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "title-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "metric-val": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "title-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: 20px;
+      display: inline-block;
+      line-height: 1;
+    }
+    /* Native zero drop-shadow flat design style */
+    body {
+      background-color: #fffbeb;
+      font-feature-settings: "tnum" 1;
+    }
+  </style>
+</head>
+<body class="bg-[#fffbeb] text-on-surface antialiased flex min-h-screen selection:bg-secondary-container selection:text-primary-container">
+<!-- ========================================== -->
+<!-- 1. LEFT SIDEBAR (Shared Component: SideNavBar) -->
+<!-- ========================================== -->
+
+<!-- ========================================== -->
+<!-- 2. MAIN WORKSPACE CONTENT CANVAS -->
+<!-- ========================================== -->
+<main class="ml-0 w-full flex-1 min-h-screen bg-[#fffbeb] p-8 xl:p-10 max-w-[1440px]">
+<!-- Workspace Top Header Bar (Shared Component: TopNavBar variant) -->
+<header class="flex flex-col md:flex-row md:items-center justify-between pb-6 gap-4">
+<div>
+<h1 class="text-[#000080] font-headline-lg text-headline-lg font-bold tracking-tight">Marketing Intelligence</h1>
+<p class="text-[#4a4a7a] font-body-md text-body-md mt-1">Understand performance, improve lead quality, and measure marketing ROI.</p>
+</div>
+<!-- Action cluster right -->
+<div class="flex items-center gap-3 self-start md:self-auto">
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 px-3 py-2 rounded-lg font-title-md text-title-md hover:border-[#ffd300] hover:bg-[#fffbeb] transition-colors">
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="tune">tune</span>
+<span>Filter View</span>
+</button>
+<button class="flex items-center gap-2 bg-[#000080] text-white px-4 py-2 rounded-lg font-title-md text-title-md hover:bg-[#1a1a9a] transition-colors">
+<span class="material-symbols-outlined text-white" data-icon="add">add</span>
+<span>Create Campaign</span>
+</button>
+<div class="flex items-center border-l border-[#ffd300]/40 pl-3 ml-1 gap-2">
+<button class="w-9 h-9 flex items-center justify-center text-[#4a4a7a] hover:text-[#000080] rounded-lg hover:bg-white transition-colors" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-9 h-9 flex items-center justify-center text-[#4a4a7a] hover:text-[#000080] rounded-lg hover:bg-white transition-colors" title="Help">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Filter Bar Card -->
+<section class="bg-white border border-[#ffd300]/40 rounded-2xl p-4 mb-6 shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#4a4a7a]/10">
+<!-- Dropdown Filters Cluster -->
+<div class="flex flex-wrap items-center gap-2.5">
+<!-- Date Range -->
+<div class="relative">
+<label class="sr-only">Date Range</label>
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 rounded-lg px-3 py-2 text-title-md font-title-md hover:border-[#ffd300] transition-colors">
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="calendar_today">calendar_today</span>
+<span>Last 30 days</span>
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Platform -->
+<div class="relative">
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 rounded-lg px-3 py-2 text-title-md font-title-md hover:border-[#ffd300] transition-colors">
+<span class="text-[#4a4a7a] font-normal">Platform:</span>
+<span class="font-medium">All</span>
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Campaign -->
+<div class="relative">
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 rounded-lg px-3 py-2 text-title-md font-title-md hover:border-[#ffd300] transition-colors">
+<span class="text-[#4a4a7a] font-normal">Campaign:</span>
+<span class="font-medium">All Campaigns</span>
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- City -->
+<div class="relative">
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 rounded-lg px-3 py-2 text-title-md font-title-md hover:border-[#ffd300] transition-colors">
+<span class="text-[#4a4a7a] font-normal">City:</span>
+<span class="font-medium">All Cities</span>
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Owner -->
+<div class="relative">
+<button class="flex items-center gap-2 bg-white text-[#000080] border border-[#ffd300]/40 rounded-lg px-3 py-2 text-title-md font-title-md hover:border-[#ffd300] transition-colors">
+<span class="text-[#4a4a7a] font-normal">Owner:</span>
+<span class="font-medium">All Owners</span>
+<span class="material-symbols-outlined text-[#4a4a7a]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Filter Action Buttons -->
+<div class="flex items-center gap-2">
+<button class="bg-white border border-[#ffd300] text-[#000080] rounded-lg px-3 py-2 text-title-md font-title-md hover:bg-[#fffbeb] transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base" data-icon="refresh">refresh</span>
+<span>Reset</span>
+</button>
+<button class="bg-[#000080] text-white rounded-lg px-4 py-2 text-title-md font-title-md font-medium hover:bg-[#1a1a9a] transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="download">download</span>
+<span>Export</span>
+</button>
+</div>
+</div>
+<!-- Status Info Line Beneath -->
+<div class="pt-2.5 flex items-center gap-2 text-xs text-[#4a4a7a]">
+<span class="material-symbols-outlined text-xs text-amber-500" data-icon="info">info</span>
+<span>Timezone: Asia/Kolkata • Currency not connected • Meta Ads not connected • Google Ads not connected</span>
+</div>
+</section>
+<!-- Horizontal Text Tabs (Strict Text Tabs Row) -->
+<nav aria-label="Sections" class="flex items-center gap-8 border-b border-[#ffd300]/40 mb-6">
+<!-- Overview (Selected) -->
+<button class="text-[#000080] font-title-md text-title-md font-semibold pb-3 border-b-2 border-[#ffd300] flex items-center gap-2">
+<span>Overview</span>
+</button>
+<!-- Campaigns -->
+<button class="text-[#4a4a7a] hover:text-[#000080] font-body-md text-body-md pb-3 border-b-2 border-transparent transition-colors">
+        Campaigns
+      </button>
+<!-- Leads -->
+<button class="text-[#4a4a7a] hover:text-[#000080] font-body-md text-body-md pb-3 border-b-2 border-transparent transition-colors">
+        Leads
+      </button>
+<!-- Places -->
+<button class="text-[#4a4a7a] hover:text-[#000080] font-body-md text-body-md pb-3 border-b-2 border-transparent transition-colors">
+        Places
+      </button>
+<!-- Creatives -->
+<button class="text-[#4a4a7a] hover:text-[#000080] font-body-md text-body-md pb-3 border-b-2 border-transparent transition-colors">
+        Creatives
+      </button>
+</nav>
+<!-- OVERVIEW TAB CONTENT (TOP TO BOTTOM) -->
+<div class="space-y-6">
+<!-- 1. Note Strip -->
+<div class="bg-[#fef9c3] border border-[#ffd300]/50 rounded-xl px-4 py-3 text-body-md font-body-md text-[#000080]/90 flex items-center gap-3">
+<span class="material-symbols-outlined text-[#715c00] shrink-0" data-icon="notification_important">notification_important</span>
+<span>Sample data for layout only. Spend is unavailable until an ad account is connected, so it is shown as a dash, not zero.</span>
+</div>
+<!-- 2. Six Compact KPI Cards (6-column fluid grid) -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+<!-- Card 1: Total Leads -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">Total Leads</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">128</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="text-emerald-600 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span> +12%
+            </span>
+<span class="text-[#4a4a7a] text-[11px]">vs last month</span>
+</div>
+</div>
+<!-- Card 2: Converted -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">Converted</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">18</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="text-emerald-600 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span> +2
+            </span>
+<span class="text-[#4a4a7a] text-[11px]">vs last month</span>
+</div>
+</div>
+<!-- Card 3: Conversion Rate -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">Conversion Rate</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">14.1%</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="text-red-500 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_down">trending_down</span> −1.2 pp
+            </span>
+<span class="text-[#4a4a7a] text-[11px]">unfavorable</span>
+</div>
+</div>
+<!-- Card 4: Ad Spend -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">Ad Spend</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">—</span>
+</div>
+<div class="text-[11px] text-[#4a4a7a] bg-[#fffbeb] px-2 py-0.5 rounded border border-[#ffd300]/30 w-fit">
+            Account pending
+          </div>
+</div>
+<!-- Card 5: CPL -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">CPL</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">—</span>
+</div>
+<div class="text-[11px] text-[#4a4a7a] bg-[#fffbeb] px-2 py-0.5 rounded border border-[#ffd300]/30 w-fit">
+            Spend required
+          </div>
+</div>
+<!-- Card 6: Recorded Revenue -->
+<div class="bg-white rounded-[16px] border border-[#ffd300]/40 p-4 shadow-sm flex flex-col justify-between">
+<div class="text-[#4a4a7a] font-label-md text-label-md uppercase tracking-wider">Recorded Revenue</div>
+<div class="my-2">
+<span class="text-[#000080] font-metric-val text-metric-val font-bold">₹4.2L</span>
+</div>
+<div class="text-[11px] text-[#4a4a7a]">
+            vs ₹3.8L prev
+          </div>
+</div>
+</div>
+<!-- 3. Performance Over Time Card -->
+<section class="bg-white rounded-[16px] border border-[#ffd300]/40 p-6 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#4a4a7a]/10">
+<div>
+<h2 class="text-[#000080] font-headline-md text-headline-md font-bold">Performance over time</h2>
+<p class="text-[#4a4a7a] font-body-sm text-body-sm mt-0.5">Trend tracking across leads and CRM conversion stages</p>
+</div>
+<!-- Pill Toggles Row -->
+<div class="flex flex-wrap items-center gap-2">
+<!-- Leads (Selected) -->
+<button class="bg-[#000080] text-white rounded-full px-3 py-1 text-xs font-title-md font-semibold">
+              Leads
+            </button>
+<!-- Qualified -->
+<button class="bg-white border border-[#ffd300]/60 text-[#000080] rounded-full px-3 py-1 text-xs font-title-md hover:bg-[#fffbeb] transition-colors">
+              Qualified
+            </button>
+<!-- CRM Conversions -->
+<button class="bg-white border border-[#ffd300]/60 text-[#000080] rounded-full px-3 py-1 text-xs font-title-md hover:bg-[#fffbeb] transition-colors">
+              CRM conversions
+            </button>
+<!-- Disabled / Greyed Toggles -->
+<button class="bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed rounded-full px-3 py-1 text-xs font-body-sm" disabled="">
+              Spend (unavailable)
+            </button>
+<button class="bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed rounded-full px-3 py-1 text-xs font-body-sm" disabled="">
+              CPL (unavailable)
+            </button>
+<button class="bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed rounded-full px-3 py-1 text-xs font-body-sm" disabled="">
+              ROAS (unavailable)
+            </button>
+</div>
+</div>
+<!-- Clean SVG Line Chart Container with Tooltip Callout -->
+<div class="pt-6 relative">
+<div class="w-full h-72">
+<svg class="w-full h-full overflow-visible" fill="none" preserveaspectratio="none" viewbox="0 0 1000 240">
+<!-- Subtle Horizontal Grid Lines -->
+<line stroke="#f2eede" stroke-width="1" x1="0" x2="1000" y1="20" y2="20"></line>
+<text fill="#767684" font-family="Inter" font-size="11" x="0" y="24">20</text>
+<line stroke="#f2eede" stroke-width="1" x1="0" x2="1000" y1="75" y2="75"></line>
+<text fill="#767684" font-family="Inter" font-size="11" x="0" y="79">15</text>
+<line stroke="#f2eede" stroke-width="1" x1="0" x2="1000" y1="130" y2="130"></line>
+<text fill="#767684" font-family="Inter" font-size="11" x="0" y="134">10</text>
+<line stroke="#f2eede" stroke-width="1" x1="0" x2="1000" y1="185" y2="185"></line>
+<text fill="#767684" font-family="Inter" font-size="11" x="0" y="189">5</text>
+<line stroke="#c6c5d5" stroke-width="1.5" x1="0" x2="1000" y1="230" y2="230"></line>
+<text fill="#767684" font-family="Inter" font-size="11" x="0" y="234">0</text>
+<!-- Subtle Filled Area (Solid pale tint without gradient) -->
+<polygon fill="#000080" fill-opacity="0.04" points="40,190 120,170 200,160 280,185 360,140 440,150 520,86 600,110 680,135 760,105 840,95 920,80 980,100 980,230 40,230"></polygon>
+<!-- Navy Data Line -->
+<polyline fill="none" points="40,190 120,170 200,160 280,185 360,140 440,150 520,86 600,110 680,135 760,105 840,95 920,80 980,100" stroke="#000080" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></polyline>
+<!-- Highlight Vertical Guide for 12 Oct (x=520, y=86) -->
+<line stroke="#ffd300" stroke-dasharray="3 3" stroke-width="1.5" x1="520" x2="520" y1="30" y2="230"></line>
+<!-- Data Dots -->
+<circle cx="40" cy="190" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="120" cy="170" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="200" cy="160" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="280" cy="185" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="360" cy="140" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="440" cy="150" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<!-- Active Node: 12 Oct (14 leads) -->
+<circle cx="520" cy="86" fill="#ffd300" r="5" stroke="#000080" stroke-width="2.5"></circle>
+<circle cx="600" cy="110" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="680" cy="135" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="760" cy="105" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="840" cy="95" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="920" cy="80" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+<circle cx="980" cy="100" fill="#ffffff" r="3.5" stroke="#000080" stroke-width="2"></circle>
+</svg>
+<!-- Precise HTML Tooltip Callout for 12 Oct -->
+<div class="absolute left-[52%] top-6 -translate-x-1/2 bg-white border border-[#ffd300] rounded-lg px-3 py-1.5 shadow-sm text-center pointer-events-none">
+<span class="block text-[11px] font-medium text-[#4a4a7a]">12 Oct</span>
+<span class="block text-title-md font-bold text-[#000080]">14 leads</span>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between items-center text-xs text-[#767684] pt-3 px-6">
+<span>28 Sep</span>
+<span>02 Oct</span>
+<span>06 Oct</span>
+<span>10 Oct</span>
+<span class="font-semibold text-[#000080]">12 Oct</span>
+<span>16 Oct</span>
+<span>20 Oct</span>
+<span>24 Oct</span>
+<span>28 Oct</span>
+</div>
+</div>
+</section>
+<!-- 4. Two Columns Section (Insights + Channel Breakdown) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Insights (5 cols) -->
+<div class="lg:col-span-5 space-y-4">
+<div class="flex items-center justify-between pb-1">
+<h3 class="text-[#000080] font-headline-md text-headline-md font-bold">Key Observations</h3>
+<span class="text-xs bg-white text-[#4a4a7a] border border-[#ffd300]/40 px-2.5 py-1 rounded-full font-medium">3 detected</span>
+</div>
+<!-- Insight Card 1 -->
+<div class="bg-white border border-[#ffd300]/40 rounded-xl p-4 flex flex-col justify-between hover:border-[#ffd300] transition-colors">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<h4 class="text-[#000080] font-title-md text-title-md font-bold">Organic search drives highest conversion rate</h4>
+</div>
+<p class="text-[#4a4a7a] font-body-md text-body-md leading-relaxed">
+                Organic leads converted at 22.4%, outperforming paid channels by 8.3 percentage points.
+              </p>
+</div>
+<div class="mt-3 pt-3 border-t border-[#4a4a7a]/10 flex items-center justify-between">
+<span class="text-[11px] text-[#4a4a7a]">High confidence • Model v2</span>
+<a class="text-[#000080] font-title-md text-title-md font-semibold underline hover:text-[#1a1a9a] flex items-center gap-1" href="#">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Insight Card 2 -->
+<div class="bg-white border border-[#ffd300]/40 rounded-xl p-4 flex flex-col justify-between hover:border-[#ffd300] transition-colors">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<h4 class="text-[#000080] font-title-md text-title-md font-bold">Weekend lead dropoff detected</h4>
+</div>
+<p class="text-[#4a4a7a] font-body-md text-body-md leading-relaxed">
+                Saturday and Sunday inquiries exhibited a 35% slower first-response rate.
+              </p>
+</div>
+<div class="mt-3 pt-3 border-t border-[#4a4a7a]/10 flex items-center justify-between">
+<span class="text-[11px] text-[#4a4a7a]">SLA threshold breach</span>
+<a class="text-[#000080] font-title-md text-title-md font-semibold underline hover:text-[#1a1a9a] flex items-center gap-1" href="#">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Insight Card 3 -->
+<div class="bg-white border border-[#ffd300]/40 rounded-xl p-4 flex flex-col justify-between hover:border-[#ffd300] transition-colors">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="w-2 h-2 rounded-full bg-[#000080]"></span>
+<h4 class="text-[#000080] font-title-md text-title-md font-bold">Top performing vacancy inquiries</h4>
+</div>
+<p class="text-[#4a4a7a] font-body-md text-body-md leading-relaxed">
+                Senior role listings accounted for 42% of total conversions this cycle.
+              </p>
+</div>
+<div class="mt-3 pt-3 border-t border-[#4a4a7a]/10 flex items-center justify-between">
+<span class="text-[11px] text-[#4a4a7a]">High intent cohort</span>
+<a class="text-[#000080] font-title-md text-title-md font-semibold underline hover:text-[#1a1a9a] flex items-center gap-1" href="#">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Right Column: Meta vs Google vs Organic Table (7 cols) -->
+<div class="lg:col-span-7">
+<div class="bg-white border border-[#ffd300]/40 rounded-[16px] p-5 shadow-sm h-full flex flex-col">
+<div class="flex items-center justify-between pb-4 border-b border-[#ffd300]/40">
+<div>
+<h3 class="text-[#000080] font-headline-md text-headline-md font-bold">Channel Breakdown (Sample)</h3>
+<p class="text-[#4a4a7a] font-body-sm text-body-sm">Aggregated acquisition channels for current filter window</p>
+</div>
+<button class="text-xs text-[#000080] font-medium border border-[#ffd300]/40 rounded-lg px-2.5 py-1.5 hover:bg-[#fffbeb] transition-colors">
+                Configure Sources
+              </button>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto flex-1 mt-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-2 border-[#ffd300]/40 text-[#4a4a7a] font-label-md text-label-md uppercase">
+<th class="py-3 px-3">Channel</th>
+<th class="py-3 px-2 text-right">Leads</th>
+<th class="py-3 px-2 text-right">Qualified</th>
+<th class="py-3 px-2 text-right">Converted</th>
+<th class="py-3 px-2 text-right">Conv. Rate</th>
+<th class="py-3 px-3 text-center">Spend</th>
+<th class="py-3 px-3 text-center">ROAS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#4a4a7a]/10 font-body-md text-body-md">
+<!-- Row 1: Meta Ads -->
+<tr class="hover:bg-[#fffbeb] transition-colors">
+<td class="py-3.5 px-3 font-semibold text-[#000080] flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#1877F2]"></span>
+<span>Meta Ads</span>
+</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-medium">54</td>
+<td class="py-3.5 px-2 text-right text-on-surface">22</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-semibold text-[#000080]">7</td>
+<td class="py-3.5 px-2 text-right text-on-surface">13.0%</td>
+<td class="py-3.5 px-3 text-center">
+<span class="inline-block text-[11px] text-[#4a4a7a] bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded">
+                        Not connected
+                      </span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="inline-block text-[11px] text-[#4a4a7a] bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded">
+                        Not connected
+                      </span>
+</td>
+</tr>
+<!-- Row 2: Google Ads -->
+<tr class="hover:bg-[#fffbeb] transition-colors">
+<td class="py-3.5 px-3 font-semibold text-[#000080] flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#EA4335]"></span>
+<span>Google Ads</span>
+</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-medium">48</td>
+<td class="py-3.5 px-2 text-right text-on-surface">19</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-semibold text-[#000080]">6</td>
+<td class="py-3.5 px-2 text-right text-on-surface">12.5%</td>
+<td class="py-3.5 px-3 text-center">
+<span class="inline-block text-[11px] text-[#4a4a7a] bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded">
+                        Not connected
+                      </span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="inline-block text-[11px] text-[#4a4a7a] bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded">
+                        Not connected
+                      </span>
+</td>
+</tr>
+<!-- Row 3: Organic -->
+<tr class="hover:bg-[#fffbeb] transition-colors">
+<td class="py-3.5 px-3 font-semibold text-[#000080] flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+<span>Organic</span>
+</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-medium">26</td>
+<td class="py-3.5 px-2 text-right text-on-surface">14</td>
+<td class="py-3.5 px-2 text-right text-on-surface font-semibold text-[#000080]">5</td>
+<td class="py-3.5 px-2 text-right text-emerald-700 font-semibold">19.2%</td>
+<td class="py-3.5 px-3 text-center text-[#767684]">—</td>
+<td class="py-3.5 px-3 text-center text-[#767684]">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Prompt -->
+<div class="mt-4 pt-3 border-t border-[#4a4a7a]/10 flex items-center justify-between text-xs text-[#4a4a7a]">
+<span>Showing 3 active channels</span>
+<button class="text-[#000080] font-semibold hover:underline">Link Ads Account to view ROAS &amp; Spend →</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+document.addEventListener('click', function (event) {
+  var button = event.target.closest('button');
+  if (!button) return;
+  var label = button.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+  var views = ['overview', 'campaigns', 'leads', 'places', 'creatives'];
+  if (views.indexOf(label) !== -1) {
+    event.preventDefault();
+    parent.postMessage({ type: 'stitch-view', view: label }, '*');
+  }
+  if (label.indexOf('create campaign') !== -1) {
+    parent.postMessage({ type: 'stitch-nav', path: '/campaign' }, '*');
+  }
+});
+</script></body></html>
