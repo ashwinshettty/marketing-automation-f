@@ -4,18 +4,26 @@ import { useLead } from '../context/LeadContext';
 import { getPageConfig } from '../constants/pageConfig';
 
 const Icon = ({ children }) => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    className="h-[18px] w-[18px]"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     {children}
   </svg>
 );
 
-const Header = () => {
+const Header = ({ sidebarOpen = true, onToggleSidebar }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { selectedLead } = useLead();
 
   const isLeadDetailPage = /^\/leads\/[^/]+$/.test(pathname);
-
   const pageConfig =
     isLeadDetailPage && selectedLead
       ? {
@@ -39,23 +47,61 @@ const Header = () => {
 
   return (
     <header className={`flex shrink-0 ${isAnalytics ? '' : 'border-b border-brand-yellow/30'}`}>
+      {/* Hamburger — always first, before the logo */}
       <div
-        className="flex w-16 shrink-0 flex-col items-center justify-center border-r border-white/10 bg-brand-navy px-2 py-3 lg:w-64 lg:px-5 lg:py-5"
+        className={`flex w-14 shrink-0 items-center justify-center transition-colors duration-300 ${
+          sidebarOpen ? 'bg-brand-cream lg:bg-brand-navy' : 'bg-brand-cream'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          aria-expanded={sidebarOpen}
+          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+          title={sidebarOpen ? 'Close menu' : 'Open menu'}
+          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-brand-yellow/50 bg-white text-brand-navy shadow-sm transition hover:bg-brand-yellow/20"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Logo — after hamburger. w-14 + w-[200px] = 256px (matches sidebar w-64). */}
+      <div
+        className={`flex w-20 shrink-0 flex-col items-center justify-center bg-brand-cream px-3 py-4 transition-[width,background-color] duration-300 ease-in-out ${
+          sidebarOpen
+            ? 'lg:w-[200px] lg:border-r lg:border-white/10 lg:bg-brand-navy'
+            : 'lg:w-20'
+        }`}
       >
         <img
           src="/app-icon.png"
           alt="AI Bot"
-          className="h-10 w-10 rounded-full object-cover ring-2 ring-brand-yellow lg:h-14 lg:w-14 lg:ring-4"
+          className={`h-12 w-12 rounded-full object-cover shadow-sm ring-1 ${
+            sidebarOpen ? 'ring-black/10 lg:ring-white/25' : 'ring-black/10'
+          }`}
         />
-        <p className="mt-2 hidden text-sm font-semibold text-brand-yellow lg:block">AI Bot</p>
+        {sidebarOpen ? (
+          <p className="mt-1.5 hidden text-sm font-semibold tracking-tight text-brand-yellow lg:block">AI Bot</p>
+        ) : null}
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-2 bg-brand-cream px-3 py-3 lg:gap-4 lg:px-8 lg:py-5">
-        <div className="min-w-0">
-          <h1 className={`truncate text-lg tracking-tight text-brand-navy lg:text-2xl ${isAnalytics ? 'font-bold' : 'font-semibold'}`}>{pageConfig.title}</h1>
-          <p className="mt-1 hidden text-sm text-brand-muted md:line-clamp-2 md:block">{pageConfig.description}</p>
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-2 bg-brand-cream px-3 py-3 lg:gap-4 lg:px-6 lg:py-5">
+        <div className="flex min-w-0 flex-col justify-center">
+          <h1
+            className={`truncate text-lg tracking-tight text-brand-navy lg:text-2xl ${
+              isAnalytics ? 'font-bold' : 'font-semibold'
+            }`}
+          >
+            {pageConfig.title}
+          </h1>
+          <p className="mt-1 hidden text-sm text-brand-muted md:line-clamp-2 md:block lg:truncate">
+            {pageConfig.description}
+          </p>
         </div>
-        {isAnalytics && (
+
+        {isAnalytics ? (
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <button
               type="button"
@@ -89,7 +135,9 @@ const Header = () => {
                 type="button"
                 title="Follow-ups"
                 aria-label="Follow-ups"
-                onClick={() => window.dispatchEvent(new CustomEvent('analytics-open-view', { detail: 'leads' }))}
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent('analytics-open-view', { detail: 'leads' }))
+                }
                 className="grid h-11 w-11 place-items-center rounded-lg text-brand-muted hover:bg-white hover:text-brand-navy"
               >
                 <Icon>
@@ -117,7 +165,7 @@ const Header = () => {
               </button>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );

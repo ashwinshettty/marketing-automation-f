@@ -43,6 +43,29 @@ body,
   margin: 0;
 }
 
+/* Sidebar (navy menu) scrollbar — thin, blends with the menu colour. */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 211, 0, 0.45) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 211, 0, 0.45);
+  border-radius: 9999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 211, 0, 0.75);
+}
+
 .auth-shell {
   position: relative;
   min-height: 100%;

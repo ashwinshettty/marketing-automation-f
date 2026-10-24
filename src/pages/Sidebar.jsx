@@ -118,6 +118,8 @@ const NAV_ITEMS = [
   },
 ];
 
+const PRIMARY_PATHS = ['/leads', '/messages', '/analytics', '/campaign'];
+
 const linkClassName = ({ isActive }) =>
   [
     'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
@@ -126,18 +128,20 @@ const linkClassName = ({ isActive }) =>
       : 'text-white/85 hover:bg-white/10 hover:text-brand-yellow',
   ].join(' ');
 
-const PRIMARY_PATHS = ['/leads', '/messages', '/analytics', '/campaign'];
-
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const { role } = getAuthSession();
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const navItems = NAV_ITEMS.filter(
     (item) => !item.superadminOnly || role === 'superadmin',
   );
-  const primaryItems = PRIMARY_PATHS.map((path) => navItems.find((item) => item.to === path)).filter(Boolean);
+  const primaryItems = PRIMARY_PATHS.map((path) => navItems.find((item) => item.to === path)).filter(
+    Boolean,
+  );
   const moreItems = navItems.filter((item) => !PRIMARY_PATHS.includes(item.to));
-  const moreActive = moreItems.some((item) => pathname === item.to || pathname.startsWith(`${item.to}/`));
+  const moreActive = moreItems.some(
+    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
+  );
 
   useEffect(() => {
     setMoreOpen(false);
@@ -145,75 +149,113 @@ const Sidebar = () => {
 
   return (
     <>
-    <aside className={`hidden h-full min-h-0 ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col overflow-hidden bg-brand-navy text-white lg:flex`}>
-      <nav className="no-scrollbar min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-5">
-        {navItems.map((item) => (
-          <NavLink key={item.to} to={item.to} className={linkClassName}>
-            {item.icon}
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
+      {/* Desktop / drawer sidebar */}
+      <aside
+        className={`flex h-full min-h-0 ${SIDEBAR_WIDTH_CLASS} shrink-0 flex-col overflow-hidden bg-brand-navy text-white`}
+      >
+        {/* Close button — mobile drawer only (desktop uses the hamburger). */}
+        <div className="flex items-center justify-between px-4 pt-4 lg:hidden">
+          <span className="text-sm font-semibold text-brand-yellow">Menu</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            title="Close menu"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-white/20 text-white transition hover:bg-white/10 hover:text-brand-yellow"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <nav className="sidebar-scroll no-scrollbar min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-5">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={linkClassName}
+              onClick={() => {
+                // On mobile the drawer overlays content — close it after picking a page.
+                if (window.innerWidth < 1024) onClose?.();
+              }}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="border-t border-white/10 p-3">
+          <Logout />
+        </div>
+      </aside>
+
+      {/* Mobile bottom primary nav */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-brand-navy pb-[env(safe-area-inset-bottom)] text-white lg:hidden"
+        aria-label="Primary"
+      >
+        <div className="grid h-16 grid-cols-5">
+          {primaryItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+                  isActive ? 'text-brand-yellow' : 'text-white/80'
+                }`
+              }
+            >
+              {item.icon}
+              {item.label}
+            </NavLink>
+          ))}
+          <button
+            type="button"
+            onClick={() => setMoreOpen(true)}
+            className={`flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+              moreActive ? 'text-brand-yellow' : 'text-white/80'
+            }`}
+            aria-expanded={moreOpen}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+            </svg>
+            More
+          </button>
+        </div>
       </nav>
 
-      <div className="border-t border-white/10 p-3">
-        <Logout />
-      </div>
-    </aside>
-
-    <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-brand-navy pb-[env(safe-area-inset-bottom)] text-white lg:hidden"
-      aria-label="Primary"
-    >
-      <div className="grid h-16 grid-cols-5">
-        {primaryItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
-                isActive ? 'text-brand-yellow' : 'text-white/80'
-              }`
-            }
-          >
-            {item.icon}
-            {item.label}
-          </NavLink>
-        ))}
-        <button
-          type="button"
-          onClick={() => setMoreOpen(true)}
-          className={`flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
-            moreActive ? 'text-brand-yellow' : 'text-white/80'
-          }`}
-          aria-expanded={moreOpen}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-          </svg>
-          More
-        </button>
-      </div>
-    </nav>
-
-    {moreOpen && (
-      <div className="fixed inset-0 z-50 lg:hidden">
-        <button type="button" aria-label="Close menu" className="absolute inset-0 bg-brand-navy/40" onClick={() => setMoreOpen(false)} />
-        <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-brand-navy px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 text-white">
-          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/30" />
-          <div className="space-y-1">
-            {moreItems.map((item) => (
-              <NavLink key={item.to} to={item.to} className={linkClassName} onClick={() => setMoreOpen(false)}>
-                {item.icon}
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-          <div className="mt-2 border-t border-white/10 pt-2">
-            <Logout onLogout={() => setMoreOpen(false)} />
+      {moreOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="absolute inset-0 bg-brand-navy/40"
+            onClick={() => setMoreOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-brand-navy px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 text-white">
+            <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/30" />
+            <div className="space-y-1">
+              {moreItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={linkClassName}
+                  onClick={() => setMoreOpen(false)}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
+            <div className="mt-2 border-t border-white/10 pt-2">
+              <Logout onLogout={() => setMoreOpen(false)} />
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      ) : null}
     </>
   );
 };
