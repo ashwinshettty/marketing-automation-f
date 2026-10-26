@@ -13,7 +13,9 @@ import {
   MetaTextarea,
   MetaToggle,
 } from './MetaFormPrimitives';
+import { createCampaignDraft, submitCampaign, uploadCampaignImage } from '../api/campaignApi';
 import { createEmptyMetaCampaign } from './metaCampaignDefaults';
+import { buildCampaignRequest, imageFileFromAd } from './toCampaignPayload';
 import LocationMapPanel from './LocationMapPanel';
 import MetaMediaCropModal, { CroppedMediaPreview } from './MetaMediaCropModal';
 import {
@@ -451,7 +453,7 @@ function CampaignLevelForm({ data, onChange }) {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-4">
-      <MetaCard title="Campaign name">
+      <MetaCard id="campaign-name" title="Campaign name">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <MetaInput value={data.name} onChange={(e) => set('name', e.target.value)} className="min-w-0 flex-1" />
           <button
@@ -463,7 +465,7 @@ function CampaignLevelForm({ data, onChange }) {
         </div>
       </MetaCard>
 
-      <MetaCard title="Campaign details">
+      <MetaCard id="campaign-details" title="Campaign details">
         <div className="space-y-1">
           <AccordionEditRow
             label="Buying type"
@@ -644,7 +646,7 @@ function CampaignLevelForm({ data, onChange }) {
         </div>
       </MetaCard>
 
-      <MetaCard title="Budget" badge={<AdvantageBadge on={data.advantagePlus} />}>
+      <MetaCard id="campaign-budget" title="Budget" badge={<AdvantageBadge on={data.advantagePlus} />}>
         <AccordionEditRow
           label="Budget strategy"
           info
@@ -1488,7 +1490,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
         </div>
       </MetaCard>
 
-      <MetaCard title="Conversion">
+      <MetaCard id="adset-conversion" title="Conversion">
         <div className="space-y-5">
           <div>
             <p className="text-[13px] font-semibold text-slate-800">Conversion location</p>
@@ -2938,7 +2940,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
         </MetaCard>
       ) : null}
 
-      <MetaCard title="Budget & schedule">
+      <MetaCard id="adset-schedule" title="Budget & schedule">
         {(() => {
           const usesCampaignBudget = (campaignBudget?.budgetStrategy || 'campaign') === 'campaign';
           const effectiveBudgetType = usesCampaignBudget
@@ -3289,6 +3291,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
       </MetaCard>
 
       <MetaCard
+        id="adset-audience"
         title="Audience"
         badge={<AdvantageBadge on={data.advantageAudience !== false && !data.furtherLimitAudience} />}
       >
@@ -4784,7 +4787,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
         </div>
       </MetaCard>
 
-      <MetaCard title="Ad setup">
+      <MetaCard id="ad-setup" title="Ad setup">
         {isInstagramLive ? (
           <div className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3">
             <p className="text-sm font-semibold text-slate-900">Live video creative</p>
@@ -4831,7 +4834,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
         )}
       </MetaCard>
 
-      <MetaCard title="Destination">
+      <MetaCard id="ad-destination" title="Destination">
         {needsWebsite || needsApp ? (
           <>
             <MetaField
@@ -4878,7 +4881,20 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
 
         {needsMessaging && !needsInstantForm ? (
           <div className={needsWebsite || needsCalls ? 'mt-4' : ''}>
-            <p className="text-sm font-semibold text-slate-800">Message template</p>
+            {conversionLocation === 'whatsapp' ? (
+              <MetaField
+                label="WhatsApp number"
+                required
+                hint="The business number customers message, with country code. This is not the WhatsApp API phone-number ID."
+              >
+                <MetaInput
+                  placeholder="+91…"
+                  value={data.phoneNumber || ''}
+                  onChange={(e) => set('phoneNumber', e.target.value)}
+                />
+              </MetaField>
+            ) : null}
+            <p className={`text-sm font-semibold text-slate-800 ${conversionLocation === 'whatsapp' ? 'mt-4' : ''}`}>Message template</p>
             <p className="mt-0.5 text-xs text-slate-500">
               Choose how conversations start in{' '}
               {conversionLocation === 'whatsapp'
@@ -5026,7 +5042,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
         </MetaCard>
       ) : null}
 
-      <MetaCard title="Ad creative">
+      <MetaCard id="ad-creative" title="Ad creative">
         {!isInstagramLive ? (
           <div className="mb-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -5421,6 +5437,9 @@ export default function MetaAdsCampaign({ onClose }) {
   const [scoreOpen, setScoreOpen] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [draftOn, setDraftOn] = useState(true);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState('');
+  const [publishNotice, setPublishNotice] = useState('');
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -5467,6 +5486,55 @@ export default function MetaAdsCampaign({ onClose }) {
   const closeEditor = () => {
     if (typeof onClose === 'function') onClose();
     else resetDraft();
+  };
+
+  const openPublishIssue = () => {
+    if (!publishError?.step) return;
+    setLevel(publishError.step);
+    if (window.innerWidth < 1024) setTreeOpen(false);
+    window.setTimeout(() => {
+      document.getElementById(publishError.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+
+  const publishDraft = async () => {
+    const { body, errors } = buildCampaignRequest(draft);
+    if (errors.length) {
+      setPublishNotice('');
+      setPublishError(errors[0]);
+      return;
+    }
+
+    setPublishing(true);
+    setPublishError('');
+    setPublishNotice('Creating the campaign…');
+    try {
+      const created = await createCampaignDraft(body);
+      const campaignId = created?.campaign?._id;
+      if (!campaignId) throw new Error('The campaign was not saved.');
+
+      const image = imageFileFromAd(draft.ad);
+      if (image) {
+        setPublishNotice('Uploading the image…');
+        try {
+          await uploadCampaignImage(campaignId, image);
+        } catch (imageError) {
+          setPublishNotice(imageError.message || 'The image was skipped.');
+        }
+      }
+
+      setPublishNotice('Submitting the paused ad…');
+      await submitCampaign(campaignId);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(createEmptyMetaCampaign()));
+      setPublishNotice('Campaign created. It is paused in Meta.');
+      resetDraft();
+      if (typeof onClose === 'function') onClose();
+    } catch (error) {
+      setPublishNotice('');
+      setPublishError(error.message || 'The campaign could not be created.');
+    } finally {
+      setPublishing(false);
+    }
   };
 
   return (
@@ -5683,6 +5751,33 @@ export default function MetaAdsCampaign({ onClose }) {
             </>
           ) : null}
 
+          {publishError || publishNotice ? (
+            <div
+              className={`flex shrink-0 flex-wrap items-center justify-between gap-2 border-t px-3 py-2 text-sm sm:px-4 ${
+                publishError
+                  ? 'border-red-200 bg-red-50 text-red-700'
+                  : 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              }`}
+            >
+              <p className="min-w-0 flex-1">
+                {typeof publishError === 'string' ? publishError : publishError?.message || publishNotice}
+              </p>
+              {publishError?.step ? (
+                <button
+                  type="button"
+                  onClick={openPublishIssue}
+                  className="shrink-0 rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-300 hover:bg-red-100"
+                >
+                  {publishError.step === 'campaign'
+                    ? 'Go to campaign'
+                    : publishError.step === 'adSet'
+                      ? 'Go to ad set'
+                      : 'Go to ad'}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
           <footer className="safe-area-pb sticky bottom-0 z-30 flex shrink-0 items-center justify-between gap-2 border-t border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur sm:gap-3 sm:px-4 sm:py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
             <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <button
@@ -5719,9 +5814,11 @@ export default function MetaAdsCampaign({ onClose }) {
               ) : (
                 <button
                   type="button"
-                  className="rounded-lg bg-[#00A400] px-4 py-2 text-sm font-semibold text-white hover:bg-[#008F00] sm:px-5"
+                  onClick={publishDraft}
+                  disabled={publishing}
+                  className="rounded-lg bg-[#00A400] px-4 py-2 text-sm font-semibold text-white hover:bg-[#008F00] disabled:cursor-wait disabled:opacity-60 sm:px-5"
                 >
-                  Publish
+                  {publishing ? 'Publishing…' : 'Publish'}
                 </button>
               )}
             </div>
