@@ -33,6 +33,7 @@ import EmailsPage from './website-intelligence/pages/EmailsPage';
 import CatalogPage from './website-intelligence/pages/CatalogPage';
 import ServiceDetailPage from './website-intelligence/pages/ServiceDetailPage';
 import ReportsPage from './website-intelligence/pages/ReportsPage';
+import VideoGeneratorPage from './video-generator/VideoGeneratorPage';
 
 const SECTION_SKIP = new Set([
   '/leads',
@@ -46,6 +47,7 @@ const SECTION_SKIP = new Set([
   '/sms-history',
   '/users',
   '/website-intelligence',
+  '/video-generator',
 ]);
 
 const App = () => {
@@ -75,6 +77,7 @@ const App = () => {
           <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="sms-templates" element={<SmsTemplatesPage />} />
           <Route path="sms-history" element={<SmsHistoryPage />} />
+          <Route path="video-generator" element={<VideoGeneratorPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="leads/:leadId" element={<LeadDetails />} />
           <Route path="leads/:leadId/whatsapp" element={<LeadWhatsAppChat />} />
