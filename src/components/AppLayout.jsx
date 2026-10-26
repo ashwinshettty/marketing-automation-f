@@ -12,6 +12,9 @@ const AppLayout = () => {
   );
   const isWebsiteIntelligence = pathname.startsWith('/website-intelligence');
   const isMessages = pathname === '/messages' || pathname.startsWith('/messages/');
+  const isVideoGenerator =
+    pathname === '/video-generator' || pathname.startsWith('/video-generator/');
+  const lockMainScroll = isMessages || isVideoGenerator;
 
   // Website Intelligence takes over the full viewport with its own chrome.
   if (isWebsiteIntelligence) {
@@ -60,7 +63,7 @@ const AppLayout = () => {
 
         <main
           className={`min-h-0 min-w-0 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0 ${
-            isMessages ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
+            lockMainScroll ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
           }`}
         >
           <Outlet />

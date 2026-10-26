@@ -41,6 +41,10 @@ export const PAGE_CONFIG = {
     title: 'Website Intelligence',
     description: 'Crawl public sites, detect capabilities, and turn gaps into outreach.',
   },
+  '/video-generator': {
+    title: 'Video Generator',
+    description: 'Create short videos with Seedance 2.5 from prompts and reference media.',
+  },
   '/users': {
     title: 'Users',
     description: 'Add admins and sales users and assign their portal roles.',
