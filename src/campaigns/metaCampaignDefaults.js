@@ -1,13 +1,13 @@
 export const createEmptyMetaCampaign = () => ({
   campaign: {
-    name: 'New Leads campaign',
+    name: '',
     buyingType: 'auction',
     objective: 'leads',
     spendingLimitMode: 'none',
     spendingLimit: '',
     budgetStrategy: 'campaign',
     budgetType: 'daily',
-    dailyBudget: '800',
+    dailyBudget: '',
     bidStrategy: 'highest_volume',
     bidGoalValue: '',
     bidCap: '',
@@ -27,7 +27,7 @@ export const createEmptyMetaCampaign = () => ({
     advantagePlus: true,
   },
   adSet: {
-    name: 'New Leads ad set',
+    name: '',
     conversionLocation: 'website_and_forms',
     facebookPage: '',
     liveVideoInstagram: 'inkstall_educare',
@@ -53,7 +53,7 @@ export const createEmptyMetaCampaign = () => ({
     dynamicCreative: false,
     // Ad set budget (used when campaign.budgetStrategy === 'ad_set')
     budgetType: 'daily',
-    dailyBudget: '800',
+    dailyBudget: '',
     startDate: '',
     startTime: '09:00',
     endDateEnabled: false,
@@ -116,7 +116,7 @@ export const createEmptyMetaCampaign = () => ({
     userLongitude: '',
   },
   ad: {
-    name: 'New Leads ad',
+    name: '',
     partnershipAd: false,
     facebookPage: 'inkstall_educare',
     instagramProfile: 'inkstall_educare',

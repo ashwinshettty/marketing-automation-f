@@ -15,6 +15,7 @@ import {
 } from './MetaFormPrimitives';
 import { createCampaignDraft, submitCampaign, uploadCampaignImage } from '../api/campaignApi';
 import { createEmptyMetaCampaign } from './metaCampaignDefaults';
+import { radiusOptions } from './metaCatalog';
 import { buildCampaignRequest, imageFileFromAd } from './toCampaignPayload';
 import LocationMapPanel from './LocationMapPanel';
 import MetaMediaCropModal, { CroppedMediaPreview } from './MetaMediaCropModal';
@@ -62,24 +63,7 @@ import {
   platformOptions,
 } from './campaignOptions';
 
-const STORAGE_KEY = 'inkstall.metaAdsCampaign.draft';
 const LEVELS = ['campaign', 'adSet', 'ad'];
-
-function loadDraft() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return createEmptyMetaCampaign();
-    const parsed = JSON.parse(raw);
-    const empty = createEmptyMetaCampaign();
-    return {
-      campaign: { ...empty.campaign, ...(parsed.campaign || {}) },
-      adSet: { ...empty.adSet, ...(parsed.adSet || {}) },
-      ad: { ...empty.ad, ...(parsed.ad || {}) },
-    };
-  } catch {
-    return createEmptyMetaCampaign();
-  }
-}
 
 function TreeIcon({ level }) {
   if (level === 'campaign') {
@@ -455,7 +439,12 @@ function CampaignLevelForm({ data, onChange }) {
     <div className="mx-auto w-full max-w-3xl space-y-4">
       <MetaCard id="campaign-name" title="Campaign name">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <MetaInput value={data.name} onChange={(e) => set('name', e.target.value)} className="min-w-0 flex-1" />
+          <MetaInput
+            value={data.name}
+            onChange={(e) => set('name', e.target.value)}
+            placeholder="New Leads campaign"
+            className="min-w-0 flex-1"
+          />
           <button
             type="button"
             className="w-full shrink-0 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:w-auto"
@@ -701,6 +690,7 @@ function CampaignLevelForm({ data, onChange }) {
                       step="0.01"
                       value={data.dailyBudget}
                       onChange={(e) => set('dailyBudget', e.target.value)}
+                      placeholder="800"
                       className="bg-white pl-7 pr-14"
                     />
                     <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-slate-500">
@@ -1480,7 +1470,12 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
     <div className="mx-auto w-full max-w-3xl space-y-4">
       <MetaCard title="Ad set name">
         <div className="flex flex-col gap-2 sm:flex-row">
-          <MetaInput value={data.name} onChange={(e) => set('name', e.target.value)} className="min-w-0 flex-1" />
+          <MetaInput
+            value={data.name}
+            onChange={(e) => set('name', e.target.value)}
+            placeholder="New Leads ad set"
+            className="min-w-0 flex-1"
+          />
           <button
             type="button"
             className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:w-auto"
@@ -3042,6 +3037,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                           step="0.01"
                           value={data.dailyBudget || ''}
                           onChange={(e) => set('dailyBudget', e.target.value)}
+                          placeholder="800"
                           className="pl-7 pr-14"
                         />
                         <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-slate-500">
@@ -3318,7 +3314,15 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
           const addLocation = (opt) => {
             onChange({
               ...data,
-              locationTags: [...locationTags, { value: opt.value, label: opt.label, type: opt.type }],
+              locationTags: [
+                ...locationTags,
+                {
+                  value: opt.value,
+                  label: opt.label,
+                  type: opt.type,
+                  ...(opt.type === 'City' ? { radiusKm: 25 } : {}),
+                },
+              ],
               locationSearch: '',
             });
             setAudienceLocationMenuOpen(false);
@@ -3327,6 +3331,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             set(
               'locationTags',
               locationTags.filter((t) => t.value !== value)
+            );
+          };
+          const setLocationRadius = (value, radiusKm) => {
+            set(
+              'locationTags',
+              locationTags.map((tag) => (
+                tag.value === value ? { ...tag, radiusKm: Number(radiusKm) } : tag
+              ))
             );
           };
           const toggleListValue = (key, value) => {
@@ -3544,14 +3556,30 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               {tag.type || 'Location'}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeLocation(tag.value)}
-                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                            aria-label={`Remove ${tag.label}`}
-                          >
-                            ×
-                          </button>
+                          <div className="flex shrink-0 items-center gap-2">
+                            {tag.type === 'City' ? (
+                              <select
+                                value={tag.radiusKm || 25}
+                                onChange={(event) => setLocationRadius(tag.value, event.target.value)}
+                                className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800"
+                                aria-label={`Radius for ${tag.label}`}
+                              >
+                                {radiusOptions.filter((km) => km >= 17).map((km) => (
+                                  <option key={km} value={km}>
+                                    +{km} km
+                                  </option>
+                                ))}
+                              </select>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => removeLocation(tag.value)}
+                              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                              aria-label={`Remove ${tag.label}`}
+                            >
+                              ×
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -4696,7 +4724,12 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
 
       <MetaCard title="Ad name">
         <div className="flex flex-col gap-2 sm:flex-row">
-          <MetaInput value={data.name} onChange={(e) => set('name', e.target.value)} className="min-w-0 flex-1" />
+          <MetaInput
+            value={data.name}
+            onChange={(e) => set('name', e.target.value)}
+            placeholder="New Leads ad"
+            className="min-w-0 flex-1"
+          />
           <button
             type="button"
             className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:w-auto"
@@ -5367,7 +5400,11 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
         {!isInstagramLive ? (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <MetaField label="Headline">
-              <MetaInput value={data.headline} onChange={(e) => set('headline', e.target.value)} />
+              <MetaInput
+                value={data.headline}
+                onChange={(e) => set('headline', e.target.value)}
+                placeholder="Admissions open"
+              />
             </MetaField>
             <MetaField label="Call to action">
               <MetaSelect
@@ -5438,7 +5475,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
 }
 
 export default function MetaAdsCampaign({ onClose }) {
-  const [draft, setDraft] = useState(loadDraft);
+  const [draft, setDraft] = useState(createEmptyMetaCampaign);
   const [level, setLevel] = useState('campaign');
   const [treeOpen, setTreeOpen] = useState(() =>
     typeof window === 'undefined' ? false : window.innerWidth >= 1024
@@ -5451,7 +5488,10 @@ export default function MetaAdsCampaign({ onClose }) {
   const [publishNotice, setPublishNotice] = useState('');
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    localStorage.removeItem('inkstall.metaAdsCampaign.draft');
+  }, []);
+
+  useEffect(() => {
     setSavedAt(new Date());
   }, [draft]);
 
@@ -5534,7 +5574,6 @@ export default function MetaAdsCampaign({ onClose }) {
 
       setPublishNotice('Submitting the paused ad…');
       await submitCampaign(campaignId);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(createEmptyMetaCampaign()));
       setPublishNotice('Campaign created. It is paused in Meta.');
       resetDraft();
       if (typeof onClose === 'function') onClose();

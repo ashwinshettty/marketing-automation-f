@@ -124,7 +124,7 @@ const buildGeo = (tags, errors, pin = {}) => {
       cities.push({
         key: cityKey,
         name: tag.label || 'Mumbai',
-        radius: 25,
+        radius: Number(tag.radiusKm) >= 17 ? Number(tag.radiusKm) : 25,
         distanceUnit: 'kilometer',
       });
       return;
