@@ -243,7 +243,7 @@ function AdPreview({ draft, onPreviewPlacementChange }) {
             onClick={() => onPreviewPlacementChange?.(p.id)}
             className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
               placement.id === p.id
-                ? 'bg-[#E7F3FF] text-[#1877F2]'
+                ? 'bg-brand-yellow-soft text-brand-navy'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -398,7 +398,7 @@ function PencilIcon({ className = 'h-4 w-4' }) {
 /** Collapsed summary row: pencil on hover; click opens accordion panel. */
 function AccordionEditRow({ label, info, value, open, onToggle, children }) {
   return (
-    <div className={`rounded-xl transition ${open ? 'border border-[#B7D2F5] bg-[#E7F3FF]' : ''}`}>
+    <div className={`rounded-xl transition ${open ? 'border border-brand-yellow bg-brand-yellow-soft' : ''}`}>
       <button
         type="button"
         onClick={onToggle}
@@ -414,10 +414,10 @@ function AccordionEditRow({ label, info, value, open, onToggle, children }) {
           {!open ? <p className="mt-1 text-sm text-slate-900">{value}</p> : null}
         </div>
         <span
-          className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#1877F2] transition ${
+          className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-brand-navy transition ${
             open
               ? 'bg-white/80 opacity-100'
-              : 'opacity-0 group-hover:bg-[#E7F3FF] group-hover:opacity-100'
+              : 'opacity-0 group-hover:bg-brand-yellow-soft group-hover:opacity-100'
           }`}
           aria-hidden
         >
@@ -430,7 +430,7 @@ function AccordionEditRow({ label, info, value, open, onToggle, children }) {
           )}
         </span>
       </button>
-      {open ? <div className="border-t border-[#B7D2F5]/70 px-2 pb-3 pt-1">{children}</div> : null}
+      {open ? <div className="border-t border-brand-yellow/70 px-2 pb-3 pt-1">{children}</div> : null}
     </div>
   );
 }
@@ -479,7 +479,7 @@ function CampaignLevelForm({ data, onChange }) {
                   key={opt.value}
                   className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 transition ${
                     data.buyingType === opt.value
-                      ? 'border-[#1877F2] bg-white'
+                      ? 'border-brand-navy bg-white'
                       : 'border-transparent bg-white/70 hover:bg-white'
                   }`}
                 >
@@ -513,7 +513,7 @@ function CampaignLevelForm({ data, onChange }) {
                   <label
                     key={opt.value}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition ${
-                      selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                      selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                     }`}
                   >
                     <input
@@ -539,7 +539,7 @@ function CampaignLevelForm({ data, onChange }) {
                   return !v;
                 });
               }}
-              className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
             >
               {showMoreOptions ? 'Hide options' : 'Show more options'}
               <svg
@@ -555,7 +555,7 @@ function CampaignLevelForm({ data, onChange }) {
           </div>
 
           {showMoreOptions ? (
-            <div className="mt-2 overflow-hidden rounded-xl border border-[#B7D2F5] bg-[#E7F3FF]">
+            <div className="mt-2 overflow-hidden rounded-xl border border-brand-yellow bg-brand-yellow-soft">
               <button
                 type="button"
                 onClick={() => setSpendingOpen((v) => !v)}
@@ -567,7 +567,7 @@ function CampaignLevelForm({ data, onChange }) {
                   <MetaInfoIcon />
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[#1877F2] opacity-0 transition group-hover:bg-white/70 group-hover:opacity-100">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-navy opacity-0 transition group-hover:bg-white/70 group-hover:opacity-100">
                     <PencilIcon />
                   </span>
                   <svg
@@ -583,10 +583,10 @@ function CampaignLevelForm({ data, onChange }) {
               </button>
 
               {spendingOpen ? (
-                <div className="space-y-2 border-t border-[#B7D2F5]/70 px-3 py-3">
+                <div className="space-y-2 border-t border-brand-yellow/70 px-3 py-3">
                   <label
                     className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
-                      spendingMode === 'none' ? 'border-[#1877F2] bg-white' : 'border-transparent bg-white/70'
+                      spendingMode === 'none' ? 'border-brand-navy bg-white' : 'border-transparent bg-white/70'
                     }`}
                   >
                     <input
@@ -600,7 +600,7 @@ function CampaignLevelForm({ data, onChange }) {
                   </label>
                   <label
                     className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
-                      spendingMode === 'custom' ? 'border-[#1877F2] bg-white' : 'border-transparent bg-white/70'
+                      spendingMode === 'custom' ? 'border-brand-navy bg-white' : 'border-transparent bg-white/70'
                     }`}
                   >
                     <input
@@ -635,7 +635,7 @@ function CampaignLevelForm({ data, onChange }) {
                   </label>
                 </div>
               ) : (
-                <p className="border-t border-[#B7D2F5]/70 px-3 py-2 text-sm text-slate-900">
+                <p className="border-t border-brand-yellow/70 px-3 py-2 text-sm text-slate-900">
                   {spendingMode === 'custom' && data.spendingLimit
                     ? `₹${Number(data.spendingLimit).toLocaleString('en-IN')} INR`
                     : 'None added'}
@@ -713,7 +713,7 @@ function CampaignLevelForm({ data, onChange }) {
                     We&apos;ll spend around ₹{Number(data.dailyBudget).toFixed(2)} per day. Your maximum daily spend
                     is ₹{(Number(data.dailyBudget) * 1.75).toFixed(2)} and your maximum weekly spend is ₹
                     {(Number(data.dailyBudget) * 7).toFixed(2)}.{' '}
-                    <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                    <button type="button" className="font-medium text-brand-navy hover:underline">
                       About {data.budgetType === 'lifetime' ? 'lifetime' : 'daily'} budget
                     </button>
                   </p>
@@ -810,7 +810,7 @@ function CampaignLevelForm({ data, onChange }) {
                         return !v;
                       });
                     }}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
                   >
                     {showBudgetMore ? 'Hide settings' : 'Show more settings'}
                     <svg
@@ -952,7 +952,7 @@ function CampaignLevelForm({ data, onChange }) {
                                               }}
                                               className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
                                                 scheduleViewFilter === item.id
-                                                  ? 'bg-[#E7F3FF] font-medium text-slate-900'
+                                                  ? 'bg-brand-yellow-soft font-medium text-slate-900'
                                                   : 'text-slate-700 hover:bg-slate-50'
                                               }`}
                                             >
@@ -982,7 +982,7 @@ function CampaignLevelForm({ data, onChange }) {
                                               }}
                                               className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm ${
                                                 scheduleViewSort === item.id
-                                                  ? 'bg-[#E7F3FF] font-medium text-slate-900'
+                                                  ? 'bg-brand-yellow-soft font-medium text-slate-900'
                                                   : 'text-slate-700 hover:bg-slate-50'
                                               }`}
                                             >
@@ -1087,7 +1087,7 @@ function CampaignLevelForm({ data, onChange }) {
                                     key={periodId}
                                     className={`overflow-hidden rounded-xl border ${
                                       isPeriodOpen
-                                        ? 'border-[#B7D2F5] bg-[#E7F3FF]'
+                                        ? 'border-brand-yellow bg-brand-yellow-soft'
                                         : 'border-slate-200 bg-slate-100'
                                     }`}
                                   >
@@ -1111,7 +1111,7 @@ function CampaignLevelForm({ data, onChange }) {
                                             <path d="M6 9l6 6 6-6" />
                                           </svg>
                                         </button>
-                                        <div className="space-y-3 border-t border-[#B7D2F5]/70 bg-white px-3 py-3">
+                                        <div className="space-y-3 border-t border-brand-yellow/70 bg-white px-3 py-3">
                                           <div className="grid gap-3 sm:grid-cols-2">
                                             <MetaField label="Starts on">
                                               <div className="flex gap-2">
@@ -1311,7 +1311,7 @@ function CampaignLevelForm({ data, onChange }) {
                   <span className="mt-1 block text-xs leading-relaxed text-slate-500">
                     We&apos;ll share up to 20% of your ad set budget with other ad sets within this campaign when
                     it&apos;s likely to improve performance.{' '}
-                    <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                    <button type="button" className="font-medium text-brand-navy hover:underline">
                       About ad set budget sharing
                     </button>
                   </span>
@@ -1449,12 +1449,12 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       setOpenAttrMenu(null);
                     }}
                     className={`flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm ${
-                      selected ? 'bg-[#E7F3FF] font-medium text-slate-900' : 'text-slate-700 hover:bg-slate-50'
+                      selected ? 'bg-brand-yellow-soft font-medium text-slate-900' : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span
                       className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                        selected ? 'border-[#1877F2] bg-[#1877F2]' : 'border-slate-400 bg-white'
+                        selected ? 'border-brand-navy bg-brand-navy' : 'border-slate-400 bg-white'
                       }`}
                       aria-hidden
                     >
@@ -1496,7 +1496,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             <p className="text-[13px] font-semibold text-slate-800">Conversion location</p>
             <p className="mt-0.5 text-xs text-slate-500">
               Choose where you want to generate leads.{' '}
-              <button type="button" className="font-medium text-[#1877F2] hover:underline">
+              <button type="button" className="font-medium text-brand-navy hover:underline">
                 About conversion locations
               </button>
             </p>
@@ -1505,7 +1505,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <button
                 type="button"
                 onClick={() => setLocationMenuOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 outline-none transition hover:border-slate-400 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 outline-none transition hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
               >
                 <span>
                   {labelFromOptions(locationOptions, conversionLocation) ||
@@ -1596,14 +1596,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                     }}
                                     className={`flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
                                       selected
-                                        ? 'bg-[#E7F3FF] font-medium text-slate-900'
+                                        ? 'bg-brand-yellow-soft font-medium text-slate-900'
                                         : 'text-slate-700 hover:bg-slate-50'
                                     }`}
                                   >
                                     <span
                                       className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                                         selected
-                                          ? 'border-[#1877F2] bg-[#1877F2]'
+                                          ? 'border-brand-navy bg-brand-navy'
                                           : 'border-slate-400 bg-white'
                                       }`}
                                       aria-hidden
@@ -1643,7 +1643,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       <button
                         type="button"
                         onClick={() => setLiveVideoEditOpen((v) => !v)}
-                        className="group flex w-full items-center gap-3 rounded-lg bg-[#F0F2F5] px-3 py-3 text-left hover:bg-slate-200/80"
+                        className="group flex w-full items-center gap-3 rounded-lg bg-brand-cream px-3 py-3 text-left hover:bg-slate-200/80"
                       >
                         <span
                           className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
@@ -1663,7 +1663,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                             @{profile?.handle || data.liveVideoInstagram || 'select_profile'}
                           </span>
                         </span>
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#1877F2] group-hover:bg-white/80">
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-brand-navy group-hover:bg-white/80">
                           <PencilIcon />
                         </span>
                       </button>
@@ -1690,7 +1690,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                     setLiveVideoEditOpen(false);
                                   }}
                                   className={`flex w-full items-center gap-3 px-3 py-2.5 text-left ${
-                                    selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                                    selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                                   }`}
                                 >
                                   <span
@@ -1719,7 +1719,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <p className="text-[13px] font-semibold text-slate-800">Facebook Page</p>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span
-                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1877F2] text-white"
+                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-navy text-white"
                     aria-hidden
                   >
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -1742,7 +1742,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <p className="mt-1 text-xs leading-relaxed text-emerald-900/90">
                 You could get 14-24% lower cost per lead by choosing website and instant forms.
               </p>
-              <div className="mt-2 flex flex-wrap gap-3 text-sm font-semibold text-[#1877F2]">
+              <div className="mt-2 flex flex-wrap gap-3 text-sm font-semibold text-brand-navy">
                 <button type="button" className="hover:underline">
                   Apply now
                 </button>
@@ -1780,14 +1780,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     <button
                       type="button"
                       onClick={() => setPageMenuOpen((v) => !v)}
-                      className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20"
+                      className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
                     >
                       <span className="flex min-w-0 items-center gap-2.5">
                         {selectedPage ? (
                           <>
                             <span
                               className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white"
-                              style={{ backgroundColor: selectedPage.avatarColor || '#1877F2' }}
+                              style={{ backgroundColor: selectedPage.avatarColor || '#000080' }}
                               aria-hidden
                             >
                               {selectedPage.avatarInitials || selectedPage.label.slice(0, 2)}
@@ -1839,7 +1839,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                 value={pageSearch}
                                 onChange={(e) => setPageSearch(e.target.value)}
                                 placeholder="Search by Page name or ID"
-                                className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-[#1877F2]"
+                                className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-brand-navy"
                                 autoFocus
                               />
                             </div>
@@ -1882,14 +1882,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                       }}
                                       className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left ${
                                         selected
-                                          ? 'bg-[#E7F3FF] text-slate-900'
+                                          ? 'bg-brand-yellow-soft text-slate-900'
                                           : 'text-slate-700 hover:bg-slate-50'
                                       }`}
                                     >
                                       <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center" aria-hidden>
                                         {selected ? (
                                           <svg
-                                            className="h-4 w-4 text-[#1877F2]"
+                                            className="h-4 w-4 text-brand-navy"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
@@ -1901,7 +1901,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                       </span>
                                       <span
                                         className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"
-                                        style={{ backgroundColor: opt.avatarColor || '#1877F2' }}
+                                        style={{ backgroundColor: opt.avatarColor || '#000080' }}
                                         aria-hidden
                                       >
                                         {opt.avatarInitials || opt.label.slice(0, 2)}
@@ -1925,7 +1925,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                           <div className="border-t border-slate-100 px-3 py-2.5">
                             <button
                               type="button"
-                              className="text-sm font-medium text-[#1877F2] hover:underline"
+                              className="text-sm font-medium text-brand-navy hover:underline"
                             >
                               Can&apos;t find a Page? Learn more
                             </button>
@@ -1955,7 +1955,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             <p className="text-[13px] font-semibold text-slate-800">Performance goal</p>
             <p className="mt-0.5 text-xs text-slate-500">
               How you measure success for your ads.{' '}
-              <button type="button" className="font-medium text-[#1877F2] hover:underline">
+              <button type="button" className="font-medium text-brand-navy hover:underline">
                 About performance goals
               </button>
             </p>
@@ -1990,7 +1990,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <span className="text-rose-500">*</span> Dataset
                 <MetaInfoIcon />
               </p>
-              <div className="mt-2 rounded-lg border border-[#B7D2F5] bg-[#E7F3FF] px-3.5 py-3">
+              <div className="mt-2 rounded-lg border border-brand-yellow bg-brand-yellow-soft px-3.5 py-3">
                 <div className="flex gap-2.5">
                   <span
                     className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-500 text-[11px] font-semibold text-slate-600"
@@ -2001,7 +2001,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                   <p className="text-xs leading-relaxed text-slate-700">
                     A dataset (formerly known as pixel) is required. To publish, set up your dataset or switch to a
                     different optimisation, such as landing page views.{' '}
-                    <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                    <button type="button" className="font-medium text-brand-navy hover:underline">
                       About datasets
                     </button>
                   </p>
@@ -2029,7 +2029,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <button
                 type="button"
                 onClick={() => setDatasetMenuOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
               >
                 <span>
                   {labelFromOptions(datasetOptions, data.dataset) || 'Select dataset'}
@@ -2075,7 +2075,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                           value={datasetSearch}
                           onChange={(e) => setDatasetSearch(e.target.value)}
                           placeholder="Search"
-                          className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-[#1877F2]"
+                          className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-brand-navy"
                           autoFocus
                         />
                       </div>
@@ -2102,14 +2102,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               }}
                               className={`flex w-full items-start gap-3 px-3 py-2.5 text-left ${
                                 selected
-                                  ? 'bg-[#E7F3FF] text-slate-900'
+                                  ? 'bg-brand-yellow-soft text-slate-900'
                                   : 'text-slate-700 hover:bg-slate-50'
                               }`}
                             >
                               <span
                                 className={`mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                                   selected
-                                    ? 'border-[#1877F2] bg-[#1877F2]'
+                                    ? 'border-brand-navy bg-brand-navy'
                                     : 'border-slate-400 bg-white'
                                 }`}
                                 aria-hidden
@@ -2144,7 +2144,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             </p>
             <p className="mt-0.5 text-xs text-slate-500">
               The action that you want people to take when they see your ads.{' '}
-              <button type="button" className="font-medium text-[#1877F2] hover:underline">
+              <button type="button" className="font-medium text-brand-navy hover:underline">
                 About conversion events
               </button>
             </p>
@@ -2153,7 +2153,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <button
                 type="button"
                 onClick={() => setEventMenuOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
               >
                 <span>
                   {labelFromOptions(conversionEventOptions, data.conversionEvent) || 'Select conversion event'}
@@ -2200,7 +2200,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                           value={eventSearch}
                           onChange={(e) => setEventSearch(e.target.value)}
                           placeholder="Search"
-                          className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-[#1877F2]"
+                          className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm outline-none focus:border-brand-navy"
                           autoFocus
                         />
                       </div>
@@ -2237,7 +2237,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                   disabled
                                     ? 'cursor-not-allowed text-slate-400'
                                     : selected
-                                      ? 'bg-[#E7F3FF] font-medium text-slate-900'
+                                      ? 'bg-brand-yellow-soft font-medium text-slate-900'
                                       : 'text-slate-700 hover:bg-slate-50'
                                 }`}
                               >
@@ -2246,7 +2246,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                     disabled
                                       ? 'border-slate-300 bg-slate-100'
                                       : selected
-                                        ? 'border-[#1877F2] bg-[#1877F2]'
+                                        ? 'border-brand-navy bg-brand-navy'
                                         : 'border-slate-400 bg-white'
                                   }`}
                                   aria-hidden
@@ -2291,7 +2291,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <p className="mt-1 text-xs leading-relaxed text-amber-900/90">
                   The dataset that you&apos;ve selected doesn&apos;t have any conversion events set up. Set up a
                   conversion event to help you get better results.{' '}
-                  <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                  <button type="button" className="font-medium text-brand-navy hover:underline">
                     Learn how to set up a conversion event
                   </button>
                 </p>
@@ -2315,7 +2315,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <button
                 type="button"
                 onClick={() => setAttributionModelMenuOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
               >
                 <span>
                   {labelFromOptions(attributionOptions, data.attributionModel) || 'Select attribution model'}
@@ -2356,13 +2356,13 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                             setAttributionModelMenuOpen(false);
                           }}
                           className={`flex w-full items-start gap-3 px-3 py-3 text-left ${
-                            selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                            selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                           }`}
                         >
                           <span
                             className={`mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                               selected
-                                ? 'border-[#1877F2] bg-[#1877F2]'
+                                ? 'border-brand-navy bg-brand-navy'
                                 : 'border-slate-400 bg-white'
                             }`}
                             aria-hidden
@@ -2381,7 +2381,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                   tabIndex={0}
                                   onClick={(e) => e.stopPropagation()}
                                   onKeyDown={(e) => e.stopPropagation()}
-                                  className="font-medium text-[#1877F2] hover:underline"
+                                  className="font-medium text-brand-navy hover:underline"
                                 >
                                   {opt.aboutLabel}
                                 </span>
@@ -2455,7 +2455,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <label
                   className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
                     (data.conversionValueWorthMode || 'same') === 'same'
-                      ? 'border-[#1877F2] bg-[#E7F3FF]'
+                      ? 'border-brand-navy bg-brand-yellow-soft'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -2474,7 +2474,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <label
                   className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
                     data.conversionValueWorthMode === 'different'
-                      ? 'border-[#1877F2] bg-[#E7F3FF]'
+                      ? 'border-brand-navy bg-brand-yellow-soft'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -2585,7 +2585,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     Value rules let you prioritise the audiences that matter most to your business by increasing or
                     decreasing bids. This can help drive more conversions from people who are most relevant to your
                     business goals.{' '}
-                    <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                    <button type="button" className="font-medium text-brand-navy hover:underline">
                       About value rules
                     </button>
                   </p>
@@ -2624,7 +2624,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     You could apply Placement to this ad set to get more outcomes from your preferred audiences,
                     placements or conversion locations.
                   </p>
-                  <div className="mt-2 flex gap-3 text-sm font-semibold text-[#1877F2]">
+                  <div className="mt-2 flex gap-3 text-sm font-semibold text-brand-navy">
                     <button type="button" className="hover:underline">
                       Preview
                     </button>
@@ -2649,17 +2649,17 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <p className="text-xs leading-relaxed text-slate-600">
                   Tell us how much certain audiences, conversion locations and placements are worth to your
                   business. Our system will optimise for outcomes based on these rules.{' '}
-                  <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                  <button type="button" className="font-medium text-brand-navy hover:underline">
                     About value rules
                   </button>
                 </p>
                 <button
                   type="button"
                   onClick={() => set('valueRulesEnabled', true)}
-                  className="inline-flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm font-semibold text-[#1877F2] hover:bg-[#D8EBFF]"
+                  className="inline-flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm font-semibold text-brand-navy hover:bg-brand-yellow-soft"
                 >
                   <span
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#1877F2] text-base leading-none"
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-brand-navy text-base leading-none"
                     aria-hidden
                   >
                     +
@@ -2683,7 +2683,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
           <button
             type="button"
             onClick={() => setShowConversionMore((v) => !v)}
-            className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
           >
             {showConversionMore ? 'Hide options' : 'Show more options'}
             <svg
@@ -2699,7 +2699,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
 
           {!hideShowMoreFields && showConversionMore ? (
             <div className="space-y-3">
-              <div className="overflow-hidden rounded-lg border border-slate-300 bg-[#F0F2F5]">
+              <div className="overflow-hidden rounded-lg border border-slate-300 bg-brand-cream">
                 <button
                   type="button"
                   onClick={() => setEngageInfoOpen((v) => !v)}
@@ -2734,7 +2734,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     </p>
                     <button
                       type="button"
-                      className="mt-2.5 text-sm font-medium text-[#1877F2] hover:underline"
+                      className="mt-2.5 text-sm font-medium text-brand-navy hover:underline"
                     >
                       About engage-through
                     </button>
@@ -2744,7 +2744,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
 
               <div
                 className={`rounded-xl border ${
-                  attributionSettingsOpen ? 'border-[#B7D2F5] bg-[#E7F3FF]' : 'border-slate-200 bg-white'
+                  attributionSettingsOpen ? 'border-brand-yellow bg-brand-yellow-soft' : 'border-slate-200 bg-white'
                 } ${openAttrMenu ? 'overflow-visible' : 'overflow-hidden'}`}
               >
                 <button
@@ -2767,10 +2767,10 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     ) : null}
                   </div>
                   <span
-                    className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#1877F2] transition ${
+                    className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-brand-navy transition ${
                       attributionSettingsOpen
                         ? 'bg-white/80 opacity-100'
-                        : 'opacity-0 group-hover:bg-[#E7F3FF] group-hover:opacity-100'
+                        : 'opacity-0 group-hover:bg-brand-yellow-soft group-hover:opacity-100'
                     }`}
                     aria-hidden
                   >
@@ -2791,7 +2791,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 </button>
 
                 {attributionSettingsOpen ? (
-                  <div className="space-y-4 border-t border-[#B7D2F5]/70 bg-white px-3 py-3">
+                  <div className="space-y-4 border-t border-brand-yellow/70 bg-white px-3 py-3">
                     <div>
                       <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-800">
                         Click-through
@@ -2848,7 +2848,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             more efficiently deliver your ads and drive engagement.
           </p>
 
-          <div className="mt-3 flex gap-2.5 rounded-lg border border-slate-200 bg-[#F0F2F5] px-3.5 py-3">
+          <div className="mt-3 flex gap-2.5 rounded-lg border border-slate-200 bg-brand-cream px-3.5 py-3">
             <span
               className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-500 text-[11px] font-semibold text-slate-600"
               aria-hidden
@@ -2862,7 +2862,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <p className="mt-1 text-xs leading-relaxed text-slate-600">
                 Select upcoming live video to create your ad in advance. Creating an ad at least 3 hours before
                 going live allows time for review and reduces delivery delays.{' '}
-                <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                <button type="button" className="font-medium text-brand-navy hover:underline">
                   Learn more
                 </button>
               </p>
@@ -2874,7 +2874,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               className={`flex gap-3 rounded-lg border px-3 py-3 ${
                 data.hasCurrentLiveVideo
                   ? (data.liveVideoAdType || 'upcoming') === 'current'
-                    ? 'cursor-pointer border-[#1877F2] bg-[#E7F3FF]'
+                    ? 'cursor-pointer border-brand-navy bg-brand-yellow-soft'
                     : 'cursor-pointer border-slate-200 hover:border-slate-300'
                   : 'cursor-not-allowed border-slate-200 bg-slate-50 opacity-60'
               }`}
@@ -2907,7 +2907,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
             <label
               className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
                 (data.liveVideoAdType || 'upcoming') === 'upcoming'
-                  ? 'border-[#1877F2] bg-[#E7F3FF]'
+                  ? 'border-brand-navy bg-brand-yellow-soft'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
             >
@@ -2991,7 +2991,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
                           Budget is set at the campaign level and shared across ad sets for the best
                           opportunities.{' '}
-                          <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                          <button type="button" className="font-medium text-brand-navy hover:underline">
                             About campaign budget
                           </button>
                         </p>
@@ -3054,7 +3054,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         We&apos;ll spend around ₹{budgetAmountNum.toFixed(2)} per day. Your maximum daily spend
                         is ₹{(budgetAmountNum * 1.75).toFixed(2)} and your maximum weekly spend is ₹
                         {(budgetAmountNum * 7).toFixed(2)}.{' '}
-                        <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                        <button type="button" className="font-medium text-brand-navy hover:underline">
                           About daily budget
                         </button>
                       </p>
@@ -3063,7 +3063,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       <p className="text-xs leading-relaxed text-slate-500">
                         We&apos;ll aim to spend ₹{budgetAmountNum.toFixed(2)} over the lifetime of this ad set.
                         Lifetime budgets work best with a start and end date.{' '}
-                        <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                        <button type="button" className="font-medium text-brand-navy hover:underline">
                           About lifetime budget
                         </button>
                       </p>
@@ -3155,7 +3155,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 <button
                   type="button"
                   onClick={() => setShowScheduleMore((v) => !v)}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
                 >
                   {showScheduleMore ? 'Hide options' : 'Show more options'}
                   <svg
@@ -3188,7 +3188,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         key={opt.value}
                         className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
                           (data.adSchedulingMode || 'all_time') === opt.value
-                            ? 'border-[#1877F2] bg-[#E7F3FF]'
+                            ? 'border-brand-navy bg-brand-yellow-soft'
                             : 'border-slate-200 hover:border-slate-300'
                         }`}
                       >
@@ -3223,7 +3223,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                 onClick={() => toggleScheduleDay(day.value)}
                                 className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                                   selected
-                                    ? 'bg-[#1877F2] text-white'
+                                    ? 'bg-brand-navy text-white'
                                     : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
                                 }`}
                               >
@@ -3349,7 +3349,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       <>
                         We&apos;ll show your ads to people most likely to respond, using your audience controls and
                         suggestions.{' '}
-                        <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                        <button type="button" className="font-medium text-brand-navy hover:underline">
                           About Advantage+ audience
                         </button>
                       </>
@@ -3383,7 +3383,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       });
                     }
                   }}
-                  className="shrink-0 text-sm font-semibold text-[#1877F2] hover:underline"
+                  className="shrink-0 text-sm font-semibold text-brand-navy hover:underline"
                 >
                   {advantageOn ? 'Switch to original audience options' : 'Switch to Advantage+ audience'}
                 </button>
@@ -3433,7 +3433,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       <option value="exclude">Exclude</option>
                     </MetaSelect>
                     <div className="relative min-w-0 flex-1">
-                      <div className="flex min-h-[42px] items-center rounded-lg border border-slate-300 bg-white px-3 focus-within:border-[#1877F2] focus-within:ring-2 focus-within:ring-[#1877F2]/20">
+                      <div className="flex min-h-[42px] items-center rounded-lg border border-slate-300 bg-white px-3 focus-within:border-brand-navy focus-within:ring-2 focus-within:ring-brand-navy/20">
                         <svg
                           className="mr-2 h-4 w-4 shrink-0 text-slate-400"
                           viewBox="0 0 24 24"
@@ -3562,6 +3562,8 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       latitude={data.latitude}
                       longitude={data.longitude}
                       radiusKm={data.radiusKm || '10'}
+                      userLatitude={data.userLatitude || ''}
+                      userLongitude={data.userLongitude || ''}
                       dropPinMode={dropPinMode}
                       onDropPinModeChange={setDropPinMode}
                       centerLabel={locationTags[0]?.label || 'India'}
@@ -3574,12 +3576,19 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         });
                       }}
                       onRadiusChange={(v) => set('radiusKm', v)}
+                      onUserLocationChange={({ userLatitude, userLongitude }) => {
+                        onChange({
+                          ...data,
+                          userLatitude,
+                          userLongitude,
+                        });
+                      }}
                     />
                   </div>
 
                   <button
                     type="button"
-                    className="mt-2 text-sm font-medium text-[#1877F2] hover:underline"
+                    className="mt-2 text-sm font-medium text-brand-navy hover:underline"
                   >
                     Add locations in bulk
                   </button>
@@ -3616,7 +3625,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     setAudienceControlsMore((v) => !v);
                     set('showAudienceControlsMore', !audienceControlsMore);
                   }}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
                 >
                   {audienceControlsMore ? 'Hide options' : 'Show more options'}
                   <svg
@@ -3672,7 +3681,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               onClick={() => toggleListValue('languages', opt.value)}
                               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                                 selected
-                                  ? 'bg-[#1877F2] text-white'
+                                  ? 'bg-brand-navy text-white'
                                   : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
                               }`}
                             >
@@ -3725,12 +3734,12 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                     type="button"
                                     onClick={() => toggleListValue('excludedCustomAudiences', opt.value)}
                                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm ${
-                                      selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                                      selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                                     }`}
                                   >
                                     <span
                                       className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
-                                        selected ? 'border-[#1877F2] bg-[#1877F2] text-white' : 'border-slate-400'
+                                        selected ? 'border-brand-navy bg-brand-navy text-white' : 'border-slate-400'
                                       }`}
                                     >
                                       {selected ? '✓' : ''}
@@ -3859,7 +3868,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                   <p className="text-[13px] font-semibold text-slate-800">Detailed targeting</p>
                   <p className="mt-0.5 text-xs text-slate-500">
                     Include demographics, interests or behaviours.{' '}
-                    <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                    <button type="button" className="font-medium text-brand-navy hover:underline">
                       About detailed targeting
                     </button>
                   </p>
@@ -3897,7 +3906,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               value={detailedTargetingSearch}
                               onChange={(e) => setDetailedTargetingSearch(e.target.value)}
                               placeholder="Search"
-                              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#1877F2]"
+                              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-navy"
                               autoFocus
                             />
                           </div>
@@ -3920,13 +3929,13 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                         type="button"
                                         onClick={() => toggleListValue('detailedTargeting', opt.value)}
                                         className={`flex w-full items-start gap-2 px-3 py-2.5 text-left text-sm ${
-                                          selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                                          selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                                         }`}
                                       >
                                         <span
                                           className={`mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
                                             selected
-                                              ? 'border-[#1877F2] bg-[#1877F2] text-white'
+                                              ? 'border-brand-navy bg-brand-navy text-white'
                                               : 'border-slate-400'
                                           }`}
                                         >
@@ -3956,7 +3965,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         return (
                           <span
                             key={id}
-                            className="inline-flex items-center gap-1 rounded-full bg-[#E7F3FF] px-2.5 py-1 text-xs font-medium text-slate-800"
+                            className="inline-flex items-center gap-1 rounded-full bg-brand-yellow-soft px-2.5 py-1 text-xs font-medium text-slate-800"
                           >
                             {opt?.label || id}
                             <button
@@ -4025,12 +4034,12 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                                 type="button"
                                 onClick={() => toggleListValue('includedCustomAudiences', opt.value)}
                                 className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm ${
-                                  selected ? 'bg-[#E7F3FF]' : 'hover:bg-slate-50'
+                                  selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
                                 }`}
                               >
                                 <span
                                   className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
-                                    selected ? 'border-[#1877F2] bg-[#1877F2] text-white' : 'border-slate-400'
+                                    selected ? 'border-brand-navy bg-brand-navy text-white' : 'border-slate-400'
                                   }`}
                                 >
                                   {selected ? '✓' : ''}
@@ -4048,7 +4057,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       {includedCustom.map((id) => (
                         <span
                           key={id}
-                          className="inline-flex items-center gap-1 rounded-full bg-[#E7F3FF] px-2.5 py-1 text-xs font-medium text-slate-800"
+                          className="inline-flex items-center gap-1 rounded-full bg-brand-yellow-soft px-2.5 py-1 text-xs font-medium text-slate-800"
                         >
                           {labelFromOptions(customAudienceOptions, id)}
                           <button
@@ -4089,7 +4098,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                       customAudienceAsSuggestion: false,
                     })
                   }
-                  className="text-sm font-medium text-[#1877F2] hover:underline"
+                  className="text-sm font-medium text-brand-navy hover:underline"
                 >
                   Further limit the reach of your ads
                 </button>
@@ -4230,7 +4239,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                         <>
                           We&apos;ll show your ads in the places they&apos;re likely to perform best across Meta
                           technologies.{' '}
-                          <button type="button" className="font-medium text-[#1877F2] hover:underline">
+                          <button type="button" className="font-medium text-brand-navy hover:underline">
                             About Advantage+ placements
                           </button>
                         </>
@@ -4255,7 +4264,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     <button
                       type="button"
                       onClick={() => set('showPlacementSettings', true)}
-                      className="shrink-0 text-sm font-semibold text-[#1877F2] hover:underline"
+                      className="shrink-0 text-sm font-semibold text-brand-navy hover:underline"
                     >
                       Show more settings
                     </button>
@@ -4263,7 +4272,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     <button
                       type="button"
                       onClick={restoreAdvantage}
-                      className="shrink-0 text-sm font-semibold text-[#1877F2] hover:underline"
+                      className="shrink-0 text-sm font-semibold text-brand-navy hover:underline"
                     >
                       Use Advantage+ placements
                     </button>
@@ -4277,7 +4286,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     <button
                       type="button"
                       onClick={() => set('showPlacementSettings', false)}
-                      className="inline-flex items-center gap-1 text-sm font-medium text-[#1877F2] hover:underline"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-brand-navy hover:underline"
                     >
                       Hide settings
                       <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -4358,7 +4367,7 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               <button
                                 type="button"
                                 onClick={() => toggleGroup(visible)}
-                                className="shrink-0 text-xs font-semibold text-[#1877F2] hover:underline"
+                                className="shrink-0 text-xs font-semibold text-brand-navy hover:underline"
                               >
                                 {allOn ? 'Deselect all' : someOn ? 'Select all' : 'Select all'}
                               </button>
@@ -4661,7 +4670,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-[#B7D2F5] bg-[#E7F3FF] px-3.5 py-3">
+      <div className="rounded-xl border border-brand-yellow bg-brand-yellow-soft px-3.5 py-3">
         <p className="text-sm font-semibold text-slate-900">Inherited from campaign &amp; ad set</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
           Objective:{' '}
@@ -4910,7 +4919,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
                   key={opt.value}
                   className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 ${
                     (data.messageTemplate || 'start_conversation') === opt.value
-                      ? 'border-[#1877F2] bg-[#E7F3FF]'
+                      ? 'border-brand-navy bg-brand-yellow-soft'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -4951,7 +4960,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
                   key={form}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 ${
                     data.instantForm === form
-                      ? 'border-[#1877F2] bg-[#1877F2]/5'
+                      ? 'border-brand-navy bg-brand-navy/5'
                       : 'border-slate-200'
                   }`}
                 >
@@ -5036,7 +5045,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
               onChange={(e) => set('urlParameters', e.target.value)}
             />
           </MetaField>
-          <button type="button" className="mt-2 text-xs font-medium text-[#1877F2] hover:underline">
+          <button type="button" className="mt-2 text-xs font-medium text-brand-navy hover:underline">
             Build a URL parameter
           </button>
         </MetaCard>
@@ -5063,7 +5072,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
                       setPendingMedia(null);
                       setCropOpen(true);
                     }}
-                    className="rounded-lg border border-[#1877F2] bg-white px-3 py-1.5 text-sm font-semibold text-[#1877F2] hover:bg-[#E7F3FF]"
+                    className="rounded-lg border border-brand-navy bg-white px-3 py-1.5 text-sm font-semibold text-brand-navy hover:bg-brand-yellow-soft"
                   >
                     Edit crops
                   </button>
@@ -5161,7 +5170,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                         data.mediaType === 'video'
-                          ? 'bg-[#E7F3FF] text-[#1877F2]'
+                          ? 'bg-brand-yellow-soft text-brand-navy'
                           : 'bg-emerald-50 text-emerald-700'
                       }`}
                     >
@@ -5221,8 +5230,8 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
                 }}
                 className={`mt-3 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-10 text-center transition ${
                   mediaDragOver
-                    ? 'border-[#1877F2] bg-[#E7F3FF]'
-                    : 'border-slate-300 bg-slate-50 hover:border-[#1877F2] hover:bg-[#F5F9FF]'
+                    ? 'border-brand-navy bg-brand-yellow-soft'
+                    : 'border-slate-300 bg-slate-50 hover:border-brand-navy hover:bg-brand-cream'
                 }`}
               >
                 <div className="flex items-center gap-3 text-slate-500">
@@ -5295,7 +5304,7 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
             ) : null}
 
             <details className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
-              <summary className="cursor-pointer text-sm font-medium text-[#1877F2]">
+              <summary className="cursor-pointer text-sm font-medium text-brand-navy">
                 Or paste a media URL
               </summary>
               <MetaInput
@@ -5436,7 +5445,7 @@ export default function MetaAdsCampaign({ onClose }) {
   );
   const [scoreOpen, setScoreOpen] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
-  const [draftOn, setDraftOn] = useState(true);
+  // const [draftOn, setDraftOn] = useState(true); // used by Edit/Review + In draft toggle (commented out)
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState('');
   const [publishNotice, setPublishNotice] = useState('');
@@ -5538,7 +5547,7 @@ export default function MetaAdsCampaign({ onClose }) {
   };
 
   return (
-    <div className="relative flex h-[calc(100dvh-5.5rem)] min-h-0 flex-col overflow-hidden bg-[#E8F0FE]/50 sm:h-[calc(100dvh-6.5rem)]">
+    <div className="relative flex h-[calc(100dvh-5.5rem)] min-h-0 flex-col overflow-hidden bg-brand-cream/50 sm:h-[calc(100dvh-6.5rem)]">
       {/* Top bar */}
       <div className="shrink-0 border-b border-slate-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5">
         <div className="flex items-center justify-between gap-2">
@@ -5558,7 +5567,7 @@ export default function MetaAdsCampaign({ onClose }) {
             <button
               type="button"
               onClick={() => setLevel(currentCrumb.id)}
-              className="inline-flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-[#1877F2] sm:hidden"
+              className="inline-flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-brand-navy sm:hidden"
             >
               <TreeIcon level={currentCrumb.id} />
               <span className="truncate">{currentCrumb.label}</span>
@@ -5573,7 +5582,7 @@ export default function MetaAdsCampaign({ onClose }) {
                     type="button"
                     onClick={() => setLevel(crumb.id)}
                     className={`inline-flex max-w-[140px] items-center gap-1.5 truncate font-medium md:max-w-[180px] ${
-                      level === crumb.id ? 'text-[#1877F2]' : 'hover:text-slate-900'
+                      level === crumb.id ? 'text-brand-navy' : 'hover:text-slate-900'
                     }`}
                   >
                     <TreeIcon level={crumb.id} />
@@ -5596,12 +5605,14 @@ export default function MetaAdsCampaign({ onClose }) {
               </span>
               <span className="hidden sm:inline">Score</span>
             </button>
-            <div className="hidden items-center gap-1 rounded-lg border border-slate-200 p-0.5 md:flex">
-              <span className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-800">Edit</span>
-              <span className="px-3 py-1.5 text-xs font-medium text-slate-500">Review</span>
+            {/* Edit / Review + In draft toggle — hidden for now
+            <div className="hidden items-center gap-1 rounded-lg border border-brand-yellow/40 p-0.5 md:flex">
+              <span className="rounded-md bg-brand-yellow-soft px-3 py-1.5 text-xs font-semibold text-brand-navy">Edit</span>
+              <span className="px-3 py-1.5 text-xs font-medium text-brand-muted">Review</span>
             </div>
-            <span className="hidden text-xs text-slate-500 sm:inline">In draft</span>
+            <span className="hidden text-xs text-brand-muted sm:inline">In draft</span>
             <MetaToggle checked={draftOn} onChange={setDraftOn} />
+            */}
           </div>
         </div>
 
@@ -5617,7 +5628,7 @@ export default function MetaAdsCampaign({ onClose }) {
                 onClick={() => setLevel(id)}
                 className={`flex-1 rounded-lg px-2 py-2 text-center text-[11px] font-semibold ${
                   active
-                    ? 'bg-[#E7F3FF] text-[#1877F2]'
+                    ? 'bg-brand-yellow-soft text-brand-navy'
                     : i < levelIndex
                       ? 'bg-emerald-50 text-emerald-700'
                       : 'bg-slate-100 text-slate-500'
@@ -5633,9 +5644,9 @@ export default function MetaAdsCampaign({ onClose }) {
       <div className="relative flex min-h-0 flex-1 overflow-hidden">
         {/* Structure drawer */}
         {treeOpen ? (
-          <aside className="absolute inset-y-0 left-0 z-30 flex w-[min(18rem,85vw)] flex-col border-r border-slate-200 bg-[#F0F2F5] shadow-xl lg:static lg:z-0 lg:w-64 lg:shadow-none">
-            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Structure</p>
+          <aside className="absolute inset-y-0 left-0 z-30 flex w-[min(18rem,85vw)] flex-col border-r border-brand-yellow/30 bg-brand-cream shadow-xl lg:static lg:z-0 lg:w-64 lg:shadow-none">
+            <div className="flex items-center justify-between border-b border-brand-yellow/30 px-3 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Structure</p>
               <button
                 type="button"
                 onClick={() => setTreeOpen(false)}
@@ -5660,7 +5671,7 @@ export default function MetaAdsCampaign({ onClose }) {
                     }}
                     className={`flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-sm transition lg:py-2.5 ${
                       active
-                        ? 'bg-white font-semibold text-[#1877F2] shadow-sm'
+                        ? 'bg-white font-semibold text-brand-navy shadow-sm'
                         : 'text-slate-700 hover:bg-white/70'
                     }`}
                     style={{ paddingLeft: `${12 + index * 14}px` }}
@@ -5713,7 +5724,7 @@ export default function MetaAdsCampaign({ onClose }) {
             </main>
 
             {/* Desktop score column */}
-            <aside className="hidden min-h-0 w-[320px] shrink-0 overflow-y-auto border-l border-slate-200 bg-[#F5F7FA] px-4 py-4 pb-24 xl:block">
+            <aside className="hidden min-h-0 w-[320px] shrink-0 overflow-y-auto border-l border-slate-200 bg-brand-cream px-4 py-4 pb-24 xl:block">
               <CampaignScorePanel
                 draft={draft}
                 level={level}
@@ -5731,7 +5742,7 @@ export default function MetaAdsCampaign({ onClose }) {
                 aria-label="Close score"
                 onClick={() => setScoreOpen(false)}
               />
-              <div className="absolute inset-x-0 bottom-0 z-50 max-h-[75dvh] overflow-y-auto rounded-t-2xl border border-slate-200 bg-[#F5F7FA] px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3 shadow-2xl xl:hidden">
+              <div className="absolute inset-x-0 bottom-0 z-50 max-h-[75dvh] overflow-y-auto rounded-t-2xl border border-slate-200 bg-brand-cream px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3 shadow-2xl xl:hidden">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-sm font-semibold text-slate-800">Campaign insights</p>
                   <button
@@ -5778,12 +5789,12 @@ export default function MetaAdsCampaign({ onClose }) {
             </div>
           ) : null}
 
-          <footer className="safe-area-pb sticky bottom-0 z-30 flex shrink-0 items-center justify-between gap-2 border-t border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur sm:gap-3 sm:px-4 sm:py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+          <footer className="safe-area-pb sticky bottom-0 z-30 flex shrink-0 items-center justify-between gap-2 border-t border-brand-yellow/30 bg-white/95 px-3 py-2.5 backdrop-blur sm:gap-3 sm:px-4 sm:py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
             <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={closeEditor}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:px-4"
+                className="rounded-lg border border-brand-yellow/40 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-brand-cream sm:px-4"
               >
                 Close
               </button>
@@ -5799,7 +5810,7 @@ export default function MetaAdsCampaign({ onClose }) {
                 type="button"
                 onClick={goBack}
                 disabled={levelIndex === 0}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
+                className="rounded-lg border border-brand-yellow/40 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-brand-cream disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
               >
                 Back
               </button>
@@ -5807,7 +5818,7 @@ export default function MetaAdsCampaign({ onClose }) {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="rounded-lg bg-[#1877F2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#166FE5] sm:px-5"
+                  className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover sm:px-5"
                 >
                   Next
                 </button>
@@ -5816,7 +5827,7 @@ export default function MetaAdsCampaign({ onClose }) {
                   type="button"
                   onClick={publishDraft}
                   disabled={publishing}
-                  className="rounded-lg bg-[#00A400] px-4 py-2 text-sm font-semibold text-white hover:bg-[#008F00] disabled:cursor-wait disabled:opacity-60 sm:px-5"
+                  className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover disabled:cursor-wait disabled:opacity-60 sm:px-5"
                 >
                   {publishing ? 'Publishing…' : 'Publish'}
                 </button>

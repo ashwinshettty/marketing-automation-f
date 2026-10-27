@@ -269,7 +269,7 @@ export const facebookPageOptions = [
     label: 'Inkstall Educare',
     pageId: '1418438818229149',
     group: 'personal',
-    avatarColor: '#1877F2',
+    avatarColor: '#000080',
     avatarInitials: 'IE',
   },
   {

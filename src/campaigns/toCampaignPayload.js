@@ -72,7 +72,40 @@ const toKolkataIso = (date, time) => {
   return parsed.toISOString();
 };
 
-const buildGeo = (tags, errors) => {
+const pinRadiusKm = (value) => {
+  const km = Number(value);
+  if (!Number.isFinite(km)) return 10;
+  return Math.min(80, Math.max(1, Math.round(km)));
+};
+
+/** Tags and/or map pin → Meta geo. Pin uses radiusKm as custom_location. */
+const buildGeo = (tags, errors, pin = {}) => {
+  const lat = Number(pin.latitude);
+  const lng = Number(pin.longitude);
+  const hasPin =
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    pin.latitude !== '' &&
+    pin.latitude != null &&
+    pin.longitude !== '' &&
+    pin.longitude != null;
+
+  const customLocations = hasPin
+    ? [
+        {
+          latitude: lat,
+          longitude: lng,
+          radius: pinRadiusKm(pin.radiusKm),
+          distanceUnit: 'kilometer',
+          name: 'Map pin',
+        },
+      ]
+    : [];
+
+  if (customLocations.length) {
+    return { countries: [], regions: [], cities: [], zips: [], customLocations };
+  }
+
   const list = Array.isArray(tags) && tags.length ? tags : [{ value: 'india', label: 'India', type: 'Country' }];
   const countries = [];
   const cities = [];
@@ -111,7 +144,7 @@ const buildGeo = (tags, errors) => {
   if (skippedCity) {
     errors.push(issue('Choose India or Mumbai. Other cities need a Meta location key before they can be published.', 'adSet', 'adset-audience'));
   } else {
-    errors.push(issue('Choose at least one location.', 'adSet', 'adset-audience'));
+    errors.push(issue('Choose at least one location, or drop a pin and set a radius in km.', 'adSet', 'adset-audience'));
   }
   return { countries: [], regions: [], cities: [], zips: [], customLocations: [] };
 };
@@ -231,7 +264,11 @@ export const buildCampaignRequest = (draft) => {
     errors.push(issue('ROAS goal cannot be published yet. Choose highest volume.', 'campaign', 'campaign-budget'));
   }
 
-  const geoLocations = buildGeo(adSet.locationTags, errors);
+  const geoLocations = buildGeo(adSet.locationTags, errors, {
+    latitude: adSet.latitude,
+    longitude: adSet.longitude,
+    radiusKm: adSet.radiusKm,
+  });
   const languages = mapLanguages(adSet.languages);
   const name = String(campaign.name || '').trim();
   if (!name) errors.push(issue('Enter a campaign name.', 'campaign', 'campaign-name'));

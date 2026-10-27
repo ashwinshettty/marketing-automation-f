@@ -203,7 +203,7 @@ export default function MetaMediaCropModal({
               onClick={() => setMode('per_placement')}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                 mode === 'per_placement'
-                  ? 'bg-[#E7F3FF] text-[#1877F2]'
+                  ? 'bg-brand-yellow-soft text-brand-navy'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -214,7 +214,7 @@ export default function MetaMediaCropModal({
               onClick={() => setMode('one_size')}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                 mode === 'one_size'
-                  ? 'bg-[#E7F3FF] text-[#1877F2]'
+                  ? 'bg-brand-yellow-soft text-brand-navy'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -241,7 +241,7 @@ export default function MetaMediaCropModal({
                     <div
                       key={g.id}
                       className={`rounded-xl border p-2.5 transition ${
-                        active ? 'border-[#1877F2] bg-[#E7F3FF]/40' : 'border-slate-200 bg-white'
+                        active ? 'border-brand-navy bg-brand-yellow-soft/40' : 'border-slate-200 bg-white'
                       }`}
                     >
                       <label className="flex cursor-pointer items-start gap-2">
@@ -288,7 +288,7 @@ export default function MetaMediaCropModal({
                             onClick={() => updateActive({ aspect: a })}
                             className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${
                               selected
-                                ? 'border-[#1877F2] bg-[#1877F2] text-white'
+                                ? 'border-brand-navy bg-brand-navy text-white'
                                 : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                             }`}
                           >
@@ -321,7 +321,7 @@ export default function MetaMediaCropModal({
                         step="0.01"
                         value={activeCrop.zoom || 1}
                         onChange={(e) => updateActive({ zoom: Number(e.target.value) })}
-                        className="mt-1 w-full accent-[#1877F2]"
+                        className="mt-1 w-full accent-brand-navy"
                       />
                     </div>
 
@@ -350,7 +350,7 @@ export default function MetaMediaCropModal({
                     onClick={() => setOneAspect(a)}
                     className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${
                       oneAspect === a
-                        ? 'border-[#1877F2] bg-[#1877F2] text-white'
+                        ? 'border-brand-navy bg-brand-navy text-white'
                         : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -379,7 +379,7 @@ export default function MetaMediaCropModal({
                   step="0.01"
                   value={activeCrop.zoom || 1}
                   onChange={(e) => updateActive({ zoom: Number(e.target.value) })}
-                  className="mt-1 w-full accent-[#1877F2]"
+                  className="mt-1 w-full accent-brand-navy"
                 />
               </div>
             </div>
@@ -397,7 +397,7 @@ export default function MetaMediaCropModal({
           <button
             type="button"
             onClick={handleDone}
-            className="rounded-lg bg-[#1877F2] px-5 py-2 text-sm font-semibold text-white hover:bg-[#166FE5]"
+            className="rounded-lg bg-brand-navy px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover"
           >
             Done
           </button>

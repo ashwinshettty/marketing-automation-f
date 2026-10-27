@@ -112,6 +112,8 @@ export const createEmptyMetaCampaign = () => ({
     latitude: '',
     longitude: '',
     radiusKm: '10',
+    userLatitude: '',
+    userLongitude: '',
   },
   ad: {
     name: 'New Leads ad',

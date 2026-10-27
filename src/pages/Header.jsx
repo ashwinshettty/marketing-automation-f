@@ -47,44 +47,50 @@ const Header = ({ sidebarOpen = true, onToggleSidebar }) => {
 
   return (
     <header className={`flex shrink-0 ${isAnalytics ? '' : 'border-b border-brand-yellow/30'}`}>
-      {/* Hamburger — always first, before the logo */}
+      {/*
+        Logo stays fixed (same size + left offset). Only bar width / hamburger slide.
+        Open: w-64 navy (matches sidebar). Closed: logo + hamburger only.
+      */}
       <div
-        className={`flex w-14 shrink-0 items-center justify-center transition-colors duration-300 ${
-          sidebarOpen ? 'bg-brand-cream lg:bg-brand-navy' : 'bg-brand-cream'
-        }`}
-      >
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          aria-expanded={sidebarOpen}
-          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
-          title={sidebarOpen ? 'Close menu' : 'Open menu'}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-brand-yellow/50 bg-white text-brand-navy shadow-sm transition hover:bg-brand-yellow/20"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
-            <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Logo — after hamburger. w-14 + w-[200px] = 256px (matches sidebar w-64). */}
-      <div
-        className={`flex w-20 shrink-0 flex-col items-center justify-center bg-brand-cream px-3 py-4 transition-[width,background-color] duration-300 ease-in-out ${
+        className={`flex h-[4.5rem] shrink-0 items-center lg:min-h-[5.5rem] lg:h-auto ${
           sidebarOpen
-            ? 'lg:w-[200px] lg:border-r lg:border-white/10 lg:bg-brand-navy'
-            : 'lg:w-20'
+            ? 'bg-brand-cream lg:w-64 lg:border-r lg:border-white/10 lg:bg-brand-navy'
+            : 'bg-brand-cream lg:border-r lg:border-brand-yellow/30'
         }`}
       >
-        <img
-          src="/app-icon.png"
-          alt="AI Bot"
-          className={`h-12 w-12 rounded-full object-cover shadow-sm ring-1 ${
-            sidebarOpen ? 'ring-black/10 lg:ring-white/25' : 'ring-black/10'
+        {/* Fixed logo slot — never changes width, padding, or image size */}
+        <div className="flex h-full w-16 shrink-0 items-center justify-center pl-3 pr-1 sm:w-[4.25rem] sm:pl-4">
+          <img
+            src="/app-icon.png"
+            alt="AI Bot"
+            className={`h-12 w-12 rounded-full object-cover shadow-sm ring-1 ${
+              sidebarOpen ? 'ring-black/10 lg:ring-white/25' : 'ring-black/10'
+            }`}
+          />
+        </div>
+
+        {/* Pushes hamburger to the right only while menu is open */}
+        <div
+          className={`hidden min-w-0 flex-1 transition-[flex-grow] duration-300 lg:block ${
+            sidebarOpen ? 'flex-1' : 'flex-none w-0 overflow-hidden'
           }`}
+          aria-hidden
         />
-        {sidebarOpen ? (
-          <p className="mt-1.5 hidden text-sm font-semibold tracking-tight text-brand-yellow lg:block">AI Bot</p>
-        ) : null}
+
+        <div className="flex h-full w-14 shrink-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            aria-expanded={sidebarOpen}
+            aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+            title={sidebarOpen ? 'Close menu' : 'Open menu'}
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-brand-yellow/50 bg-white text-brand-navy shadow-sm transition hover:bg-brand-yellow/20"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-between gap-2 bg-brand-cream px-3 py-3 lg:gap-4 lg:px-6 lg:py-5">
