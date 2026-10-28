@@ -31,11 +31,56 @@ export const createCampaignDraft = async (body) => {
   return response.data;
 };
 
+export const getCampaignById = async (campaignId) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}`,
+  });
+  return response.data;
+};
+
+export const updateCampaign = async (campaignId, body) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}`,
+    method: 'PATCH',
+    data: body,
+    timeout: 120000,
+  });
+  return response.data;
+};
+
 export const submitCampaign = async (campaignId) => {
   const response = await campaignApi({
     url: `/campaigns/${campaignId}/submit`,
     method: 'POST',
     timeout: 120000,
+  });
+  return response.data;
+};
+
+export const updateCampaignName = async (campaignId, name) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}/name`,
+    method: 'PATCH',
+    data: { name },
+  });
+  return response.data;
+};
+
+export const deleteCampaign = async (campaignId) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}`,
+    method: 'DELETE',
+    timeout: 120000,
+  });
+  return response.data;
+};
+
+export const setCampaignStatus = async (campaignId, status) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}/status`,
+    method: 'POST',
+    data: { status },
+    timeout: 60000,
   });
   return response.data;
 };

@@ -1,7 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ConfirmModal from '../components/ConfirmModal';
-import { listCampaigns } from '../api/campaignApi';
+import {
+  deleteCampaign,
+  listCampaigns,
+  setCampaignStatus,
+  updateCampaignName,
+} from '../api/campaignApi';
 import { toast } from '../utils/toast';
 import { META_AD_ACCOUNT_ID } from './campaignAccount';
 
@@ -83,7 +88,7 @@ const mapCampaignRow = (doc) => {
     insights.costPerResultMinor ??
     (spendMinor != null && results ? Math.round(Number(spendMinor) / Number(results)) : null);
 
-  return {
+    return {
     id: String(doc._id),
     name: doc.creative?.name || doc.name || 'Ad',
     campaignName: doc.campaign?.name || doc.name || 'Campaign',
@@ -157,7 +162,7 @@ const TABLE_COL_COUNT = 14;
 const PAGE_SIZE = 10;
 
 /** Meta Ads Manager–style frozen columns (before Delivery) */
-const STICKY_W = { check: 40, on: 48, name: 260 };
+const STICKY_W = { check: 40, on: 48, name: 300 };
 const STICKY_LEFT = 'sticky z-20';
 const STICKY_EDGE =
   'border-r border-brand-yellow/40 shadow-[4px_0_8px_-4px_rgba(0,0,128,0.18)]';
@@ -248,14 +253,15 @@ function NameWithIcon({
   onCommitRename,
   onCancelRename,
   onOpen,
+  renameSaving = false,
 }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (!renaming) return;
+    if (!renaming || renameSaving) return;
     inputRef.current?.focus();
     inputRef.current?.select();
-  }, [renaming]);
+  }, [renaming, renameSaving]);
 
   return (
     <div className="flex min-w-0 items-start gap-2.5">
@@ -263,20 +269,40 @@ function NameWithIcon({
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1">
           {renaming ? (
-            <input
-              ref={inputRef}
-              value={draftName}
-              onChange={(e) => onDraftChange(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === 'Enter') onCommitRename();
-                if (e.key === 'Escape') onCancelRename();
-              }}
-              onBlur={onCommitRename}
-              className="w-full min-w-0 rounded border border-brand-navy bg-white px-1.5 py-0.5 text-sm font-medium text-brand-navy outline-none ring-2 ring-brand-navy/20"
-              aria-label="Rename"
-            />
+            <>
+              <input
+                ref={inputRef}
+                value={draftName}
+                disabled={renameSaving}
+                onChange={(e) => onDraftChange(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (renameSaving) return;
+                  if (e.key === 'Enter') onCommitRename();
+                  if (e.key === 'Escape') onCancelRename();
+                }}
+                className="min-w-0 flex-1 rounded border border-brand-navy bg-white px-1.5 py-0.5 text-sm font-medium text-brand-navy outline-none ring-2 ring-brand-navy/20 disabled:opacity-60"
+                aria-label="Rename"
+              />
+              <button
+                type="button"
+                title="Save name"
+                aria-label="Save name"
+                disabled={renameSaving}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCommitRename();
+                }}
+                className="shrink-0 rounded bg-brand-navy px-2 py-0.5 text-xs font-semibold text-white hover:bg-brand-navy/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {renameSaving ? 'Saving…' : 'Save'}
+              </button>
+            </>
           ) : (
             <>
               <button
@@ -367,6 +393,7 @@ function RowHoverActions({
   onToggleMore,
   onCloseMore,
   onEdit,
+  onDelete,
   onDuplicate,
   onCharts,
   onCompare,
@@ -520,10 +547,10 @@ function RowHoverActions({
       <span className="text-slate-300">|</span>
       <button
         type="button"
-        onClick={onEdit}
-        className="font-medium text-brand-navy hover:underline"
+        onClick={onDelete}
+        className="font-medium text-rose-700 hover:underline"
       >
-        Quick Edit
+        Delete
       </button>
       <span className="text-slate-300">|</span>
       <span ref={triggerRef} className="inline-flex items-center">
@@ -539,7 +566,7 @@ function RowHoverActions({
   );
 }
 
-export default function MetaAdsManagerList({ onCreate }) {
+export default function MetaAdsManagerList({ onCreate, onEdit }) {
   const [filter, setFilter] = useState('All ads');
   const [extraFilter, setExtraFilter] = useState('');
   const [seeMoreOpen, setSeeMoreOpen] = useState(false);
@@ -554,10 +581,14 @@ export default function MetaAdsManagerList({ onCreate }) {
   const [loadError, setLoadError] = useState('');
   const [rowOn, setRowOn] = useState({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState([]);
+  const [deleting, setDeleting] = useState(false);
+  const [statusBusyId, setStatusBusyId] = useState(null);
   const [hoverMoreId, setHoverMoreId] = useState(null);
   const [pinnedIds, setPinnedIds] = useState(() => new Set());
   const [renamingId, setRenamingId] = useState(null);
   const [renameDraft, setRenameDraft] = useState('');
+  const [renameSaving, setRenameSaving] = useState(false);
   const { range, page } = listQuery;
 
   useEffect(() => {
@@ -658,28 +689,55 @@ export default function MetaAdsManagerList({ onCreate }) {
   };
 
   const cancelRename = () => {
+    if (renameSaving) return;
     setRenamingId(null);
     setRenameDraft('');
   };
 
-  const commitRename = () => {
-    if (!renamingId) return;
+  const commitRename = async () => {
+    if (!renamingId || renameSaving) return;
     const nextName = renameDraft.trim();
     if (!nextName) {
       cancelRename();
       return;
     }
-    setCampaigns((prev) =>
-      prev.map((row) => {
-        if (row.id !== renamingId) return row;
-        if (level === 'campaigns') return { ...row, campaignName: nextName };
-        if (level === 'adSets') return { ...row, adSetName: nextName };
-        return { ...row, name: nextName };
-      })
-    );
-    setRenamingId(null);
-    setRenameDraft('');
-    toast.success('Name updated');
+
+    if (level !== 'campaigns') {
+      setCampaigns((prev) =>
+        prev.map((row) => {
+          if (row.id !== renamingId) return row;
+          if (level === 'adSets') return { ...row, adSetName: nextName };
+          return { ...row, name: nextName };
+        })
+      );
+      setRenamingId(null);
+      setRenameDraft('');
+      toast.success('Name updated');
+      return;
+    }
+
+    const campaignId = renamingId;
+    setRenameSaving(true);
+    try {
+      const result = await updateCampaignName(campaignId, nextName);
+      const savedName = result?.name || result?.campaign?.campaign?.name || nextName;
+      setCampaigns((prev) =>
+        prev.map((row) =>
+          row.id === campaignId ? { ...row, campaignName: savedName } : row
+        )
+      );
+      setRenamingId(null);
+      setRenameDraft('');
+      toast.success(
+        result?.remoteUpdated
+          ? 'Campaign name updated on Meta'
+          : 'Campaign name updated'
+      );
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message || 'Name could not be updated.');
+    } finally {
+      setRenameSaving(false);
+    }
   };
 
   const requireSelection = (action) => {
@@ -690,18 +748,60 @@ export default function MetaAdsManagerList({ onCreate }) {
     return true;
   };
 
-  const requestDelete = () => {
-    if (!requireSelection('delete')) return;
+  const requestDelete = (ids) => {
+    const list = Array.isArray(ids) && ids.length
+      ? ids
+      : selectedRows.map((row) => row.id);
+    if (!list.length) {
+      toast.info('Select at least one item to delete.');
+      return;
+    }
+    setPendingDeleteIds(list);
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
-    const ids = new Set(selectedRows.map((r) => r.id));
-    setCampaigns((prev) => prev.filter((r) => !ids.has(r.id)));
-    setSelected(new Set());
+  const confirmDelete = async () => {
+    const ids = pendingDeleteIds.length
+      ? pendingDeleteIds
+      : selectedRows.map((row) => row.id);
+    if (!ids.length || deleting) return;
+
+    setDeleting(true);
+    const removed = [];
+    const failures = [];
+    for (const id of ids) {
+      try {
+        await deleteCampaign(id);
+        removed.push(id);
+      } catch (error) {
+        failures.push(
+          error?.response?.data?.message || error.message || 'Delete failed'
+        );
+      }
+    }
+
+    if (removed.length) {
+      const removedSet = new Set(removed);
+      setCampaigns((prev) => prev.filter((row) => !removedSet.has(row.id)));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        removed.forEach((id) => next.delete(id));
+        return next;
+      });
+      setTotal((t) => Math.max(0, t - removed.length));
+      toast.success(
+        removed.length === 1
+          ? 'Campaign deleted on Meta and locally'
+          : `Deleted ${removed.length} campaigns`
+      );
+    }
+    if (failures.length) {
+      toast.error(failures[0]);
+    }
+
+    setDeleting(false);
     setDeleteConfirmOpen(false);
-    setTotal((t) => Math.max(0, t - ids.size));
-    toast.success(`Removed ${ids.size} item${ids.size > 1 ? 's' : ''} from this view`);
+    setPendingDeleteIds([]);
   };
 
   const handlePublish = () => {
@@ -716,7 +816,51 @@ export default function MetaAdsManagerList({ onCreate }) {
 
   const handleEdit = () => {
     if (!requireSelection('edit')) return;
-    onCreate?.();
+    const row = selectedRows[0];
+    if (!row?.id) return;
+    onEdit?.(row.id);
+  };
+
+  const openEdit = (row) => {
+    if (!row?.id) return;
+    onEdit?.(row.id);
+  };
+
+  const toggleDelivery = async (row, nextOn) => {
+    if (!row?.id || statusBusyId) return;
+    if (row.status === 'draft') {
+      toast.info('Submit this campaign to Meta before turning delivery on.');
+      return;
+    }
+
+    const previous = Boolean(rowOn[row.id]);
+    setRowOn((prev) => ({ ...prev, [row.id]: nextOn }));
+    setStatusBusyId(row.id);
+    try {
+      const result = await setCampaignStatus(row.id, nextOn ? 'ACTIVE' : 'PAUSED');
+      const active = result?.status === 'active' || result?.paused === false;
+      setRowOn((prev) => ({ ...prev, [row.id]: active }));
+      setCampaigns((prev) =>
+        prev.map((item) =>
+          item.id === row.id
+            ? {
+                ...item,
+                status: result?.status || (active ? 'active' : 'paused'),
+                on: active,
+                delivery: active ? 'Active' : 'Paused',
+              }
+            : item
+        )
+      );
+      toast.success(active ? 'Campaign turned on on Meta' : 'Campaign paused on Meta');
+    } catch (error) {
+      setRowOn((prev) => ({ ...prev, [row.id]: previous }));
+      toast.error(
+        error?.response?.data?.message || error.message || 'Delivery status could not be updated.'
+      );
+    } finally {
+      setStatusBusyId(null);
+    }
   };
 
   const handlePreview = () => {
@@ -736,9 +880,9 @@ export default function MetaAdsManagerList({ onCreate }) {
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
               {FILTERS.map((f) => (
-                <button
+            <button
                   key={f}
-                  type="button"
+              type="button"
                   onClick={() => {
                     setFilter(f);
                     setExtraFilter('');
@@ -750,13 +894,13 @@ export default function MetaAdsManagerList({ onCreate }) {
                   }`}
                 >
                   {f}
-                </button>
+            </button>
               ))}
 
               {(seeMoreOpen || extraFilter ? EXTRA_FILTERS : []).map((f) => (
-                <button
+          <button
                   key={f}
-                  type="button"
+            type="button"
                   onClick={() => {
                     setExtraFilter(f);
                     setFilter('All ads');
@@ -769,11 +913,11 @@ export default function MetaAdsManagerList({ onCreate }) {
                   }`}
                 >
                   {f}
-                </button>
+          </button>
               ))}
 
-              <button
-                type="button"
+                <button
+                  type="button"
                 onClick={() => {
                   setSeeMoreOpen((v) => {
                     const next = !v;
@@ -909,8 +1053,8 @@ export default function MetaAdsManagerList({ onCreate }) {
             >
               <span className="text-base leading-none">+</span> Create
             </button>
-            <button
-              type="button"
+              <button
+                type="button"
               onClick={handlePublish}
               className="inline-flex shrink-0 rounded-md px-2.5 py-1.5 text-sm font-medium text-brand-navy hover:bg-brand-cream"
             >
@@ -928,9 +1072,9 @@ export default function MetaAdsManagerList({ onCreate }) {
               onClick={handleEdit}
               className="inline-flex shrink-0 items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-brand-navy hover:bg-brand-cream"
             >
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-              </svg>
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                  </svg>
               Edit
             </button>
             <button
@@ -946,13 +1090,13 @@ export default function MetaAdsManagerList({ onCreate }) {
               className="inline-flex shrink-0 items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-brand-navy hover:bg-brand-cream"
             >
               More
-              <svg className="h-3 w-3 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
-              </svg>
-            </button>
+                  <svg className="h-3 w-3 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+                  </svg>
+              </button>
             <button
               type="button"
-              onClick={requestDelete}
+              onClick={() => requestDelete()}
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-rose-600 hover:bg-rose-50"
               aria-label="Delete"
             >
@@ -1007,7 +1151,7 @@ export default function MetaAdsManagerList({ onCreate }) {
                       onChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </th>
+                </th>
                   <th
                     className={`${STICKY_CORNER} px-1 py-2.5`}
                     style={{
@@ -1042,8 +1186,8 @@ export default function MetaAdsManagerList({ onCreate }) {
                   <th className={`${STICKY_HEAD} min-w-[100px] px-3 py-2.5`}>Reach</th>
                   <th className={`${STICKY_HEAD} min-w-[110px] px-3 py-2.5`}>Ends</th>
                   <th className={`${STICKY_HEAD} min-w-[150px] px-3 py-2.5`}>Bid strategy</th>
-                </tr>
-              </thead>
+              </tr>
+            </thead>
               <tbody
                 className={
                   loading && campaigns.length
@@ -1074,13 +1218,13 @@ export default function MetaAdsManagerList({ onCreate }) {
                 ) : null}
                 {!initialLoad && campaigns.length
                   ? rows.map((row) => {
-                      const isSelected = selected.has(row.id);
+                const isSelected = selected.has(row.id);
                       const stickyBg = isSelected
                         ? 'bg-brand-yellow-soft'
                         : 'bg-white group-hover:bg-brand-cream';
-                      return (
-                        <tr
-                          key={row.id}
+                return (
+                  <tr
+                    key={row.id}
                           onClick={() => toggleOne(row.id)}
                           className={`group cursor-pointer border-b border-slate-100 ${
                             isSelected ? 'bg-brand-yellow-soft' : 'bg-white hover:bg-brand-cream'
@@ -1096,13 +1240,13 @@ export default function MetaAdsManagerList({ onCreate }) {
                             }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleOne(row.id)}
-                              aria-label={`Select ${displayName(row)}`}
-                            />
-                          </td>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleOne(row.id)}
+                        aria-label={`Select ${displayName(row)}`}
+                      />
+                    </td>
                           <td
                             className={`${STICKY_LEFT} ${stickyBg} px-1 py-2.5`}
                             style={{
@@ -1113,14 +1257,14 @@ export default function MetaAdsManagerList({ onCreate }) {
                             }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <Toggle
-                              checked={Boolean(rowOn[row.id])}
-                              onChange={(v) => {
-                                setRowOn((prev) => ({ ...prev, [row.id]: v }));
-                                toast.success(v ? 'Turned on' : 'Turned off');
-                              }}
-                            />
-                          </td>
+                      <Toggle
+                        checked={Boolean(rowOn[row.id])}
+                        onChange={(v) => {
+                          if (statusBusyId === row.id) return;
+                          toggleDelivery(row, v);
+                        }}
+                      />
+                    </td>
                           <td
                             className={`${STICKY_LEFT} ${STICKY_EDGE} ${stickyBg} px-3 py-2 align-top`}
                             style={{
@@ -1142,7 +1286,8 @@ export default function MetaAdsManagerList({ onCreate }) {
                                 onStartRename={() => startRename(row)}
                                 onCommitRename={commitRename}
                                 onCancelRename={cancelRename}
-                                onOpen={() => onCreate?.()}
+                                onOpen={() => openEdit(row)}
+                                renameSaving={renamingId === row.id && renameSaving}
                               />
                               {renamingId === row.id ? null : (
                                 <div className="pl-[2.625rem]">
@@ -1158,7 +1303,8 @@ export default function MetaAdsManagerList({ onCreate }) {
                                     onCharts={() =>
                                       toast.info(`Charts for “${displayName(row)}”`)
                                     }
-                                    onEdit={() => onCreate?.()}
+                                    onEdit={() => openEdit(row)}
+                                    onDelete={() => requestDelete([row.id])}
                                     onDuplicate={() => {
                                       setCampaigns((prev) => {
                                         const copy = {
@@ -1204,10 +1350,10 @@ export default function MetaAdsManagerList({ onCreate }) {
                                   />
                                 </div>
                               )}
-                            </div>
-                          </td>
-                          <td className="px-3 py-2.5">
-                            <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
                               <span
                                 className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 ${
                                   row.status === 'failed'
@@ -1220,8 +1366,8 @@ export default function MetaAdsManagerList({ onCreate }) {
                               {!rowOn[row.id] && row.status !== 'failed' && row.status !== 'draft'
                                 ? 'Off'
                                 : row.delivery}
-                            </span>
-                          </td>
+                      </span>
+                    </td>
                           <td className="px-3 py-2.5 text-sm text-slate-500">
                             {row.status === 'failed' ? (
                               <span className="inline-flex items-center gap-1 text-rose-600" title={row.detail || 'Needs review'}>
@@ -1233,35 +1379,35 @@ export default function MetaAdsManagerList({ onCreate }) {
                             ) : (
                               '—'
                             )}
-                          </td>
-                          <td className="px-3 py-2.5">
+                    </td>
+                    <td className="px-3 py-2.5">
                             <MetricCell
                               value={row.attributionPrimary}
                               sub={row.attributionSecondary}
                             />
-                          </td>
-                          <td className="px-3 py-2.5">
+                    </td>
+                    <td className="px-3 py-2.5">
                             <MetricCell value={row.results} sub={row.resultLabel} />
-                          </td>
-                          <td className="px-3 py-2.5">
+                    </td>
+                    <td className="px-3 py-2.5">
                             <MetricCell value={row.costPerResult} sub={row.costPerResultLabel} />
-                          </td>
-                          <td className="px-3 py-2.5">
+                    </td>
+                    <td className="px-3 py-2.5">
                             <MetricCell value={row.budgetAmount} sub={row.budgetType} />
-                          </td>
+                    </td>
                           <td className="px-3 py-2.5 text-sm text-slate-800">{row.amountSpent}</td>
                           <td className="px-3 py-2.5 text-sm text-slate-800">{row.impressions}</td>
                           <td className="px-3 py-2.5 text-sm text-slate-800">{row.reach}</td>
-                          <td className="px-3 py-2.5 text-sm text-slate-700">{row.ends}</td>
-                          <td className="px-3 py-2.5">
+                    <td className="px-3 py-2.5 text-sm text-slate-700">{row.ends}</td>
+                    <td className="px-3 py-2.5">
                             <MetricCell value={row.bidStrategy} sub={row.bidSub || undefined} />
-                          </td>
-                        </tr>
-                      );
+                    </td>
+                  </tr>
+                );
                     })
                   : null}
-              </tbody>
-            </table>
+            </tbody>
+          </table>
           </div>
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-brand-yellow/30 px-4 py-2.5 text-xs text-brand-muted">
             <span>
@@ -1316,23 +1462,32 @@ export default function MetaAdsManagerList({ onCreate }) {
               >
                 Next
               </button>
-            </div>
-          </div>
+        </div>
+      </div>
         </div>
       </div>
 
       {deleteConfirmOpen ? (
         <ConfirmModal
-          title="Delete selected?"
-          message={
-            selectedRows.length === 1
-              ? `Remove “${displayName(selectedRows[0])}” from this list? This can’t be undone in the UI.`
-              : `Remove ${selectedRows.length} selected items from this list? This can’t be undone in the UI.`
-          }
+          title={pendingDeleteIds.length === 1 ? 'Delete campaign?' : 'Delete selected?'}
+          message={(() => {
+            const pendingRows = pendingDeleteIds
+              .map((id) => campaigns.find((row) => row.id === id))
+              .filter(Boolean);
+            if (pendingRows.length === 1) {
+              return `Delete “${displayName(pendingRows[0])}”? This removes it from Meta and this list.`;
+            }
+            return `Delete ${pendingDeleteIds.length} campaigns from Meta and this list? This can’t be undone.`;
+          })()}
           confirmLabel="Delete"
           cancelLabel="Cancel"
+          isLoading={deleting}
           onConfirm={confirmDelete}
-          onCancel={() => setDeleteConfirmOpen(false)}
+          onCancel={() => {
+            if (deleting) return;
+            setDeleteConfirmOpen(false);
+            setPendingDeleteIds([]);
+          }}
         />
       ) : null}
     </div>

@@ -13,8 +13,15 @@ import {
   MetaTextarea,
   MetaToggle,
 } from './MetaFormPrimitives';
-import { createCampaignDraft, submitCampaign, uploadCampaignImage } from '../api/campaignApi';
+import {
+  createCampaignDraft,
+  getCampaignById,
+  submitCampaign,
+  updateCampaign,
+  uploadCampaignImage,
+} from '../api/campaignApi';
 import { createEmptyMetaCampaign } from './metaCampaignDefaults';
+import { draftFromCampaignDoc, isRemoteLockedCampaign } from './fromCampaignDoc';
 import { radiusOptions } from './metaCatalog';
 import { buildCampaignRequest, imageFileFromAd } from './toCampaignPayload';
 import LocationMapPanel from './LocationMapPanel';
@@ -419,7 +426,7 @@ function AccordionEditRow({ label, info, value, open, onToggle, children }) {
   );
 }
 
-function CampaignLevelForm({ data, onChange }) {
+function CampaignLevelForm({ data, onChange, remoteLocked = false }) {
   const set = (key, value) => onChange({ ...data, [key]: value });
   const [openSection, setOpenSection] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
@@ -455,6 +462,11 @@ function CampaignLevelForm({ data, onChange }) {
       </MetaCard>
 
       <MetaCard id="campaign-details" title="Campaign details">
+        {remoteLocked ? (
+          <p className="mb-2 text-xs text-slate-500">
+            Buying type and objective stay fixed after the campaign is on Meta. You can still open them to review.
+          </p>
+        ) : null}
         <div className="space-y-1">
           <AccordionEditRow
             label="Buying type"
@@ -466,7 +478,9 @@ function CampaignLevelForm({ data, onChange }) {
               {buyingTypeOptions.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-3 transition ${
+                  className={`flex gap-3 rounded-lg border px-3 py-3 transition ${
+                    remoteLocked ? 'cursor-default' : 'cursor-pointer'
+                  } ${
                     data.buyingType === opt.value
                       ? 'border-brand-navy bg-white'
                       : 'border-transparent bg-white/70 hover:bg-white'
@@ -477,6 +491,7 @@ function CampaignLevelForm({ data, onChange }) {
                     name="buyingType"
                     checked={data.buyingType === opt.value}
                     onChange={() => set('buyingType', opt.value)}
+                    disabled={remoteLocked}
                     className="mt-1"
                   />
                   <span>
@@ -501,15 +516,16 @@ function CampaignLevelForm({ data, onChange }) {
                 return (
                   <label
                     key={opt.value}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition ${
-                      selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'
-                    }`}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition ${
+                      remoteLocked ? 'cursor-default' : 'cursor-pointer'
+                    } ${selected ? 'bg-brand-yellow-soft' : 'hover:bg-slate-50'}`}
                   >
                     <input
                       type="radio"
                       name="campaignObjective"
                       checked={selected}
                       onChange={() => set('objective', opt.value)}
+                      disabled={remoteLocked}
                     />
                     <ObjectiveIcon type={opt.icon} />
                     <span className="text-sm font-medium text-slate-900">{opt.label}</span>
@@ -5474,7 +5490,11 @@ function AdLevelForm({ data, onChange, campaign = {}, adSet = {} }) {
   );
 }
 
-export default function MetaAdsCampaign({ onClose }) {
+const apiErrorMessage = (error, fallback) =>
+  error?.response?.data?.message || error?.message || fallback;
+
+export default function MetaAdsCampaign({ onClose, campaignId = null }) {
+  const isEdit = Boolean(campaignId);
   const [draft, setDraft] = useState(createEmptyMetaCampaign);
   const [level, setLevel] = useState('campaign');
   const [treeOpen, setTreeOpen] = useState(() =>
@@ -5486,14 +5506,53 @@ export default function MetaAdsCampaign({ onClose }) {
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState('');
   const [publishNotice, setPublishNotice] = useState('');
+  const [loadState, setLoadState] = useState(() => (campaignId ? 'loading' : 'ready'));
+  const [remoteLocked, setRemoteLocked] = useState(false);
 
   useEffect(() => {
     localStorage.removeItem('inkstall.metaAdsCampaign.draft');
   }, []);
 
   useEffect(() => {
+    if (!campaignId) {
+      setDraft(createEmptyMetaCampaign());
+      setRemoteLocked(false);
+      setLoadState('ready');
+      setPublishError('');
+      setPublishNotice('');
+      setLevel('campaign');
+      return undefined;
+    }
+
+    let cancelled = false;
+    setLoadState('loading');
+    setPublishError('');
+    setPublishNotice('');
+    getCampaignById(campaignId)
+      .then((data) => {
+        if (cancelled) return;
+        const doc = data?.campaign;
+        if (!doc?._id) throw new Error('Campaign was not found.');
+        setDraft(draftFromCampaignDoc(doc));
+        setRemoteLocked(isRemoteLockedCampaign(doc));
+        setLevel('campaign');
+        setLoadState('ready');
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setLoadState('error');
+        setPublishError(apiErrorMessage(error, 'Campaign could not be loaded.'));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (loadState !== 'ready') return;
     setSavedAt(new Date());
-  }, [draft]);
+  }, [draft, loadState]);
 
   useEffect(() => {
     const onResize = () => {
@@ -5530,6 +5589,7 @@ export default function MetaAdsCampaign({ onClose }) {
     const empty = createEmptyMetaCampaign();
     setDraft(empty);
     setLevel('campaign');
+    setRemoteLocked(false);
   };
 
   const closeEditor = () => {
@@ -5556,30 +5616,77 @@ export default function MetaAdsCampaign({ onClose }) {
 
     setPublishing(true);
     setPublishError('');
-    setPublishNotice('Creating the campaign…');
+
     try {
+      if (isEdit) {
+        // Keep existing creative assets unless a new image is uploaded in this session.
+        if (Array.isArray(body.creative?.assets) && body.creative.assets.length === 0) {
+          delete body.creative.assets;
+        }
+
+        setPublishNotice('Saving changes…');
+        const image = imageFileFromAd(draft.ad);
+        if (image) {
+          setPublishNotice('Uploading the image…');
+          try {
+            await uploadCampaignImage(campaignId, image);
+          } catch (imageError) {
+            setPublishNotice(imageError.message || 'The image was skipped.');
+          }
+        }
+
+        setPublishNotice(remoteLocked ? 'Updating on Meta…' : 'Saving the draft…');
+        const updated = await updateCampaign(campaignId, body);
+
+        if (!updated?.remoteUpdated && (updated?.status === 'draft' || !remoteLocked)) {
+          setPublishNotice('Submitting the ad…');
+          const submitted = await submitCampaign(campaignId);
+          setPublishNotice(
+            submitted?.paused === false
+              ? 'Campaign created and set to Active on Meta. Delivery can spend from the ad account.'
+              : 'Campaign created. It is paused in Meta.'
+          );
+        } else {
+          setPublishNotice(
+            updated?.remoteUpdated
+              ? 'Campaign updated on Meta and saved.'
+              : 'Campaign saved.'
+          );
+        }
+        if (typeof onClose === 'function') onClose();
+        return;
+      }
+
+      setPublishNotice('Creating the campaign…');
       const created = await createCampaignDraft(body);
-      const campaignId = created?.campaign?._id;
-      if (!campaignId) throw new Error('The campaign was not saved.');
+      const createdId = created?.campaign?._id;
+      if (!createdId) throw new Error('The campaign was not saved.');
 
       const image = imageFileFromAd(draft.ad);
       if (image) {
         setPublishNotice('Uploading the image…');
         try {
-          await uploadCampaignImage(campaignId, image);
+          await uploadCampaignImage(createdId, image);
         } catch (imageError) {
           setPublishNotice(imageError.message || 'The image was skipped.');
         }
       }
 
-      setPublishNotice('Submitting the paused ad…');
-      await submitCampaign(campaignId);
-      setPublishNotice('Campaign created. It is paused in Meta.');
+      setPublishNotice('Submitting the ad…');
+      const submitted = await submitCampaign(createdId);
+      setPublishNotice(
+        submitted?.paused === false
+          ? 'Campaign created and set to Active on Meta. Delivery can spend from the ad account.'
+          : 'Campaign created. It is paused in Meta.'
+      );
       resetDraft();
       if (typeof onClose === 'function') onClose();
     } catch (error) {
       setPublishNotice('');
-      setPublishError(error.message || 'The campaign could not be created.');
+      setPublishError(apiErrorMessage(
+        error,
+        isEdit ? 'The campaign could not be updated.' : 'The campaign could not be created.',
+      ));
     } finally {
       setPublishing(false);
     }
@@ -5736,10 +5843,24 @@ export default function MetaAdsCampaign({ onClose }) {
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden xl:flex-row">
             <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 pb-28 sm:px-5 sm:py-4 sm:pb-24">
-              {level === 'campaign' ? (
-                <CampaignLevelForm data={draft.campaign} onChange={(next) => updateLevel('campaign', next)} />
+              {loadState === 'loading' ? (
+                <div className="mx-auto max-w-3xl rounded-xl border border-brand-yellow/30 bg-white px-4 py-10 text-center text-sm text-slate-600">
+                  Loading campaign…
+                </div>
               ) : null}
-              {level === 'adSet' ? (
+              {loadState === 'error' ? (
+                <div className="mx-auto max-w-3xl rounded-xl border border-red-200 bg-red-50 px-4 py-10 text-center text-sm text-red-700">
+                  {typeof publishError === 'string' ? publishError : publishError?.message || 'Campaign could not be loaded.'}
+                </div>
+              ) : null}
+              {loadState === 'ready' && level === 'campaign' ? (
+                <CampaignLevelForm
+                  data={draft.campaign}
+                  onChange={(next) => updateLevel('campaign', next)}
+                  remoteLocked={remoteLocked}
+                />
+              ) : null}
+              {loadState === 'ready' && level === 'adSet' ? (
                 <AdSetLevelForm
                   data={draft.adSet}
                   onChange={(next) => updateLevel('adSet', next)}
@@ -5752,7 +5873,7 @@ export default function MetaAdsCampaign({ onClose }) {
                   }}
                 />
               ) : null}
-              {level === 'ad' ? (
+              {loadState === 'ready' && level === 'ad' ? (
                 <AdLevelForm
                   data={draft.ad}
                   onChange={(next) => updateLevel('ad', next)}
@@ -5857,7 +5978,8 @@ export default function MetaAdsCampaign({ onClose }) {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover sm:px-5"
+                  disabled={loadState !== 'ready'}
+                  className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
                 >
                   Next
                 </button>
@@ -5865,10 +5987,16 @@ export default function MetaAdsCampaign({ onClose }) {
                 <button
                   type="button"
                   onClick={publishDraft}
-                  disabled={publishing}
+                  disabled={publishing || loadState !== 'ready'}
                   className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-hover disabled:cursor-wait disabled:opacity-60 sm:px-5"
                 >
-                  {publishing ? 'Publishing…' : 'Publish'}
+                  {publishing
+                    ? isEdit
+                      ? 'Updating…'
+                      : 'Publishing…'
+                    : isEdit
+                      ? 'Update'
+                      : 'Publish'}
                 </button>
               )}
             </div>
