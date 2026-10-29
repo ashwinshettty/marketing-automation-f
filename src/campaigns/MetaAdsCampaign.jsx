@@ -26,6 +26,8 @@ import { radiusOptions } from './metaCatalog';
 import { buildCampaignRequest, imageFileFromAd } from './toCampaignPayload';
 import LocationMapPanel from './LocationMapPanel';
 import MetaMediaCropModal, { CroppedMediaPreview } from './MetaMediaCropModal';
+import { browsePlaces, searchPlaces } from './places';
+import { resolveMetaGeoForPlace } from './metaLocationResolve';
 import {
   META_CROP_GROUPS,
   PREVIEW_PLACEMENTS,
@@ -58,7 +60,6 @@ import {
   genderOptions,
   labelFromOptions,
   languageOptions,
-  locationSuggestionOptions,
   savedAudienceOptions,
   objectiveOptions,
   instagramLivePerformanceGoalOptions,
@@ -71,6 +72,16 @@ import {
 } from './campaignOptions';
 
 const LEVELS = ['campaign', 'adSet', 'ad'];
+
+const isValidLocationTag = (tag) => {
+  const label = String(tag?.label || '').trim();
+  if (label.length < 3) return false;
+  if (tag?.value === 'legacy' || tag?.type === 'Location') {
+    // Old free-text leftovers (e.g. partial search "mu") — drop them
+    if (tag?.lat == null && tag?.lng == null) return false;
+  }
+  return true;
+};
 
 function TreeIcon({ level }) {
   if (level === 'campaign') {
@@ -1345,7 +1356,13 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
     () => Boolean(data.showAudienceControlsMore)
   );
   const [dropPinMode, setDropPinMode] = useState(false);
+  /** Meta: click a location chip to edit that location's radius independently */
+  const [selectedLocationKey, setSelectedLocationKey] = useState('');
   const [locationBrowseOpen, setLocationBrowseOpen] = useState(false);
+  const [locationApiResults, setLocationApiResults] = useState([]);
+  const [locationSearchLoading, setLocationSearchLoading] = useState(false);
+  const [browseApiResults, setBrowseApiResults] = useState([]);
+  const [browseLoading, setBrowseLoading] = useState(false);
   const [showValueRuleBanner, setShowValueRuleBanner] = useState(
     () => data.showValueRuleSetBanner !== false
   );
@@ -1376,6 +1393,48 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
     () => locationGroups.flatMap((g) => g.options),
     [locationGroups]
   );
+
+  // Dynamic Search locations (Open-Meteo + Photon)
+  useEffect(() => {
+    if (!audienceLocationMenuOpen) return undefined;
+    const query = String(data.locationSearch || '').trim();
+    let cancelled = false;
+    setLocationSearchLoading(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const places = await searchPlaces(query, { limit: 12 });
+        if (!cancelled) setLocationApiResults(places);
+      } catch {
+        if (!cancelled) setLocationApiResults([]);
+      } finally {
+        if (!cancelled) setLocationSearchLoading(false);
+      }
+    }, 280);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [data.locationSearch, audienceLocationMenuOpen]);
+
+  // Dynamic Browse locations
+  useEffect(() => {
+    if (!locationBrowseOpen) return undefined;
+    let cancelled = false;
+    setBrowseLoading(true);
+    browsePlaces('India')
+      .then((places) => {
+        if (!cancelled) setBrowseApiResults(places);
+      })
+      .catch(() => {
+        if (!cancelled) setBrowseApiResults([]);
+      })
+      .finally(() => {
+        if (!cancelled) setBrowseLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locationBrowseOpen]);
 
   // Normalize legacy draft value from older "Message destinations" option
   const conversionLocation =
@@ -3309,18 +3368,16 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
       >
         {(() => {
           const advantageOn = data.advantageAudience !== false && !data.furtherLimitAudience;
-          const locationTags =
-            data.locationTags && data.locationTags.length
-              ? data.locationTags
-              : data.locations
-                ? [{ value: 'legacy', label: String(data.locations), type: 'Location' }]
-                : [];
-          const locationQuery = (data.locationSearch || '').trim().toLowerCase();
-          const filteredLocations = locationSuggestionOptions.filter((opt) => {
-            if (locationTags.some((t) => t.value === opt.value)) return false;
-            if (!locationQuery) return true;
-            return opt.label.toLowerCase().includes(locationQuery);
-          });
+          // Drop junk tags (e.g. leftover search text like "mu" from old `locations` field)
+          const locationTags = (Array.isArray(data.locationTags) ? data.locationTags : []).filter(
+            isValidLocationTag
+          );
+          const filteredLocations = locationApiResults.filter(
+            (opt) => !locationTags.some((t) => t.value === opt.value || t.label === (opt.label || opt.name))
+          );
+          const browseLocations = (browseApiResults.length ? browseApiResults : locationApiResults).filter(
+            (opt) => !locationTags.some((t) => t.value === opt.value || t.label === (opt.label || opt.name))
+          );
           const includedCustom = data.includedCustomAudiences || [];
           const excludedCustom = data.excludedCustomAudiences || [];
           const detailed = data.detailedTargeting || [];
@@ -3328,35 +3385,81 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
           const dtQuery = detailedTargetingSearch.trim().toLowerCase();
 
           const addLocation = (opt) => {
+            const label = String(opt.label || opt.name || '').trim();
+            const type = opt.type || 'City';
+            const hasCoords = Number.isFinite(opt.lat) && Number.isFinite(opt.lng);
+            // Ignore incomplete search text / invalid picks
+            if (label.length < 3) return;
+            if (!['Country', 'City', 'Region'].includes(type) && !hasCoords) return;
+
+            const excludeMode = (data.locationAction || 'include') === 'exclude';
+            const tagValue = opt.value || label;
+            // Meta: each city keeps its own coords + independent radius (do not overwrite pin)
+            const baseTag = {
+              value: tagValue,
+              label,
+              type,
+              lat: opt.lat,
+              lng: opt.lng,
+              // Meta default city radius ~25 km; countries have no radius
+              radiusKm: type === 'Country' ? undefined : 25,
+              radiusMode: type === 'Country' ? undefined : 'radius', // 'radius' | 'city_only'
+              action: excludeMode ? 'exclude' : 'include',
+            };
             onChange({
               ...data,
-              locationTags: [
-                ...locationTags,
-                {
-                  value: opt.value,
-                  label: opt.label,
-                  type: opt.type,
-                  ...(opt.type === 'City' ? { radiusKm: 25 } : {}),
-                },
-              ],
+              locationTags: [...locationTags, baseTag],
               locationSearch: '',
+              locations: '',
             });
+            setSelectedLocationKey(tagValue);
             setAudienceLocationMenuOpen(false);
+
+            // Resolve Meta adgeolocation key dynamically (no static CITY_KEYS)
+            void resolveMetaGeoForPlace(baseTag).then((enriched) => {
+              if (!enriched?.metaKey) return;
+              onChange((prevAdSet) => {
+                const tags = Array.isArray(prevAdSet?.locationTags)
+                  ? prevAdSet.locationTags
+                  : [];
+                return {
+                  ...prevAdSet,
+                  locationTags: tags.map((t) =>
+                    t.value === tagValue
+                      ? {
+                          ...t,
+                          metaKey: enriched.metaKey,
+                          countryCode: enriched.countryCode,
+                          regionKey: enriched.regionKey,
+                          regionName: enriched.regionName,
+                          metaName: enriched.metaName,
+                        }
+                      : t
+                  ),
+                };
+              });
+            });
           };
           const removeLocation = (value) => {
             set(
               'locationTags',
               locationTags.filter((t) => t.value !== value)
             );
+            if (selectedLocationKey === value) setSelectedLocationKey('');
           };
-          const setLocationRadius = (value, radiusKm) => {
+          const updateLocationTag = (value, patch) => {
             set(
               'locationTags',
-              locationTags.map((tag) => (
-                tag.value === value ? { ...tag, radiusKm: Number(radiusKm) } : tag
-              ))
+              locationTags.map((t) => (t.value === value ? { ...t, ...patch } : t))
             );
           };
+          const setLocationRadius = (value, radiusKm) => {
+            updateLocationTag(value, { radiusKm: Number(radiusKm), radiusMode: 'radius' });
+          };
+          const locationSupportsRadius = (tag) =>
+            tag?.type !== 'Country' &&
+            Number.isFinite(Number(tag?.lat)) &&
+            Number.isFinite(Number(tag?.lng));
           const toggleListValue = (key, value) => {
             const list = data[key] || [];
             set(
@@ -3496,20 +3599,26 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                             }}
                           />
                           <div className="absolute left-0 right-0 z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
-                            {filteredLocations.length ? (
+                            {locationSearchLoading ? (
+                              <p className="px-3 py-2.5 text-sm text-slate-500">Searching locations…</p>
+                            ) : filteredLocations.length ? (
                               filteredLocations.map((opt) => (
                                 <button
-                                  key={opt.value}
+                                  key={opt.value || opt.label || opt.name}
                                   type="button"
                                   onClick={() => addLocation(opt)}
                                   className="flex w-full items-start justify-between gap-2 px-3 py-2.5 text-left hover:bg-slate-50"
                                 >
-                                  <span className="text-sm font-medium text-slate-800">{opt.label}</span>
+                                  <span className="text-sm font-medium text-slate-800">
+                                    {opt.label || opt.name}
+                                  </span>
                                   <span className="shrink-0 text-xs text-slate-500">{opt.type}</span>
                                 </button>
                               ))
                             ) : (
-                              <p className="px-3 py-2.5 text-sm text-slate-500">No locations found</p>
+                              <p className="px-3 py-2.5 text-sm text-slate-500">
+                                No locations found. Try another city or country.
+                              </p>
                             )}
                           </div>
                         </>
@@ -3534,24 +3643,30 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                               setLocationBrowseOpen(false);
                             }}
                           />
-                          <div className="absolute right-0 z-20 mt-1 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                          <div className="absolute right-0 z-20 mt-1 max-h-72 w-72 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                             <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                               Browse locations
                             </p>
-                            {locationSuggestionOptions.slice(0, 8).map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                onClick={() => {
-                                  addLocation(opt);
-                                  setLocationBrowseOpen(false);
-                                }}
-                                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
-                              >
-                                <span>{opt.label}</span>
-                                <span className="text-xs text-slate-400">{opt.type}</span>
-                              </button>
-                            ))}
+                            {browseLoading ? (
+                              <p className="px-3 py-2 text-sm text-slate-500">Loading…</p>
+                            ) : browseLocations.length ? (
+                              browseLocations.map((opt) => (
+                                <button
+                                  key={opt.value || opt.label || opt.name}
+                                  type="button"
+                                  onClick={() => {
+                                    addLocation(opt);
+                                    setLocationBrowseOpen(false);
+                                  }}
+                                  className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50"
+                                >
+                                  <span className="min-w-0 truncate">{opt.label || opt.name}</span>
+                                  <span className="shrink-0 text-xs text-slate-400">{opt.type}</span>
+                                </button>
+                              ))
+                            ) : (
+                              <p className="px-3 py-2 text-sm text-slate-500">No locations available</p>
+                            )}
                           </div>
                         </>
                       ) : null}
@@ -3560,71 +3675,232 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
 
                   {locationTags.length ? (
                     <div className="mt-3 space-y-1.5">
-                      {locationTags.map((tag) => (
-                        <div
-                          key={tag.value}
-                          className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-slate-900">{tag.label}</p>
-                            <p className="text-xs text-slate-500">
-                              {(data.locationAction || 'include') === 'exclude' ? 'Exclude' : 'Include'} ·{' '}
-                              {tag.type || 'Location'}
-                            </p>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
-                            {tag.type === 'City' ? (
-                              <select
-                                value={tag.radiusKm || 25}
-                                onChange={(event) => setLocationRadius(tag.value, event.target.value)}
-                                className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800"
-                                aria-label={`Radius for ${tag.label}`}
+                      {locationTags.map((tag) => {
+                        const selected = selectedLocationKey === tag.value;
+                        const canRadius = locationSupportsRadius(tag);
+                        const cityOnly = tag.radiusMode === 'city_only';
+                        const tagRadius = Math.max(1, Number(tag.radiusKm) || 25);
+                        return (
+                          <div
+                            key={tag.value}
+                            className={`rounded-lg border bg-white ${
+                              selected ? 'border-brand-navy ring-2 ring-brand-navy/20' : 'border-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 px-3 py-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setSelectedLocationKey((prev) =>
+                                    prev === tag.value ? '' : tag.value
+                                  )
+                                }
+                                className="min-w-0 flex-1 text-left"
                               >
-                                {radiusOptions.filter((km) => km >= 17).map((km) => (
-                                  <option key={km} value={km}>
-                                    +{km} km
-                                  </option>
-                                ))}
-                              </select>
+                                <p className="truncate text-sm font-medium text-slate-900">{tag.label}</p>
+                                <p className="text-xs text-slate-500">
+                                  {(tag.action || 'include') === 'exclude' ? 'Exclude' : 'Include'}{' '}
+                                  · {tag.type || 'Location'}
+                                  {canRadius
+                                    ? cityOnly
+                                      ? ' · Current city only'
+                                      : ` · +${tagRadius} km`
+                                    : ''}
+                                </p>
+                              </button>
+                              <div className="flex shrink-0 items-center gap-2">
+                                {tag.type === 'City' && !cityOnly ? (
+                                  <select
+                                    value={tagRadius >= 17 ? tagRadius : 25}
+                                    onChange={(event) =>
+                                      setLocationRadius(tag.value, event.target.value)
+                                    }
+                                    onClick={(event) => event.stopPropagation()}
+                                    className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800"
+                                    aria-label={`Radius for ${tag.label}`}
+                                  >
+                                    {radiusOptions.filter((km) => km >= 17).map((km) => (
+                                      <option key={km} value={km}>
+                                        +{km} km
+                                      </option>
+                                    ))}
+                                  </select>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  onClick={() => removeLocation(tag.value)}
+                                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                                  aria-label={`Remove ${tag.label}`}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Meta: click location → adjust that location's radius independently */}
+                            {selected && canRadius ? (
+                              <div className="space-y-2 border-t border-slate-100 px-3 py-2.5">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-xs font-semibold text-slate-800">
+                                    Radius for this location
+                                  </p>
+                                  {tag.type === 'City' ? (
+                                    <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-slate-600">
+                                      <input
+                                        type="checkbox"
+                                        checked={cityOnly}
+                                        onChange={(e) =>
+                                          updateLocationTag(tag.value, {
+                                            radiusMode: e.target.checked ? 'city_only' : 'radius',
+                                            // Keep last radius for when user unchecks city-only
+                                            radiusKm: tag.radiusKm || 25,
+                                          })
+                                        }
+                                      />
+                                      Current city only
+                                    </label>
+                                  ) : null}
+                                </div>
+                                {!cityOnly ? (
+                                  <>
+                                    <p className="text-[11px] text-slate-500">
+                                      People within this distance can see your ads (Meta Ads Manager).
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                      <input
+                                        type="range"
+                                        min="1"
+                                        max="80"
+                                        step="1"
+                                        value={tagRadius}
+                                        onChange={(e) =>
+                                          updateLocationTag(tag.value, {
+                                            radiusKm: Number(e.target.value),
+                                            radiusMode: 'radius',
+                                          })
+                                        }
+                                        className="h-2 flex-1 accent-brand-navy"
+                                      />
+                                      <div className="flex w-24 items-center gap-1">
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          max="80"
+                                          value={tagRadius}
+                                          onChange={(e) =>
+                                            updateLocationTag(tag.value, {
+                                              radiusKm: Number(e.target.value) || 1,
+                                              radiusMode: 'radius',
+                                            })
+                                          }
+                                          className="w-14 rounded-md border border-slate-300 px-2 py-1 text-sm"
+                                        />
+                                        <span className="text-xs text-slate-500">km</span>
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <p className="text-[11px] text-slate-500">
+                                    Ads target only this city (no expanded radius).
+                                  </p>
+                                )}
+                              </div>
                             ) : null}
-                            <button
-                              type="button"
-                              onClick={() => removeLocation(tag.value)}
-                              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                              aria-label={`Remove ${tag.label}`}
-                            >
-                              ×
-                            </button>
+
+                            {selected && !canRadius ? (
+                              <p className="border-t border-slate-100 px-3 py-2 text-[11px] text-slate-500">
+                                Radius is not available for countries, states, or regions in Meta Ads
+                                Manager.
+                              </p>
+                            ) : null}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : null}
 
                   <div className="mt-3">
                     <LocationMapPanel
-                      latitude={data.latitude}
-                      longitude={data.longitude}
-                      radiusKm={data.radiusKm || '10'}
                       userLatitude={data.userLatitude || ''}
                       userLongitude={data.userLongitude || ''}
+                      userLocationLabel={data.userLocationLabel || ''}
+                      mapLocations={locationTags
+                        .filter((tag) => Number.isFinite(Number(tag.lat)) && Number.isFinite(Number(tag.lng)))
+                        .map((tag) => ({
+                          id: tag.value || tag.label,
+                          value: tag.value,
+                          label: tag.label,
+                          lat: tag.lat,
+                          lng: tag.lng,
+                          radiusKm:
+                            tag.radiusMode === 'city_only' ? 8 : Number(tag.radiusKm) || 25,
+                          type: tag.type,
+                          selected: selectedLocationKey === tag.value,
+                          excluded: (tag.action || 'include') === 'exclude',
+                        }))}
+                      selectedLocationId={selectedLocationKey}
+                      onSelectLocation={(id) => setSelectedLocationKey(id || '')}
                       dropPinMode={dropPinMode}
                       onDropPinModeChange={setDropPinMode}
                       centerLabel={locationTags[0]?.label || 'India'}
-                      onPinChange={({ latitude, longitude }) => {
+                      onAddMapLocation={({ lat, lng, label, radiusKm: pinRadius }) => {
+                        const tagValue = `pin-${Number(lat).toFixed(5)}-${Number(lng).toFixed(5)}`;
+                        if (locationTags.some((t) => t.value === tagValue)) return;
+                        const nextTag = {
+                          value: tagValue,
+                          label: label || `Near ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}`,
+                          type: 'City',
+                          lat: Number(lat),
+                          lng: Number(lng),
+                          radiusKm: Number(pinRadius) || 10,
+                          radiusMode: 'radius',
+                          action: 'include',
+                        };
                         onChange({
                           ...data,
-                          latitude,
-                          longitude,
-                          ...(latitude && longitude && !data.radiusKm ? { radiusKm: '10' } : {}),
+                          locationTags: [...locationTags, nextTag],
+                          // Clear legacy orphan pin so it cannot draw a 3rd circle
+                          latitude: '',
+                          longitude: '',
+                          pinLabel: '',
+                        });
+                        setSelectedLocationKey(tagValue);
+                        void resolveMetaGeoForPlace(nextTag).then((enriched) => {
+                          if (!enriched?.metaKey) return;
+                          onChange((prevAdSet) => {
+                            const tags = Array.isArray(prevAdSet?.locationTags)
+                              ? prevAdSet.locationTags
+                              : [];
+                            return {
+                              ...prevAdSet,
+                              locationTags: tags.map((t) =>
+                                t.value === tagValue
+                                  ? {
+                                      ...t,
+                                      metaKey: enriched.metaKey,
+                                      countryCode: enriched.countryCode,
+                                      regionKey: enriched.regionKey,
+                                      regionName: enriched.regionName,
+                                      metaName: enriched.metaName,
+                                    }
+                                  : t
+                              ),
+                            };
+                          });
                         });
                       }}
-                      onRadiusChange={(v) => set('radiusKm', v)}
-                      onUserLocationChange={({ userLatitude, userLongitude }) => {
+                      onUserLocationChange={({ userLatitude, userLongitude, userLocationLabel }) => {
                         onChange({
                           ...data,
                           userLatitude,
                           userLongitude,
+                          userLocationLabel:
+                            userLocationLabel ??
+                            (userLatitude && userLongitude ? data.userLocationLabel : ''),
+                          // Clear legacy orphan pin fields (old drop-pin circle)
+                          ...(data.latitude || data.longitude
+                            ? { latitude: '', longitude: '', pinLabel: '' }
+                            : {}),
                         });
                       }}
                     />
@@ -3820,16 +4096,9 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                     <div className="rounded-lg border border-slate-200 bg-white px-3.5 py-3">
                       <p className="text-sm font-semibold text-slate-800">Radius targeting</p>
                       <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                        Use <span className="font-semibold text-slate-700">Drop Pin</span> on the Locations map
-                        above to set a point and radius. You can also drag the pin or adjust the km slider under
-                        the map.
+                        Click a city to set its radius, or use <span className="font-semibold text-slate-700">Drop Pin</span>{' '}
+                        to add another location. Each selected location gets one circle on the map.
                       </p>
-                      {data.latitude && data.longitude ? (
-                        <p className="mt-2 text-xs text-slate-600">
-                          Active pin: {Number(data.latitude).toFixed(4)}, {Number(data.longitude).toFixed(4)} ·{' '}
-                          {data.radiusKm || 10} km
-                        </p>
-                      ) : null}
                     </div>
                   </div>
                 ) : null}
@@ -5554,6 +5823,27 @@ export default function MetaAdsCampaign({ onClose, campaignId = null }) {
     setSavedAt(new Date());
   }, [draft, loadState]);
 
+  // One-shot: purge junk chips + orphan drop-pin (was drawing an extra map circle)
+  useEffect(() => {
+    setDraft((prev) => {
+      const tags = Array.isArray(prev.adSet.locationTags) ? prev.adSet.locationTags : [];
+      const cleaned = tags.filter(isValidLocationTag);
+      const clearLocs =
+        Boolean(prev.adSet.locations) && String(prev.adSet.locations).trim().length < 5;
+      const clearPin = Boolean(prev.adSet.latitude || prev.adSet.longitude || prev.adSet.pinLabel);
+      if (cleaned.length === tags.length && !clearLocs && !clearPin) return prev;
+      return {
+        ...prev,
+        adSet: {
+          ...prev.adSet,
+          locationTags: cleaned,
+          ...(clearLocs ? { locations: '' } : {}),
+          ...(clearPin ? { latitude: '', longitude: '', pinLabel: '' } : {}),
+        },
+      };
+    });
+  }, []);
+
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) setTreeOpen(true);
@@ -5863,7 +6153,12 @@ export default function MetaAdsCampaign({ onClose, campaignId = null }) {
               {loadState === 'ready' && level === 'adSet' ? (
                 <AdSetLevelForm
                   data={draft.adSet}
-                  onChange={(next) => updateLevel('adSet', next)}
+                  onChange={(next) =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      adSet: typeof next === 'function' ? next(prev.adSet) : next,
+                    }))
+                  }
                   campaignObjective={draft.campaign?.objective || 'leads'}
                   campaignBudget={{
                     budgetStrategy: draft.campaign?.budgetStrategy || 'campaign',

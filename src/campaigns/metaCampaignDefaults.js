@@ -111,9 +111,11 @@ export const createEmptyMetaCampaign = () => ({
     securitiesRelated: false,
     latitude: '',
     longitude: '',
+    pinLabel: '',
     radiusKm: '10',
     userLatitude: '',
     userLongitude: '',
+    userLocationLabel: '',
   },
   ad: {
     name: '',

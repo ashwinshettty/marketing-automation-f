@@ -1,77 +1,194 @@
-export const localPlaces = [
-  { name: 'Mumbai, Maharashtra, India', lat: 19.076, lng: 72.8777 },
-  { name: 'Delhi, India', lat: 28.6139, lng: 77.209 },
-  { name: 'Bengaluru, Karnataka, India', lat: 12.9716, lng: 77.5946 },
-  { name: 'Hyderabad, Telangana, India', lat: 17.385, lng: 78.4867 },
-  { name: 'Chennai, Tamil Nadu, India', lat: 13.0827, lng: 80.2707 },
-  { name: 'Kolkata, West Bengal, India', lat: 22.5726, lng: 88.3639 },
-  { name: 'Pune, Maharashtra, India', lat: 18.5204, lng: 73.8567 },
-  { name: 'Ahmedabad, Gujarat, India', lat: 23.0225, lng: 72.5714 },
-  { name: 'Jaipur, Rajasthan, India', lat: 26.9124, lng: 75.7873 },
-  { name: 'Lucknow, Uttar Pradesh, India', lat: 26.8467, lng: 80.9462 },
-  { name: 'Surat, Gujarat, India', lat: 21.1702, lng: 72.8311 },
-  { name: 'Nagpur, Maharashtra, India', lat: 21.1458, lng: 79.0882 },
-  { name: 'Indore, Madhya Pradesh, India', lat: 22.7196, lng: 75.8577 },
-  { name: 'Bhopal, Madhya Pradesh, India', lat: 23.2599, lng: 77.4126 },
-  { name: 'Patna, Bihar, India', lat: 25.5941, lng: 85.1376 },
-  { name: 'Vadodara, Gujarat, India', lat: 22.3072, lng: 73.1812 },
-  { name: 'Coimbatore, Tamil Nadu, India', lat: 11.0168, lng: 76.9558 },
-  { name: 'Kochi, Kerala, India', lat: 9.9312, lng: 76.2673 },
-  { name: 'Thiruvananthapuram, Kerala, India', lat: 8.5241, lng: 76.9366 },
-  { name: 'Chandigarh, India', lat: 30.7333, lng: 76.7794 },
-  { name: 'Noida, Uttar Pradesh, India', lat: 28.5355, lng: 77.391 },
-  { name: 'Gurugram, Haryana, India', lat: 28.4595, lng: 77.0266 },
-  { name: 'Thane, Maharashtra, India', lat: 19.2183, lng: 72.9781 },
-  { name: 'Nashik, Maharashtra, India', lat: 19.9975, lng: 73.7898 },
-  { name: 'Visakhapatnam, Andhra Pradesh, India', lat: 17.6868, lng: 83.2185 },
-  { name: 'Madurai, Tamil Nadu, India', lat: 9.9252, lng: 78.1198 },
-  { name: 'Raipur, Chhattisgarh, India', lat: 21.2514, lng: 81.6296 },
-  { name: 'Ranchi, Jharkhand, India', lat: 23.3441, lng: 85.3096 },
-  { name: 'Guwahati, Assam, India', lat: 26.1445, lng: 91.7362 },
-  { name: 'Bhubaneswar, Odisha, India', lat: 20.2961, lng: 85.8245 },
-  { name: 'Dehradun, Uttarakhand, India', lat: 30.3165, lng: 78.0322 },
-  { name: 'Mysuru, Karnataka, India', lat: 12.2958, lng: 76.6394 },
-  { name: 'Panaji, Goa, India', lat: 15.4909, lng: 73.8278 },
-  { name: 'Amritsar, Punjab, India', lat: 31.634, lng: 74.8723 },
-  { name: 'Varanasi, Uttar Pradesh, India', lat: 25.3176, lng: 82.9739 },
-  { name: 'Agra, Uttar Pradesh, India', lat: 27.1767, lng: 78.0081 },
+/**
+ * Dynamic location search via free third-party APIs (no API key):
+ * - Open-Meteo Geocoding (cities / regions / countries, CORS-friendly)
+ * - Photon / Komoot (OpenStreetMap), used as a fallback / browse enricher
+ */
+
+/** Seed results when Browse opens with an empty query */
+export const browseSeedPlaces = [
+  { name: 'India', lat: 22.3511, lng: 78.6677, type: 'Country', value: 'country:in' },
+  { name: 'Mumbai, Maharashtra, India', lat: 19.076, lng: 72.8777, type: 'City', value: 'city:mumbai' },
+  { name: 'Delhi, India', lat: 28.6139, lng: 77.209, type: 'City', value: 'city:delhi' },
+  { name: 'Bengaluru, Karnataka, India', lat: 12.9716, lng: 77.5946, type: 'City', value: 'city:bengaluru' },
+  { name: 'Hyderabad, Telangana, India', lat: 17.385, lng: 78.4867, type: 'City', value: 'city:hyderabad' },
+  { name: 'Chennai, Tamil Nadu, India', lat: 13.0827, lng: 80.2707, type: 'City', value: 'city:chennai' },
+  { name: 'Pune, Maharashtra, India', lat: 18.5204, lng: 73.8567, type: 'City', value: 'city:pune' },
+  { name: 'Kolkata, West Bengal, India', lat: 22.5726, lng: 88.3639, type: 'City', value: 'city:kolkata' },
 ];
 
-const placeLabel = (properties) => {
-  const parts = [properties.name, properties.city, properties.state, properties.country].filter(Boolean);
-  return parts.filter((part, index) => parts.indexOf(part) === index).join(', ');
+const placeLabel = (parts) =>
+  [...parts].filter(Boolean).filter((part, index, arr) => arr.indexOf(part) === index).join(', ');
+
+const slugValue = (prefix, name, lat, lng) => {
+  const slug = String(name || 'place')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 48);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return `${prefix}:${slug}:${lat.toFixed(4)},${lng.toFixed(4)}`;
+  }
+  return `${prefix}:${slug}`;
 };
 
-const localMatches = (query) => {
-  const needle = query.trim().toLowerCase();
-  const list = needle
-    ? localPlaces.filter((place) => place.name.toLowerCase().includes(needle))
-    : localPlaces;
-  return list.slice(0, 8);
+/** Map Open-Meteo / GeoNames feature codes → Meta-style type label */
+const typeFromFeatureCode = (code = '') => {
+  if (code === 'PCLI' || code === 'PCLD' || code === 'PCLS') return 'Country';
+  if (code.startsWith('ADM1')) return 'Region';
+  if (code.startsWith('ADM')) return 'Region';
+  if (code.startsWith('PPL')) return 'City';
+  return 'Location';
 };
 
-export const searchPlaces = async (query) => {
-  const local = localMatches(query);
-  const needle = query.trim();
-  if (needle.length < 2) return local;
+const typeFromPhoton = (properties = {}) => {
+  const key = properties.osm_key;
+  const value = properties.osm_value;
+  if (key === 'place' && value === 'country') return 'Country';
+  if (key === 'boundary' && value === 'administrative') {
+    if (properties.extent || properties.type === 'country') return 'Country';
+    return properties.state ? 'Region' : 'Region';
+  }
+  if (key === 'place' && ['city', 'town', 'village', 'municipality', 'suburb'].includes(value)) {
+    return 'City';
+  }
+  if (key === 'place' && value === 'state') return 'Region';
+  return 'Location';
+};
+
+const normalizePlace = ({ name, lat, lng, type, value }) => {
+  if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return {
+    name,
+    label: name,
+    lat,
+    lng,
+    type: type || 'Location',
+    value: value || slugValue('place', name, lat, lng),
+  };
+};
+
+async function searchOpenMeteo(query, limit = 10) {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=${limit}&language=en&format=json`;
+  const response = await fetch(url);
+  if (!response.ok) return [];
+  const data = await response.json();
+  return (data.results || [])
+    .map((row) =>
+      normalizePlace({
+        name: placeLabel([row.name, row.admin1, row.country]),
+        lat: row.latitude,
+        lng: row.longitude,
+        type: typeFromFeatureCode(row.feature_code),
+        value: slugValue(
+          typeFromFeatureCode(row.feature_code).toLowerCase(),
+          row.name,
+          row.latitude,
+          row.longitude
+        ),
+      })
+    )
+    .filter(Boolean);
+}
+
+async function searchPhoton(query, limit = 8) {
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=${limit}&lang=en`;
+  const response = await fetch(url);
+  if (!response.ok) return [];
+  const data = await response.json();
+  return (data.features || [])
+    .map((feature) => {
+      const props = feature.properties || {};
+      const name = placeLabel([props.name, props.city, props.state, props.country]);
+      const lng = feature.geometry?.coordinates?.[0];
+      const lat = feature.geometry?.coordinates?.[1];
+      const type = typeFromPhoton(props);
+      return normalizePlace({
+        name,
+        lat,
+        lng,
+        type,
+        value: slugValue(type.toLowerCase(), name, lat, lng),
+      });
+    })
+    .filter(Boolean);
+}
+
+const mergeUnique = (lists) => {
+  const seen = new Set();
+  const out = [];
+  lists.flat().forEach((place) => {
+    if (!place) return;
+    const key = place.value || place.name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(place);
+  });
+  return out;
+};
+
+/**
+ * Search locations dynamically. Returns { name, label, lat, lng, type, value }.
+ * @param {string} query
+ * @param {{ limit?: number }} [options]
+ */
+export const searchPlaces = async (query, options = {}) => {
+  const limit = options.limit || 10;
+  const needle = String(query || '').trim();
+
+  if (needle.length < 2) {
+    return browseSeedPlaces.slice(0, limit);
+  }
+
   try {
-    const response = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(needle)}&limit=6&lang=en`);
-    if (!response.ok) return local;
-    const data = await response.json();
-    const remote = (data.features || []).map((feature) => ({
-      name: placeLabel(feature.properties || {}),
-      lat: feature.geometry?.coordinates?.[1],
-      lng: feature.geometry?.coordinates?.[0],
-    })).filter((place) => place.name && Number.isFinite(place.lat) && Number.isFinite(place.lng));
-    const seen = new Set(local.map((place) => place.name.toLowerCase()));
-    remote.forEach((place) => {
-      if (!seen.has(place.name.toLowerCase())) {
-        seen.add(place.name.toLowerCase());
-        local.push(place);
-      }
-    });
-    return local.slice(0, 8);
+    const [meteo, photon] = await Promise.all([
+      searchOpenMeteo(needle, limit).catch(() => []),
+      searchPhoton(needle, Math.min(6, limit)).catch(() => []),
+    ]);
+    const merged = mergeUnique([meteo, photon]);
+    if (merged.length) return merged.slice(0, limit);
   } catch {
-    return local;
+    // fall through to seed filter
+  }
+
+  const lower = needle.toLowerCase();
+  return browseSeedPlaces
+    .filter((place) => place.name.toLowerCase().includes(lower))
+    .slice(0, limit);
+};
+
+/** Browse list: seed + live suggestions for a region (default India). */
+export const browsePlaces = async (regionQuery = 'India') => {
+  try {
+    const live = await searchPlaces(regionQuery, { limit: 12 });
+    return mergeUnique([browseSeedPlaces, live]).slice(0, 16);
+  } catch {
+    return browseSeedPlaces;
+  }
+};
+
+/**
+ * Reverse-geocode coordinates → human-readable area name (Photon / OSM).
+ * @returns {Promise<string>}
+ */
+export const reverseGeocode = async (lat, lng) => {
+  const latitude = Number(lat);
+  const longitude = Number(lng);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return '';
+
+  try {
+    const url = `https://photon.komoot.io/reverse?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&lang=en`;
+    const response = await fetch(url);
+    if (!response.ok) return '';
+    const data = await response.json();
+    const feature = data.features?.[0];
+    if (!feature) return '';
+    const props = feature.properties || {};
+    return (
+      placeLabel([props.name, props.city, props.town, props.village, props.state, props.country]) ||
+      props.name ||
+      ''
+    );
+  } catch {
+    return '';
   }
 };

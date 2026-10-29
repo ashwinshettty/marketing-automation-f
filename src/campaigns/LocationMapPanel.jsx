@@ -1,7 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { reverseGeocode } from './places';
 
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+
+/** Meta-style: include = navy fill, exclude = rose (official Ads Manager map). */
+const INCLUDE_STYLE = {
+  color: '#000080',
+  fillColor: '#000080',
+  fillOpacity: 0.18,
+  weight: 2,
+};
+const EXCLUDE_STYLE = {
+  color: '#e11d48',
+  fillColor: '#e11d48',
+  fillOpacity: 0.16,
+  weight: 2,
+};
 
 let leafletLoadPromise = null;
 
@@ -51,60 +66,110 @@ function parseCoord(value) {
   return Number.isFinite(n) && value !== '' && value != null ? n : null;
 }
 
+function defaultRadiusForType(type) {
+  if (type === 'City' || type === 'Region') return 25;
+  return 10;
+}
+
 /**
- * Meta Ads Manager–style map: Drop Pin + radius (km).
- * Also supports separate "your current location" fields and distance display.
+ * Meta Ads Manager–style map:
+ * - Each selected city/region with coords → its own shaded radius circle only
+ * - Include = navy, Exclude = red (Meta official)
+ * - Drop Pin adds another location (same as a selected city), not a 3rd orphan circle
+ * - Map fits bounds to show all selected locations
  */
 export default function LocationMapPanel({
-  latitude = '',
-  longitude = '',
-  radiusKm = '10',
   userLatitude = '',
   userLongitude = '',
+  userLocationLabel = '',
+  /** @type {{ id: string, label: string, lat: number, lng: number, radiusKm?: number|string, excluded?: boolean, type?: string, selected?: boolean }[]} */
+  mapLocations = [],
+  selectedLocationId = '',
+  onSelectLocation,
   dropPinMode = false,
   onDropPinModeChange,
-  onPinChange,
-  onRadiusChange,
+  /** Called when user drops a pin — parent should append a location tag */
+  onAddMapLocation,
   onUserLocationChange,
   centerLabel = 'India',
 }) {
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
   const userMarkerRef = useRef(null);
-  const circleRef = useRef(null);
+  const locationLayersRef = useRef(new Map()); // id → { marker, circle }
   const dropPinModeRef = useRef(dropPinMode);
-  const onPinChangeRef = useRef(onPinChange);
+  const onAddMapLocationRef = useRef(onAddMapLocation);
   const onDropPinModeChangeRef = useRef(onDropPinModeChange);
   const onUserLocationChangeRef = useRef(onUserLocationChange);
+  const onSelectLocationRef = useRef(onSelectLocation);
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [geoBusy, setGeoBusy] = useState(false);
   const [geoHint, setGeoHint] = useState('');
+  const lastUserKeyRef = useRef('');
+  const lastBoundsKeyRef = useRef('');
 
   dropPinModeRef.current = dropPinMode;
-  onPinChangeRef.current = onPinChange;
+  onAddMapLocationRef.current = onAddMapLocation;
   onDropPinModeChangeRef.current = onDropPinModeChange;
   onUserLocationChangeRef.current = onUserLocationChange;
+  onSelectLocationRef.current = onSelectLocation;
 
-  const lat = parseCoord(latitude);
-  const lng = parseCoord(longitude);
   const userLat = parseCoord(userLatitude);
   const userLng = parseCoord(userLongitude);
-  const hasPin = lat != null && lng != null;
   const hasUser = userLat != null && userLng != null;
-  const radius = Math.max(1, Number(radiusKm) || 10);
 
-  const distanceKm = useMemo(() => {
-    if (!hasPin || !hasUser) return null;
-    return distanceKmBetween(userLat, userLng, lat, lng);
-  }, [hasPin, hasUser, userLat, userLng, lat, lng]);
+  const normalizedLocations = useMemo(() => {
+    const list = Array.isArray(mapLocations) ? mapLocations : [];
+    return list
+      .map((item) => {
+        const itemLat = parseCoord(item.lat);
+        const itemLng = parseCoord(item.lng);
+        if (itemLat == null || itemLng == null) return null;
+        const r = Math.max(
+          1,
+          Number(item.radiusKm) || defaultRadiusForType(item.type) || 25
+        );
+        const id = String(item.id || item.value || `${itemLat},${itemLng}`);
+        return {
+          id,
+          label: item.label || 'Location',
+          lat: itemLat,
+          lng: itemLng,
+          radiusKm: r,
+          excluded: Boolean(item.excluded),
+          selected: Boolean(item.selected) || id === selectedLocationId,
+          type: item.type || 'City',
+        };
+      })
+      .filter(Boolean);
+  }, [mapLocations, selectedLocationId]);
 
-  const withinRadius = distanceKm != null && distanceKm <= radius;
+  const locationDistances = useMemo(() => {
+    if (!hasUser || !normalizedLocations.length) return [];
+    return normalizedLocations
+      .map((item) => {
+        const km = distanceKmBetween(userLat, userLng, item.lat, item.lng);
+        return {
+          ...item,
+          distanceKm: km,
+          withinRadius: km <= item.radiusKm,
+        };
+      })
+      .sort((a, b) => a.distanceKm - b.distanceKm);
+  }, [hasUser, userLat, userLng, normalizedLocations]);
 
-  const defaultCenter = [22.3511, 78.6677];
-  const center = hasPin ? [lat, lng] : hasUser ? [userLat, userLng] : defaultCenter;
-  const zoom = hasPin || hasUser ? 11 : 5;
+  const totalDistanceKm = useMemo(
+    () => locationDistances.reduce((sum, item) => sum + item.distanceKm, 0),
+    [locationDistances]
+  );
+
+  const bannerLabel = useMemo(() => {
+    if (normalizedLocations.length > 1) {
+      return normalizedLocations.map((l) => l.label).join(', ');
+    }
+    return normalizedLocations[0]?.label || centerLabel || 'India';
+  }, [normalizedLocations, centerLabel]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,8 +177,8 @@ export default function LocationMapPanel({
       .then((L) => {
         if (cancelled || !mapElRef.current || mapRef.current) return;
         const map = L.map(mapElRef.current, {
-          center,
-          zoom,
+          center: [22.3511, 78.6677],
+          zoom: 5,
           zoomControl: false,
           attributionControl: true,
         });
@@ -126,13 +191,24 @@ export default function LocationMapPanel({
         setReady(true);
         setTimeout(() => map.invalidateSize(), 50);
 
-        map.on('click', (e) => {
+        map.on('click', async (e) => {
           if (!dropPinModeRef.current) return;
-          onPinChangeRef.current?.({
-            latitude: String(e.latlng.lat.toFixed(6)),
-            longitude: String(e.latlng.lng.toFixed(6)),
-          });
+          const nextLat = e.latlng.lat;
+          const nextLng = e.latlng.lng;
           onDropPinModeChangeRef.current?.(false);
+          let label = `Near ${nextLat.toFixed(4)}, ${nextLng.toFixed(4)}`;
+          try {
+            const name = await reverseGeocode(nextLat, nextLng);
+            if (name) label = name;
+          } catch {
+            /* keep fallback label */
+          }
+          onAddMapLocationRef.current?.({
+            lat: nextLat,
+            lng: nextLng,
+            label,
+            radiusKm: 10,
+          });
         });
       })
       .catch(() => {
@@ -144,9 +220,8 @@ export default function LocationMapPanel({
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
-        markerRef.current = null;
         userMarkerRef.current = null;
-        circleRef.current = null;
+        locationLayersRef.current.clear();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,52 +233,93 @@ export default function LocationMapPanel({
     map.getContainer().style.cursor = dropPinMode ? 'crosshair' : '';
   }, [dropPinMode, ready]);
 
-  // Selected pin + radius circle
+  // Meta-style: one circle per selected city/region (include navy / exclude red)
   useEffect(() => {
     const map = mapRef.current;
     const L = window.L;
     if (!map || !L || !ready) return;
 
-    if (!hasPin) {
-      if (markerRef.current) {
-        map.removeLayer(markerRef.current);
-        markerRef.current = null;
+    const nextIds = new Set(normalizedLocations.map((item) => item.id));
+
+    locationLayersRef.current.forEach((layers, id) => {
+      if (!nextIds.has(id)) {
+        if (layers.marker) map.removeLayer(layers.marker);
+        if (layers.circle) map.removeLayer(layers.circle);
+        locationLayersRef.current.delete(id);
       }
-      if (circleRef.current) {
-        map.removeLayer(circleRef.current);
-        circleRef.current = null;
+    });
+
+    normalizedLocations.forEach((item) => {
+      const base = item.excluded ? EXCLUDE_STYLE : INCLUDE_STYLE;
+      const style = {
+        ...base,
+        weight: item.selected ? 3 : 2,
+        fillOpacity: item.selected ? 0.28 : base.fillOpacity,
+      };
+      let layers = locationLayersRef.current.get(item.id);
+      if (!layers) {
+        const marker = L.circleMarker([item.lat, item.lng], {
+          radius: item.selected ? 8 : 6,
+          color: style.color,
+          fillColor: style.color,
+          fillOpacity: 1,
+          weight: 2,
+        }).addTo(map);
+        marker.bindTooltip(`${item.label} · +${item.radiusKm} km`, {
+          direction: 'top',
+          opacity: 0.9,
+        });
+        marker.on('click', () => onSelectLocationRef.current?.(item.id));
+        const circle = L.circle([item.lat, item.lng], {
+          radius: item.radiusKm * 1000,
+          ...style,
+        }).addTo(map);
+        circle.on('click', () => onSelectLocationRef.current?.(item.id));
+        layers = { marker, circle };
+        locationLayersRef.current.set(item.id, layers);
+      } else {
+        layers.marker.setLatLng([item.lat, item.lng]);
+        layers.marker.setStyle({
+          color: style.color,
+          fillColor: style.color,
+          radius: item.selected ? 8 : 6,
+        });
+        const tip = layers.marker.getTooltip?.();
+        const tipText = `${item.label} · +${item.radiusKm} km`;
+        if (tip) tip.setContent(tipText);
+        else layers.marker.bindTooltip(tipText, { direction: 'top', opacity: 0.9 });
+        layers.circle.setLatLng([item.lat, item.lng]);
+        layers.circle.setRadius(item.radiusKm * 1000);
+        layers.circle.setStyle(style);
       }
+    });
+  }, [normalizedLocations, ready]);
+
+  // Fit map to all selected locations only (no orphan drop-pin circle)
+  useEffect(() => {
+    const map = mapRef.current;
+    const L = window.L;
+    if (!map || !L || !ready) return;
+
+    const points = [];
+    normalizedLocations.forEach((item) => {
+      points.push([item.lat, item.lng]);
+    });
+    if (hasUser) points.push([userLat, userLng]);
+
+    const boundsKey = points.map((p) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`).join('|');
+    if (!points.length || boundsKey === lastBoundsKeyRef.current) return;
+    lastBoundsKeyRef.current = boundsKey;
+
+    if (points.length === 1) {
+      map.setView(points[0], 11);
       return;
     }
-
-    if (!markerRef.current) {
-      markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(map);
-      markerRef.current.on('dragend', () => {
-        const p = markerRef.current.getLatLng();
-        onPinChangeRef.current?.({
-          latitude: String(p.lat.toFixed(6)),
-          longitude: String(p.lng.toFixed(6)),
-        });
-      });
-    } else {
-      markerRef.current.setLatLng([lat, lng]);
-    }
-
-    if (!circleRef.current) {
-      circleRef.current = L.circle([lat, lng], {
-        radius: radius * 1000,
-        color: '#000080',
-        fillColor: '#000080',
-        fillOpacity: 0.15,
-        weight: 2,
-      }).addTo(map);
-    } else {
-      circleRef.current.setLatLng([lat, lng]);
-      circleRef.current.setRadius(radius * 1000);
-    }
-
-    map.setView([lat, lng], Math.max(map.getZoom(), 10));
-  }, [lat, lng, radius, hasPin, ready]);
+    map.fitBounds(L.latLngBounds(points), {
+      padding: [48, 48],
+      maxZoom: 11,
+    });
+  }, [normalizedLocations, hasUser, userLat, userLng, ready]);
 
   // User current-location marker (green)
   useEffect(() => {
@@ -233,6 +349,7 @@ export default function LocationMapPanel({
         onUserLocationChangeRef.current?.({
           userLatitude: String(p.lat.toFixed(6)),
           userLongitude: String(p.lng.toFixed(6)),
+          userLocationLabel: '',
         });
       });
     } else {
@@ -240,6 +357,35 @@ export default function LocationMapPanel({
       userMarkerRef.current.setIcon(icon);
     }
   }, [userLat, userLng, hasUser, ready]);
+
+  // Keep optional reverse-geocode label for current location (coords shown in UI)
+  useEffect(() => {
+    if (!hasUser) {
+      lastUserKeyRef.current = '';
+      return undefined;
+    }
+    const key = `${userLat.toFixed(5)},${userLng.toFixed(5)}`;
+    if (lastUserKeyRef.current === key) return undefined;
+    if (userLocationLabel) {
+      lastUserKeyRef.current = key;
+      return undefined;
+    }
+
+    let cancelled = false;
+    reverseGeocode(userLat, userLng)
+      .then((name) => {
+        if (cancelled) return;
+        lastUserKeyRef.current = key;
+        onUserLocationChangeRef.current?.({
+          userLatitude: String(userLat),
+          userLongitude: String(userLng),
+          userLocationLabel: name || `Near ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`,
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasUser, userLat, userLng, userLocationLabel]);
 
   const detectCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -253,13 +399,14 @@ export default function LocationMapPanel({
         onUserLocationChange?.({
           userLatitude: String(pos.coords.latitude.toFixed(6)),
           userLongitude: String(pos.coords.longitude.toFixed(6)),
+          userLocationLabel: '',
         });
         setGeoBusy(false);
         setGeoHint('Current location updated.');
       },
       () => {
         setGeoBusy(false);
-        setGeoHint('Could not read your location. Allow access or type coordinates manually.');
+        setGeoHint('Could not read your location. Allow access or use Detect again.');
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -271,12 +418,29 @@ export default function LocationMapPanel({
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const nextLat = String(pos.coords.latitude.toFixed(6));
-        const nextLng = String(pos.coords.longitude.toFixed(6));
-        onPinChange?.({ latitude: nextLat, longitude: nextLng });
-        onUserLocationChange?.({ userLatitude: nextLat, userLongitude: nextLng });
-        if (!radiusKm) onRadiusChange?.('10');
+      async (pos) => {
+        const nextLat = pos.coords.latitude;
+        const nextLng = pos.coords.longitude;
+        lastUserKeyRef.current = '';
+        lastBoundsKeyRef.current = '';
+        onUserLocationChange?.({
+          userLatitude: String(nextLat.toFixed(6)),
+          userLongitude: String(nextLng.toFixed(6)),
+          userLocationLabel: '',
+        });
+        let label = `Near ${nextLat.toFixed(4)}, ${nextLng.toFixed(4)}`;
+        try {
+          const name = await reverseGeocode(nextLat, nextLng);
+          if (name) label = name;
+        } catch {
+          /* keep fallback */
+        }
+        onAddMapLocation?.({
+          lat: nextLat,
+          lng: nextLng,
+          label,
+          radiusKm: 10,
+        });
         onDropPinModeChange?.(false);
       },
       () => {
@@ -290,12 +454,11 @@ export default function LocationMapPanel({
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div className="border-b border-sky-100 bg-brand-yellow-soft px-3.5 py-2.5">
         <p className="text-xs leading-relaxed text-slate-700">
-          We are unable to highlight the border of {centerLabel} on the map, but it has been successfully
-          added.
+          We are unable to highlight the border of {bannerLabel} on the map, but{' '}
+          {normalizedLocations.length > 1 ? 'they have' : 'it has'} been successfully added.
         </p>
       </div>
 
-      {/* Your current location — separate from the targeting pin */}
       <div className="space-y-2 border-b border-slate-200 px-3.5 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-slate-800">Your current location</p>
@@ -311,39 +474,15 @@ export default function LocationMapPanel({
         <p className="text-xs text-slate-500">
           Separate from the map pin. Used to calculate distance to the selected location.
         </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <label className="block text-xs font-medium text-slate-600">
-            Latitude
-            <input
-              type="number"
-              step="any"
-              value={userLatitude}
-              onChange={(e) =>
-                onUserLocationChange?.({
-                  userLatitude: e.target.value,
-                  userLongitude,
-                })
-              }
-              placeholder="e.g. 19.0760"
-              className="mt-1 w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 outline-none focus:border-brand-navy"
-            />
-          </label>
-          <label className="block text-xs font-medium text-slate-600">
-            Longitude
-            <input
-              type="number"
-              step="any"
-              value={userLongitude}
-              onChange={(e) =>
-                onUserLocationChange?.({
-                  userLatitude,
-                  userLongitude: e.target.value,
-                })
-              }
-              placeholder="e.g. 72.8777"
-              className="mt-1 w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 outline-none focus:border-brand-navy"
-            />
-          </label>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+            Latitude / Longitude
+          </p>
+          <p className="mt-0.5 text-sm font-semibold text-brand-navy">
+            {hasUser
+              ? `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`
+              : 'Not set — tap Detect my location'}
+          </p>
         </div>
         {geoHint ? <p className="text-xs text-brand-muted">{geoHint}</p> : null}
       </div>
@@ -356,6 +495,18 @@ export default function LocationMapPanel({
         ) : (
           <div ref={mapElRef} className="h-[220px] w-full bg-slate-100 sm:h-[280px]" />
         )}
+
+        {dropPinMode ? (
+          <div className="pointer-events-none absolute top-3 left-3 z-[1000] rounded-lg bg-slate-900/85 px-3 py-1.5 text-xs font-medium text-white">
+            Click the map to drop a pin
+          </div>
+        ) : normalizedLocations.length > 0 ? (
+          <div className="pointer-events-none absolute top-3 left-3 z-[1000] rounded-lg bg-white/95 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 shadow">
+            {normalizedLocations.length} location
+            {normalizedLocations.length === 1 ? '' : 's'} on map
+            {normalizedLocations.some((l) => l.excluded) ? ' · red = excluded' : ''}
+          </div>
+        ) : null}
 
         <div className="pointer-events-none absolute top-3 right-3 z-[1000] flex flex-col gap-1">
           <button
@@ -388,116 +539,38 @@ export default function LocationMapPanel({
             Drop Pin
           </button>
         </div>
-
-        {dropPinMode ? (
-          <div className="pointer-events-none absolute top-3 left-3 z-[1000] rounded-lg bg-slate-900/85 px-3 py-1.5 text-xs font-medium text-white">
-            Click the map to drop a pin
-          </div>
-        ) : null}
       </div>
 
-      {hasPin ? (
-        <div className="space-y-2 border-t border-slate-200 px-3.5 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-800">Selected location (pin)</p>
-            <button
-              type="button"
-              onClick={() =>
-                onPinChange?.({
-                  latitude: '',
-                  longitude: '',
-                })
-              }
-              className="text-xs font-semibold text-rose-600 hover:underline"
-            >
-              Remove pin
-            </button>
-          </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="block text-xs font-medium text-slate-600">
-              Latitude
-              <input
-                type="number"
-                step="any"
-                value={latitude}
-                onChange={(e) =>
-                  onPinChange?.({
-                    latitude: e.target.value,
-                    longitude,
-                  })
-                }
-                className="mt-1 w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 outline-none focus:border-brand-navy"
-              />
-            </label>
-            <label className="block text-xs font-medium text-slate-600">
-              Longitude
-              <input
-                type="number"
-                step="any"
-                value={longitude}
-                onChange={(e) =>
-                  onPinChange?.({
-                    latitude,
-                    longitude: e.target.value,
-                  })
-                }
-                className="mt-1 w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 outline-none focus:border-brand-navy"
-              />
-            </label>
-          </div>
-
-          <p className="pt-1 text-sm font-semibold text-slate-800">Radius around pin</p>
-          <p className="text-xs text-slate-500">
-            People within this distance of the pin can see your ads.
-          </p>
-          <div className="flex items-center gap-3">
-            <input
-              type="range"
-              min="1"
-              max="80"
-              step="1"
-              value={radius}
-              onChange={(e) => onRadiusChange?.(e.target.value)}
-              className="h-2 flex-1 accent-brand-navy"
-            />
-            <div className="flex w-24 items-center gap-1">
-              <input
-                type="number"
-                min="1"
-                max="80"
-                value={radius}
-                onChange={(e) => onRadiusChange?.(e.target.value)}
-                className="w-14 rounded-md border border-slate-300 px-2 py-1 text-sm"
-              />
-              <span className="text-xs text-slate-500">km</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="border-t border-slate-100 px-3.5 py-2.5 text-xs text-slate-500">
-          Use <span className="font-semibold text-slate-700">Drop Pin</span> to choose a selected location,
-          then set a radius in km.
-        </div>
-      )}
-
-      {/* Distance result */}
       <div className="border-t border-slate-200 bg-brand-cream/50 px-3.5 py-3">
         <p className="text-sm font-semibold text-slate-800">Distance</p>
-        {distanceKm == null ? (
+        {!locationDistances.length ? (
           <p className="mt-1 text-xs text-slate-500">
-            Enter your current location and drop a selected pin to calculate distance in kilometres.
+            Detect your current location and select cities to see distance for every targeting
+            circle.
           </p>
         ) : (
-          <div className="mt-1.5 space-y-1">
+          <div className="mt-1.5 space-y-2">
             <p className="text-sm text-brand-navy">
-              Distance from your location to the selected pin:{' '}
-              <span className="font-semibold">{distanceKm.toFixed(2)} km</span>
+              Total distance (all {locationDistances.length} location
+              {locationDistances.length === 1 ? '' : 's'}):{' '}
+              <span className="font-semibold">{totalDistanceKm.toFixed(2)} km</span>
             </p>
-            <p className={`text-xs font-medium ${withinRadius ? 'text-emerald-700' : 'text-amber-700'}`}>
-              {withinRadius
-                ? `Inside the ${radius} km radius — you would be eligible to see ads.`
-                : `Outside the ${radius} km radius (${(distanceKm - radius).toFixed(2)} km beyond).`}
-            </p>
+            <ul className="space-y-1.5">
+              {locationDistances.map((item) => (
+                <li key={item.id} className="text-xs text-slate-600">
+                  <span className="font-medium text-slate-800">{item.label}</span>
+                  {': '}
+                  <span className="font-semibold text-brand-navy">{item.distanceKm.toFixed(2)} km</span>
+                  <span
+                    className={`ml-1.5 ${item.withinRadius ? 'text-emerald-700' : 'text-amber-700'}`}
+                  >
+                    {item.withinRadius
+                      ? `(inside +${item.radiusKm} km)`
+                      : `(outside +${item.radiusKm} km · ${(item.distanceKm - item.radiusKm).toFixed(2)} km beyond)`}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

@@ -48,6 +48,19 @@ export const updateCampaign = async (campaignId, body) => {
   return response.data;
 };
 
+/** Meta adgeolocation search — returns dynamic keys for countries / regions / cities / zips. */
+export const searchMetaLocations = async ({ q, type = 'city', countryCode } = {}) => {
+  const response = await campaignApi({
+    url: '/campaigns/meta-locations',
+    params: {
+      q,
+      type,
+      ...(countryCode ? { countryCode } : {}),
+    },
+  });
+  return response.data?.locations || [];
+};
+
 export const submitCampaign = async (campaignId) => {
   const response = await campaignApi({
     url: `/campaigns/${campaignId}/submit`,

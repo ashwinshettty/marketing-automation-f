@@ -38,16 +38,6 @@ const WEBSITE_CALLS_TO_ACTION = {
   get_directions: 'GET_DIRECTIONS',
 };
 
-const COUNTRY_CODES = {
-  india: 'IN',
-  in: 'IN',
-};
-
-/** Meta city key confirmed for this ad account's Mumbai targeting. */
-const CITY_KEYS = {
-  mumbai: '1027234',
-};
-
 const LOCALE_IDS = {
   en: 6,
 };
@@ -72,81 +62,365 @@ const toKolkataIso = (date, time) => {
   return parsed.toISOString();
 };
 
+const EMPTY_GEO = () => ({
+  countries: [],
+  regions: [],
+  cities: [],
+  zips: [],
+  customLocations: [],
+});
+
+/** Meta custom_locations radius: 1–80 km */
 const pinRadiusKm = (value) => {
   const km = Number(value);
   if (!Number.isFinite(km)) return 10;
   return Math.min(80, Math.max(1, Math.round(km)));
 };
 
-/** Tags and/or map pin → Meta geo. Pin uses radiusKm as custom_location. */
-const buildGeo = (tags, errors, pin = {}) => {
+/** Meta cities[].radius: 17–80 km when a radius is set */
+const cityRadiusKm = (value) => {
+  const km = Number(value);
+  if (!Number.isFinite(km)) return 25;
+  return Math.min(80, Math.max(17, Math.round(km)));
+};
+
+const hasMapPin = (pin = {}) => {
   const lat = Number(pin.latitude);
   const lng = Number(pin.longitude);
-  const hasPin =
+  return (
     Number.isFinite(lat) &&
     Number.isFinite(lng) &&
     pin.latitude !== '' &&
     pin.latitude != null &&
     pin.longitude !== '' &&
-    pin.longitude != null;
+    pin.longitude != null
+  );
+};
 
-  const customLocations = hasPin
-    ? [
-        {
-          latitude: lat,
-          longitude: lng,
-          radius: pinRadiusKm(pin.radiusKm),
-          distanceUnit: 'kilometer',
-          name: 'Map pin',
-        },
-      ]
-    : [];
+/** Map pin → Mongo/Meta custom_locations (name + lat/lng + radius km). */
+const buildCustomLocationFromPin = (pin = {}) => {
+  if (!hasMapPin(pin)) return null;
+  const label = String(pin.pinLabel || '').trim();
+  const entry = {
+    latitude: Number(pin.latitude),
+    longitude: Number(pin.longitude),
+    radius: pinRadiusKm(pin.radiusKm),
+    distanceUnit: 'kilometer',
+    name: label || 'Selected location',
+  };
+  if (label) entry.address = label;
+  return entry;
+};
 
-  if (customLocations.length) {
-    return { countries: [], regions: [], cities: [], zips: [], customLocations };
-  }
+/** Haversine distance in km (matches map Distance panel). */
+const haversineKm = (lat1, lng1, lat2, lng2) => {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
 
-  const list = Array.isArray(tags) && tags.length ? tags : [{ value: 'india', label: 'India', type: 'Country' }];
+const parseUserCoord = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && value !== '' && value != null ? n : null;
+};
+
+/**
+ * City/region chips with lat/lng → Meta custom_locations (each with its own radius).
+ * Prefer coords over Meta city keys so radius + distanceFromUserKm persist in Mongo.
+ */
+const customLocationsFromTags = (tags = [], { action = 'include', userLat, userLng } = {}) => {
+  const out = [];
+  tags.forEach((tag) => {
+    if (tag?.type === 'Country') return;
+    const latitude = Number(tag?.lat);
+    const longitude = Number(tag?.lng);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+    const label = String(tag?.label || '').trim();
+    const radius =
+      tag?.radiusMode === 'city_only' ? 8 : pinRadiusKm(tag?.radiusKm || 25);
+    const entry = {
+      latitude,
+      longitude,
+      radius,
+      distanceUnit: 'kilometer',
+      name: label || 'Selected location',
+      action,
+    };
+    if (label) entry.address = label;
+    if (Number.isFinite(userLat) && Number.isFinite(userLng)) {
+      entry.distanceFromUserKm = Number(
+        haversineKm(userLat, userLng, latitude, longitude).toFixed(2),
+      );
+    }
+    out.push(entry);
+  });
+  return out;
+};
+
+const uniqueByKey = (rows, keyName = 'key') => {
+  const seen = new Set();
+  return rows.filter((row) => {
+    const key = String(row?.[keyName] || '');
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const geoHasTargets = (geo) =>
+  Boolean(
+    geo &&
+      (geo.countries?.length ||
+        geo.regions?.length ||
+        geo.cities?.length ||
+        geo.zips?.length ||
+        geo.customLocations?.length),
+  );
+
+const isIsoCountry = (value) => /^[A-Z]{2}$/.test(String(value || '').trim());
+
+/**
+ * Classify chips using dynamic Meta keys stored on each tag (from adgeolocation search).
+ * No static city/region key maps — keys come from Meta Targeting Search at selection time.
+ */
+const geoFromTags = (tags, errors, { allowSkip = false, action = 'include', userLat, userLng } = {}) => {
+  const list = Array.isArray(tags) ? tags : [];
   const countries = [];
+  const regions = [];
   const cities = [];
+  const zips = [];
+  const coordTags = [];
   let skippedCity = false;
 
   list.forEach((tag) => {
-    const value = String(tag?.value || '').trim().toLowerCase();
-    const country = COUNTRY_CODES[value];
-    if (tag?.type === 'Country' || country) {
-      if (country) countries.push(country);
-      else errors.push(issue(`Use India for country targeting. “${tag?.label || tag?.value}” is not available yet.`, 'adSet', 'adset-audience'));
+    const type = tag?.type || '';
+    const label = String(tag?.label || tag?.name || '').trim();
+    const hasCoords = Number.isFinite(Number(tag?.lat)) && Number.isFinite(Number(tag?.lng));
+    const metaKey = String(tag?.metaKey || tag?.key || '').trim();
+    const countryCode = String(tag?.countryCode || '').trim().toUpperCase();
+    const regionKey = String(tag?.regionKey || '').trim();
+
+    if (type === 'Country') {
+      const fromValue = String(tag?.value || '').match(/^country:([a-z]{2})$/i);
+      const code = isIsoCountry(metaKey)
+        ? metaKey
+        : isIsoCountry(countryCode)
+          ? countryCode
+          : fromValue
+            ? fromValue[1].toUpperCase()
+            : '';
+      if (code) countries.push(code);
+      else {
+        errors.push(
+          issue(
+            `Could not resolve a Meta country key for “${label || 'country'}”. Search again and re-add it.`,
+            'adSet',
+            'adset-audience',
+          ),
+        );
+      }
       return;
     }
-    const cityKey = CITY_KEYS[value];
-    if (cityKey) {
-      cities.push({
-        key: cityKey,
-        name: tag.label || 'Mumbai',
-        radius: Number(tag.radiusKm) >= 17 ? Number(tag.radiusKm) : 25,
-        distanceUnit: 'kilometer',
+
+    if (type === 'Zip' || type === 'Postal') {
+      if (metaKey) {
+        zips.push({ key: metaKey });
+        if (isIsoCountry(countryCode)) countries.push(countryCode);
+      } else {
+        skippedCity = true;
+      }
+      return;
+    }
+
+    if (isIsoCountry(countryCode)) countries.push(countryCode);
+
+    if (type === 'Region') {
+      if (/^\d+$/.test(regionKey) || /^\d+$/.test(metaKey)) {
+        regions.push({
+          key: /^\d+$/.test(metaKey) ? metaKey : regionKey,
+          name: tag.regionName || tag.metaName || label || 'Region',
+        });
+      } else {
+        skippedCity = true;
+      }
+      return;
+    }
+
+    if (/^\d+$/.test(regionKey)) {
+      regions.push({
+        key: regionKey,
+        name: tag.regionName || 'Region',
       });
+    }
+
+    if (/^\d+$/.test(metaKey) && (type === 'City' || type === 'Location' || !type || hasCoords)) {
+      const entry = {
+        key: metaKey,
+        name: tag.metaName || label || 'City',
+      };
+      if (tag?.radiusMode !== 'city_only') {
+        entry.radius = cityRadiusKm(tag?.radiusKm || 25);
+        entry.distanceUnit = 'kilometer';
+      }
+      if (hasCoords) {
+        entry.latitude = Number(tag.lat);
+        entry.longitude = Number(tag.lng);
+        if (Number.isFinite(userLat) && Number.isFinite(userLng)) {
+          entry.distanceFromUserKm = Number(
+            haversineKm(userLat, userLng, entry.latitude, entry.longitude).toFixed(2),
+          );
+        }
+      }
+      cities.push(entry);
+    }
+
+    if (hasCoords) {
+      coordTags.push(tag);
       return;
     }
-    skippedCity = true;
+
+    if (!/^\d+$/.test(metaKey) && type !== 'Region') skippedCity = true;
   });
 
-  if (countries.length && cities.length) {
-    return { countries: [], regions: [], cities, zips: [], customLocations: [] };
+  const customLocations = customLocationsFromTags(coordTags, { action, userLat, userLng });
+  const geo = {
+    countries: [...new Set(countries)],
+    regions: uniqueByKey(regions),
+    cities: uniqueByKey(cities),
+    zips: uniqueByKey(zips),
+    customLocations,
+  };
+
+  if (geoHasTargets(geo)) return geo;
+
+  if (skippedCity && !allowSkip) {
+    errors.push(
+      issue(
+        'Choose a searchable city (Meta key required for cities without map coordinates).',
+        'adSet',
+        'adset-audience',
+      ),
+    );
   }
-  if (cities.length) {
-    return { countries: [], regions: [], cities, zips: [], customLocations: [] };
+  return null;
+};
+
+/** Per-chip Include/Exclude (set when the location is added). Dropdown only affects new chips. */
+const tagAction = (tag) =>
+  (tag?.action || 'include') === 'exclude' ? 'exclude' : 'include';
+
+const sameCoords = (a, b) =>
+  Math.abs(Number(a.latitude) - Number(b.latitude)) < 0.0001 &&
+  Math.abs(Number(a.longitude) - Number(b.longitude)) < 0.0001;
+
+/**
+ * Build included + excluded geo for MongoDB and Meta (Ads Manager Include / Exclude).
+ */
+const buildGeoAudience = (adSet, errors) => {
+  const pin = {
+    latitude: adSet.latitude,
+    longitude: adSet.longitude,
+    radiusKm: adSet.radiusKm,
+    pinLabel: adSet.pinLabel,
+  };
+  const userLat = parseUserCoord(adSet.userLatitude);
+  const userLng = parseUserCoord(adSet.userLongitude);
+  const tags = Array.isArray(adSet.locationTags) ? adSet.locationTags : [];
+  // Meta: each location chip keeps its own include/exclude (not the current dropdown)
+  const includeTags = tags.filter((tag) => tagAction(tag) === 'include');
+  const excludeTags = tags.filter((tag) => tagAction(tag) === 'exclude');
+  const pinCustom = buildCustomLocationFromPin(pin);
+  if (pinCustom && Number.isFinite(userLat) && Number.isFinite(userLng)) {
+    pinCustom.distanceFromUserKm = Number(
+      haversineKm(userLat, userLng, pinCustom.latitude, pinCustom.longitude).toFixed(2),
+    );
+    pinCustom.action = 'include';
   }
-  if (countries.length) {
-    return { countries: [...new Set(countries)], regions: [], cities: [], zips: [], customLocations: [] };
+
+  const excludedFromTags = excludeTags.length
+    ? geoFromTags(excludeTags, errors, {
+        allowSkip: true,
+        action: 'exclude',
+        userLat,
+        userLng,
+      })
+    : null;
+  const excludedGeoLocations = excludedFromTags || EMPTY_GEO();
+
+  let geoLocations = includeTags.length
+    ? geoFromTags(includeTags, errors, {
+        allowSkip: Boolean(pinCustom),
+        action: 'include',
+        userLat,
+        userLng,
+      })
+    : null;
+
+  if (!geoLocations && pinCustom) {
+    geoLocations = { ...EMPTY_GEO(), customLocations: [] };
   }
-  if (skippedCity) {
-    errors.push(issue('Choose India or Mumbai. Other cities need a Meta location key before they can be published.', 'adSet', 'adset-audience'));
-  } else {
-    errors.push(issue('Choose at least one location, or drop a pin and set a radius in km.', 'adSet', 'adset-audience'));
+
+  if (pinCustom) {
+    const base = geoLocations || EMPTY_GEO();
+    const customs = [...(base.customLocations || [])];
+    if (!customs.some((item) => sameCoords(item, pinCustom))) {
+      customs.push(pinCustom);
+    }
+    geoLocations = {
+      ...EMPTY_GEO(),
+      cities: base.cities || [],
+      customLocations: customs,
+    };
   }
-  return { countries: [], regions: [], cities: [], zips: [], customLocations: [] };
+
+  if (!geoHasTargets(geoLocations)) {
+    if (!includeTags.length && !pinCustom) {
+      geoLocations = {
+        ...EMPTY_GEO(),
+        countries: ['IN'],
+      };
+    } else if (excludeTags.length && !pinCustom) {
+      errors.push(
+        issue(
+          'Excluded locations need at least one included location (Meta Ads Manager). Switch a city to Include, or add another include location.',
+          'adSet',
+          'adset-audience',
+        ),
+      );
+      return {
+        geoLocations: EMPTY_GEO(),
+        excludedGeoLocations,
+        userLat,
+        userLng,
+      };
+    } else if (!errors.some((item) => item.anchor === 'adset-audience')) {
+      errors.push(
+        issue(
+          'Choose at least one include location, or drop a pin and set a radius in km.',
+          'adSet',
+          'adset-audience',
+        ),
+      );
+      return {
+        geoLocations: EMPTY_GEO(),
+        excludedGeoLocations,
+        userLat,
+        userLng,
+      };
+    }
+  }
+
+  return {
+    geoLocations: geoLocations || EMPTY_GEO(),
+    excludedGeoLocations,
+    userLat,
+    userLng,
+  };
 };
 
 const mapLanguages = (values) => (Array.isArray(values) ? values : [])
@@ -264,15 +538,22 @@ export const buildCampaignRequest = (draft) => {
     errors.push(issue('ROAS goal cannot be published yet. Choose highest volume.', 'campaign', 'campaign-budget'));
   }
 
-  const geoLocations = buildGeo(adSet.locationTags, errors, {
-    latitude: adSet.latitude,
-    longitude: adSet.longitude,
-    radiusKm: adSet.radiusKm,
-  });
+  const { geoLocations, excludedGeoLocations, userLat, userLng } = buildGeoAudience(adSet, errors);
+  const hasExcludedGeo = geoHasTargets(excludedGeoLocations);
   const languages = mapLanguages(adSet.languages);
   const name = String(campaign.name || '').trim();
   if (!name) errors.push(issue('Enter a campaign name.', 'campaign', 'campaign-name'));
   const money = amountMinor == null ? undefined : { type: budgetType, amountMinor, currency: 'INR' };
+
+  const userLocationLabel = String(adSet.userLocationLabel || '').trim();
+  const userLocation =
+    Number.isFinite(userLat) && Number.isFinite(userLng)
+      ? {
+          latitude: userLat,
+          longitude: userLng,
+          ...(userLocationLabel ? { label: userLocationLabel } : {}),
+        }
+      : undefined;
 
   const body = {
     name: name || 'Campaign',
@@ -296,7 +577,10 @@ export const buildCampaignRequest = (draft) => {
         ageMin,
         ageMax,
         ...(languages.length ? { languages } : {}),
+        ...(userLocation ? { userLocation } : {}),
+        // Meta: Include → geo_locations, Exclude → excluded_geo_locations
         geoLocations,
+        ...(hasExcludedGeo ? { excludedGeoLocations } : {}),
       },
       optimizationGoal: whatsapp ? 'CONVERSATIONS' : (WEBSITE_GOALS[objective] || 'LINK_CLICKS'),
       billingEvent: 'IMPRESSIONS',
