@@ -98,6 +98,24 @@ export const setCampaignStatus = async (campaignId, status) => {
   return response.data;
 };
 
+export const getCampaignInsights = async (
+  campaignId,
+  { startDate, endDate, interval, section, range } = {},
+) => {
+  const response = await campaignApi({
+    url: `/campaigns/${campaignId}/insights`,
+    params: {
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      interval: interval || undefined,
+      section: section || 'overview',
+      range: range || undefined,
+    },
+    timeout: 60000,
+  });
+  return response.data;
+};
+
 export const uploadCampaignImage = async (campaignId, file) => {
   const created = await campaignApi({
     url: `/campaigns/${campaignId}/media/upload-url`,

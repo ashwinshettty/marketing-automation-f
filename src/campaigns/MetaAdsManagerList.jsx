@@ -553,6 +553,14 @@ function RowHoverActions({
         Delete
       </button>
       <span className="text-slate-300">|</span>
+      <button
+        type="button"
+        onClick={onCharts}
+        className="font-medium text-brand-navy hover:underline"
+      >
+        Charts
+      </button>
+      <span className="text-slate-300">|</span>
       <span ref={triggerRef} className="inline-flex items-center">
         <HoverIconBtn label="More" onClick={() => onToggleMore(rowId)}>
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -566,7 +574,7 @@ function RowHoverActions({
   );
 }
 
-export default function MetaAdsManagerList({ onCreate, onEdit }) {
+export default function MetaAdsManagerList({ onCreate, onEdit, onCharts }) {
   const [filter, setFilter] = useState('All ads');
   const [extraFilter, setExtraFilter] = useState('');
   const [seeMoreOpen, setSeeMoreOpen] = useState(false);
@@ -1300,9 +1308,10 @@ export default function MetaAdsManagerList({ onCreate, onEdit }) {
                                       setHoverMoreId((cur) => (cur === id ? null : id))
                                     }
                                     onCloseMore={() => setHoverMoreId(null)}
-                                    onCharts={() =>
-                                      toast.info(`Charts for “${displayName(row)}”`)
-                                    }
+                                    onCharts={() => {
+                                      if (onCharts) onCharts(row);
+                                      else toast.info(`Charts for “${displayName(row)}”`);
+                                    }}
                                     onEdit={() => openEdit(row)}
                                     onDelete={() => requestDelete([row.id])}
                                     onDuplicate={() => {
