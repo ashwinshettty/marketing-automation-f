@@ -24,6 +24,34 @@ const WHATSAPP_OBJECTIVES = new Set([
 
 const WEBSITE_LOCATIONS = new Set(['website', 'website_and_forms', 'website_and_calls']);
 
+/** Locations that can be published today (Website family + WhatsApp). */
+export const isPublishableConversionLocation = (location) => {
+  const value = location === 'message_destinations' ? 'messenger' : location;
+  return value === 'whatsapp' || WEBSITE_LOCATIONS.has(value || 'website_and_forms');
+};
+
+/**
+ * Inline warning for the Conversion location control.
+ * Returns null when the selection can be published.
+ */
+export const getConversionLocationPublishWarning = (location, objectiveKey = '') => {
+  const value = location === 'message_destinations' ? 'messenger' : (location || 'website_and_forms');
+  const objective = OBJECTIVES[objectiveKey] || objectiveKey || '';
+
+  if (!isPublishableConversionLocation(value)) {
+    return 'This conversion location cannot be published yet. Use Website or WhatsApp.';
+  }
+
+  const whatsapp = value === 'whatsapp';
+  if (!whatsapp && objective && !WEBSITE_GOALS[objective]) {
+    return 'A website ad can use Awareness, Traffic, or Engagement. For Leads, set the conversion location to WhatsApp.';
+  }
+  if (whatsapp && objective && !WHATSAPP_OBJECTIVES.has(objective)) {
+    return 'A WhatsApp ad can use Traffic, Engagement, Leads, or Sales.';
+  }
+  return null;
+};
+
 const WEBSITE_CALLS_TO_ACTION = {
   learn_more: 'LEARN_MORE',
   sign_up: 'SIGN_UP',
@@ -454,17 +482,16 @@ export const buildCampaignRequest = (draft) => {
 
   const location = adSet.conversionLocation || 'website_and_forms';
   const whatsapp = location === 'whatsapp';
-  if (!whatsapp && !WEBSITE_LOCATIONS.has(location)) {
-    errors.push(issue('This conversion location cannot be published yet. Use Website or WhatsApp.', 'adSet', 'adset-conversion'));
+  const locationWarning = getConversionLocationPublishWarning(location, campaign.objective);
+  if (locationWarning) {
+    const anchorStep = whatsapp && objective && !WHATSAPP_OBJECTIVES.has(objective)
+      ? 'campaign'
+      : 'adSet';
+    const anchorId = anchorStep === 'campaign' ? 'campaign-details' : 'adset-conversion';
+    errors.push(issue(locationWarning, anchorStep, anchorId));
   }
 
   const destinationType = whatsapp ? 'WHATSAPP' : 'WEBSITE';
-  if (destinationType === 'WEBSITE' && objective && !WEBSITE_GOALS[objective]) {
-    errors.push(issue('A website ad can use Awareness, Traffic, or Engagement. For Leads, set the conversion location to WhatsApp.', 'adSet', 'adset-conversion'));
-  }
-  if (destinationType === 'WHATSAPP' && objective && !WHATSAPP_OBJECTIVES.has(objective)) {
-    errors.push(issue('A WhatsApp ad can use Traffic, Engagement, Leads, or Sales.', 'campaign', 'campaign-details'));
-  }
 
   const primaryText = String(ad.primaryText || '').trim();
   const headline = String(ad.headline || '').trim();

@@ -8,6 +8,7 @@ import {
   updateCampaignName,
 } from '../api/campaignApi';
 import { toast } from '../utils/toast';
+import CampaignInfoModal from './CampaignInfoModal';
 import { META_AD_ACCOUNT_ID } from './campaignAccount';
 
 const FILTERS = ['All ads', 'Active ads', 'Had delivery', 'Actions'];
@@ -138,6 +139,25 @@ const mapCampaignRow = (doc) => {
         ? 'WhatsApp'
         : doc.adSet?.optimizationGoal || '',
     remoteId: doc.campaign?.meta?.remoteId || '',
+    ownerId: doc.campaign?.ownerId
+      ? String(doc.campaign.ownerId)
+      : (doc.campaign?.createdBy && !Array.isArray(doc.campaign.createdBy)
+        ? String(doc.campaign.createdBy)
+        : ''),
+    createdBy: (
+      Array.isArray(doc.createdBy) && doc.createdBy.length && typeof doc.createdBy[0] === 'object'
+        ? doc.createdBy
+        : Array.isArray(doc.campaign?.createdByHistory) && doc.campaign.createdByHistory.length
+          ? doc.campaign.createdByHistory
+          : Array.isArray(doc.campaign?.changeHistory)
+            ? doc.campaign.changeHistory
+            : []
+    ).map((entry) => ({
+      userId: entry.userId ? String(entry.userId) : '',
+      name: entry.name || 'Unknown user',
+      action: entry.action || 'updated',
+      at: entry.at || null,
+    })),
     detail: doc.lastError?.message || doc.campaign?.lastError?.message || '',
     thumb: objective.includes('TRAFFIC')
       ? 'traffic'
@@ -399,6 +419,7 @@ function RowHoverActions({
   onCompare,
   onPin,
   onHistory,
+  onCampaignInfo,
   onRules,
 }) {
   const triggerRef = useRef(null);
@@ -476,6 +497,20 @@ function RowHoverActions({
                 <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.1 7.1 0 01-5.3-2.3l-1.4 1.42A9 9 0 1013 3zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
               </svg>
               View history
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                onCloseMore();
+                onCampaignInfo?.();
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-brand-navy hover:bg-brand-cream"
+            >
+              <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+              </svg>
+              Campaign info
             </button>
             <button
               type="button"
@@ -593,6 +628,7 @@ export default function MetaAdsManagerList({ onCreate, onEdit, onCharts }) {
   const [deleting, setDeleting] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState(null);
   const [hoverMoreId, setHoverMoreId] = useState(null);
+  const [infoCampaign, setInfoCampaign] = useState(null);
   const [pinnedIds, setPinnedIds] = useState(() => new Set());
   const [renamingId, setRenamingId] = useState(null);
   const [renameDraft, setRenameDraft] = useState('');
@@ -1350,7 +1386,11 @@ export default function MetaAdsManagerList({ onCreate, onEdit, onCharts }) {
                                     }}
                                     onHistory={() => {
                                       setHoverMoreId(null);
-                                      toast.info(`History for “${displayName(row)}”`);
+                                      setInfoCampaign(row);
+                                    }}
+                                    onCampaignInfo={() => {
+                                      setHoverMoreId(null);
+                                      setInfoCampaign(row);
                                     }}
                                     onRules={() => {
                                       setHoverMoreId(null);
@@ -1475,6 +1515,14 @@ export default function MetaAdsManagerList({ onCreate, onEdit, onCharts }) {
       </div>
         </div>
       </div>
+
+      <CampaignInfoModal
+        open={Boolean(infoCampaign)}
+        campaignId={infoCampaign?.id || ''}
+        campaignName={infoCampaign ? displayName(infoCampaign) : ''}
+        createdBy={infoCampaign?.createdBy || []}
+        onClose={() => setInfoCampaign(null)}
+      />
 
       {deleteConfirmOpen ? (
         <ConfirmModal

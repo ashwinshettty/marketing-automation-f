@@ -17,9 +17,12 @@ export function MetaInfoIcon() {
   );
 }
 
-export function MetaCard({ title, badge, complete = true, children, className = '' }) {
+export function MetaCard({ id, title, badge, complete = true, children, className = '' }) {
   return (
-    <section className={`rounded-xl border border-brand-yellow/40 bg-white shadow-sm ${className}`}>
+    <section
+      id={id || undefined}
+      className={`rounded-xl border border-brand-yellow/40 bg-white shadow-sm scroll-mt-24 ${className}`}
+    >
       {(title || badge) && (
         <header className="flex flex-wrap items-center gap-2 border-b border-brand-yellow/20 px-3.5 py-3 sm:px-5 sm:py-3.5">
           {complete ? <MetaCheckIcon /> : null}

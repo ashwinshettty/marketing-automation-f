@@ -23,7 +23,11 @@ import {
 import { createEmptyMetaCampaign } from './metaCampaignDefaults';
 import { draftFromCampaignDoc, isRemoteLockedCampaign } from './fromCampaignDoc';
 import { radiusOptions } from './metaCatalog';
-import { buildCampaignRequest, imageFileFromAd } from './toCampaignPayload';
+import {
+  buildCampaignRequest,
+  getConversionLocationPublishWarning,
+  imageFileFromAd,
+} from './toCampaignPayload';
 import LocationMapPanel from './LocationMapPanel';
 import MetaMediaCropModal, { CroppedMediaPreview } from './MetaMediaCropModal';
 import { browsePlaces, searchPlaces } from './places';
@@ -1343,7 +1347,14 @@ function CampaignLevelForm({ data, onChange, remoteLocked = false }) {
   );
 }
 
-function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignBudget = null }) {
+function AdSetLevelForm({
+  data,
+  onChange,
+  campaignObjective = 'leads',
+  campaignBudget = null,
+  publishError = null,
+  issueHighlightId = '',
+}) {
   const set = (key, value) => onChange({ ...data, [key]: value });
   const [showConversionMore, setShowConversionMore] = useState(false);
   const [showScheduleMore, setShowScheduleMore] = useState(false);
@@ -1439,6 +1450,14 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
   // Normalize legacy draft value from older "Message destinations" option
   const conversionLocation =
     data.conversionLocation === 'message_destinations' ? 'messenger' : data.conversionLocation;
+
+  const conversionLocationWarning =
+    getConversionLocationPublishWarning(conversionLocation, campaignObjective)
+    || (publishError?.anchor === 'adset-conversion'
+      ? (publishError.message || String(publishError))
+      : null);
+  const highlightConversionError =
+    publishError?.anchor === 'adset-conversion' || issueHighlightId === 'adset-conversion';
 
   const isFormsMessenger = conversionLocation === 'forms_and_messenger';
   const isInstagramLive = conversionLocation === 'instagram_live';
@@ -1560,7 +1579,15 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
         </div>
       </MetaCard>
 
-      <MetaCard id="adset-conversion" title="Conversion">
+      <MetaCard
+        id="adset-conversion"
+        title="Conversion"
+        className={
+          highlightConversionError
+            ? '!border-red-500 ring-2 ring-red-400 ring-offset-2 transition'
+            : ''
+        }
+      >
         <div className="space-y-5">
           <div>
             <p className="text-[13px] font-semibold text-slate-800">Conversion location</p>
@@ -1575,7 +1602,13 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
               <button
                 type="button"
                 onClick={() => setLocationMenuOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-900 outline-none transition hover:border-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20"
+                className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2.5 text-left text-sm text-slate-900 outline-none transition focus:ring-2 ${
+                  highlightConversionError
+                    ? 'border-red-500 ring-2 ring-red-300 focus:border-red-600 focus:ring-red-200'
+                    : conversionLocationWarning
+                      ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-200'
+                      : 'border-slate-300 hover:border-slate-400 focus:border-brand-navy focus:ring-brand-navy/20'
+                }`}
               >
                 <span>
                   {labelFromOptions(locationOptions, conversionLocation) ||
@@ -1695,6 +1728,26 @@ function AdSetLevelForm({ data, onChange, campaignObjective = 'leads', campaignB
                 </>
               ) : null}
             </div>
+            {conversionLocationWarning ? (
+              <div className="mt-2" role="alert">
+                <MetaAlert
+                  tone={highlightConversionError ? 'warn' : 'warn'}
+                  title={
+                    highlightConversionError
+                      ? 'Cannot publish with this location'
+                      : 'Publishing limit'
+                  }
+                >
+                  <p>{conversionLocationWarning}</p>
+                  {conversionLocation === 'whatsapp' ? null : (
+                    <p className="mt-1">
+                      For Leads, switch Conversion location to <strong>WhatsApp</strong> (or use
+                      Awareness / Traffic / Engagement with Website).
+                    </p>
+                  )}
+                </MetaAlert>
+              </div>
+            ) : null}
           </div>
 
           {isInstagramLive ? (
@@ -5775,6 +5828,8 @@ export default function MetaAdsCampaign({ onClose, campaignId = null }) {
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState('');
   const [publishNotice, setPublishNotice] = useState('');
+  const [issueHighlightId, setIssueHighlightId] = useState('');
+  const issueHighlightTimer = useRef(null);
   const [loadState, setLoadState] = useState(() => (campaignId ? 'loading' : 'ready'));
   const [remoteLocked, setRemoteLocked] = useState(false);
 
@@ -5889,11 +5944,15 @@ export default function MetaAdsCampaign({ onClose, campaignId = null }) {
 
   const openPublishIssue = () => {
     if (!publishError?.step) return;
+    const anchor = publishError.anchor || '';
     setLevel(publishError.step);
+    setIssueHighlightId(anchor);
+    if (issueHighlightTimer.current) window.clearTimeout(issueHighlightTimer.current);
+    issueHighlightTimer.current = window.setTimeout(() => setIssueHighlightId(''), 5000);
     if (window.innerWidth < 1024) setTreeOpen(false);
     window.setTimeout(() => {
-      document.getElementById(publishError.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 160);
   };
 
   const publishDraft = async () => {
@@ -6166,6 +6225,8 @@ export default function MetaAdsCampaign({ onClose, campaignId = null }) {
                     dailyBudget: draft.campaign?.dailyBudget || '',
                     advantagePlus: draft.campaign?.advantagePlus !== false,
                   }}
+                  publishError={publishError}
+                  issueHighlightId={issueHighlightId}
                 />
               ) : null}
               {loadState === 'ready' && level === 'ad' ? (
