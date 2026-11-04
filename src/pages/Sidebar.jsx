@@ -57,6 +57,15 @@ const NAV_ITEMS = [
     ),
   },
   {
+    to: '/google-ads',
+    label: 'Google Ads',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+        <path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     to: '/messages',
     label: 'Messages',
     icon: (

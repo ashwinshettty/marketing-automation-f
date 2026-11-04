@@ -21,6 +21,10 @@ export const PAGE_CONFIG = {
     title: 'Campaigns',
     description: 'Create a campaign the way Ads Manager does: buying type, objective, campaign, ad set, then ad.',
   },
+  '/google-ads': {
+    title: 'Google Ads',
+    description: 'Manage Google Ads campaigns with a Campaigns / Goals / Tools / Billing / Admin workspace.',
+  },
   '/messages': {
     title: 'Messages',
     description: 'Browse all WhatsApp chats in one place.',
@@ -54,6 +58,9 @@ export const PAGE_CONFIG = {
 export const getPageConfig = (pathname) => {
   if (pathname.startsWith('/website-intelligence')) {
     return PAGE_CONFIG['/website-intelligence'];
+  }
+  if (pathname.startsWith('/google-ads')) {
+    return PAGE_CONFIG['/google-ads'];
   }
 
   return (

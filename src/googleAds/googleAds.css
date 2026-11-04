@@ -1,0 +1,27 @@
+.google-ads-shell {
+  --ga-blue: #1a73e8;
+  --ga-blue-soft: #e8f0fe;
+  --ga-ink: #202124;
+  --ga-muted: #5f6368;
+  --ga-border: #e8eaed;
+  --ga-surface: #f8f9fa;
+  --ga-panel: #ffffff;
+  --ga-hover: #f1f3f4;
+  --ga-metric-blue: #1a73e8;
+  --ga-metric-rose: #ea4335;
+  font-family: "Google Sans", "Product Sans", Inter, system-ui, -apple-system, sans-serif;
+}
+
+.ga-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(95, 99, 104, 0.45) transparent;
+}
+
+.ga-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ga-scroll::-webkit-scrollbar-thumb {
+  background: rgba(95, 99, 104, 0.35);
+  border-radius: 999px;
+}

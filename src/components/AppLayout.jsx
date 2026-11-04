@@ -11,13 +11,14 @@ const AppLayout = () => {
     () => typeof window === 'undefined' || window.innerWidth >= 1024,
   );
   const isWebsiteIntelligence = pathname.startsWith('/website-intelligence');
+  const isGoogleAds = pathname.startsWith('/google-ads');
   const isMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   const isVideoGenerator =
     pathname === '/video-generator' || pathname.startsWith('/video-generator/');
   const lockMainScroll = isMessages || isVideoGenerator;
 
-  // Website Intelligence takes over the full viewport with its own chrome.
-  if (isWebsiteIntelligence) {
+  // Website Intelligence / Google Ads take over the full viewport with their own chrome.
+  if (isWebsiteIntelligence || isGoogleAds) {
     return (
       <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-background">
         <ToastContainer />

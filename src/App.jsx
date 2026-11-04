@@ -34,6 +34,7 @@ import CatalogPage from './website-intelligence/pages/CatalogPage';
 import ServiceDetailPage from './website-intelligence/pages/ServiceDetailPage';
 import ReportsPage from './website-intelligence/pages/ReportsPage';
 import VideoGeneratorPage from './video-generator/VideoGeneratorPage';
+import { GoogleAdsPage, GoogleAdsShell } from './googleAds';
 
 const SECTION_SKIP = new Set([
   '/leads',
@@ -41,6 +42,7 @@ const SECTION_SKIP = new Set([
   '/event',
   '/vacancies',
   '/campaign',
+  '/google-ads',
   '/messages',
   '/whatsapp',
   '/sms-templates',
@@ -73,6 +75,10 @@ const App = () => {
           <Route path="event" element={<EventsPage />} />
           <Route path="vacancies" element={<VacanciesPage />} />
           <Route path="campaign" element={<CampaignsPage />} />
+          <Route path="google-ads" element={<GoogleAdsShell />}>
+            <Route index element={<GoogleAdsPage />} />
+            <Route path="*" element={<GoogleAdsPage />} />
+          </Route>
           <Route path="messages" element={<MessagesPage />} />
           <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="sms-templates" element={<SmsTemplatesPage />} />
