@@ -1,8 +1,4 @@
-const LOCATION_OPTIONS = [
-  { id: 'ALL_COUNTRIES', label: 'All countries and territories' },
-  { id: 'COUNTRY_IN', label: 'India' },
-  { id: 'ENTER_ANOTHER', label: 'Enter another location' },
-];
+import LocationSection from './locations/LocationSection';
 
 const LANGUAGE_OPTIONS = [
   { id: 'en', label: 'English' },
@@ -59,35 +55,7 @@ export default function SearchSettingsStep({ value, onChange }) {
       </SectionCard>
 
       <SectionCard title="Locations">
-        <p className="mb-3 text-sm text-[var(--ga-muted)]">Select locations for this campaign</p>
-        <div className="space-y-2">
-          {LOCATION_OPTIONS.map((option) => (
-            <label key={option.id} className="flex cursor-pointer items-center gap-3 py-1">
-              <input
-                type="radio"
-                name="locationMode"
-                checked={value.locationMode === option.id}
-                onChange={() => set({ locationMode: option.id })}
-                className="h-4 w-4 accent-[var(--ga-blue)]"
-              />
-              <span className="text-sm text-[var(--ga-ink)]">{option.label}</span>
-            </label>
-          ))}
-        </div>
-        {value.locationMode === 'ENTER_ANOTHER' ? (
-          <input
-            value={value.locationOther}
-            onChange={(event) => set({ locationOther: event.target.value })}
-            placeholder="City, region, or country"
-            className="mt-3 w-full max-w-xl rounded-lg border border-[var(--ga-border)] px-3 py-2.5 text-sm outline-none focus:border-[var(--ga-blue)]"
-          />
-        ) : null}
-        {value.locationMode === 'ALL_COUNTRIES' ? (
-          <div className="mt-4 rounded-xl bg-[var(--ga-blue-soft)] p-4 text-sm text-[var(--ga-ink)]">
-            Ads can show in all countries and territories. Narrow locations later if you need tighter
-            reach.
-          </div>
-        ) : null}
+        <LocationSection value={value} onChange={set} />
       </SectionCard>
 
       <SectionCard title="Languages">

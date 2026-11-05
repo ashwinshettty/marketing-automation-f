@@ -46,10 +46,18 @@ export default function SearchReviewStep({
   const filledHeadlines = value.headlines.filter((item) => item.trim()).length;
   const filledDescriptions = value.descriptions.filter((item) => item.trim()).length;
 
-  const locationValue =
-    value.locationMode === 'ENTER_ANOTHER'
-      ? value.locationOther || 'Custom location'
-      : LOCATION_LABELS[value.locationMode];
+  const customLocations = [
+    ...(value.locationItems || []).map((item) => (
+      `${item.action === 'exclude' ? 'Exclude' : 'Include'} ${item.name}`
+    )),
+    ...(value.locationRadii || []).map((item) => {
+      const unit = item.radiusUnits === 'MILES' ? 'mi' : 'km';
+      return `${item.radius} ${unit} around ${item.label}`;
+    }),
+  ];
+  const locationValue = value.locationMode === 'ENTER_ANOTHER'
+    ? customLocations.join('; ')
+    : LOCATION_LABELS[value.locationMode];
 
   const languages = value.languages
     .map((code) => LANGUAGE_LABELS[code] || code)

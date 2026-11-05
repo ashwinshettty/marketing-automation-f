@@ -17,11 +17,11 @@ import SearchReviewStep from './SearchReviewStep';
 
 function stepCanContinue(stepId, form) {
   if (stepId === 'settings') {
-    return Boolean(
-      (form.campaignName.trim() || form.campaignNamePlaceholder)
-      && form.euPoliticalAds
-      && form.languages.length,
-    );
+    const hasName = form.campaignName.trim() || form.campaignNamePlaceholder;
+    const hasCustomLocation = form.locationMode !== 'ENTER_ANOTHER'
+      || (form.locationItems || []).length > 0
+      || (form.locationRadii || []).length > 0;
+    return Boolean(hasName && form.euPoliticalAds && form.languages.length && hasCustomLocation);
   }
   if (stepId === 'ads') {
     const keywords = form.keywords.split('\n').map((l) => l.trim()).filter(Boolean);

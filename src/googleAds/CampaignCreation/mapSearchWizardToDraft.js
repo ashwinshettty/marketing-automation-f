@@ -1,5 +1,4 @@
-/** India geo target constant id (Google Ads). */
-const INDIA_GEO_ID = '2356';
+import { INDIA_LOCATION } from './locations/locationSelection';
 
 function ensureAbsoluteUrl(value) {
   const raw = String(value || '').trim();
@@ -14,36 +13,60 @@ function mapEuPoliticalAds(value) {
   return null;
 }
 
+function mapLocationItems(items = []) {
+  return items
+    .map((item) => ({
+      id: String(item.id || '').replace(/\D/g, ''),
+      name: item.name || '',
+      type: item.type || '',
+      countryCode: item.countryCode || '',
+      reach: item.reach != null ? String(item.reach) : '',
+      action: item.action === 'exclude' ? 'exclude' : 'include',
+    }))
+    .filter((item) => item.id);
+}
+
+function mapProximities(radii = []) {
+  return radii
+    .map((item) => ({
+      label: item.label || '',
+      latitude: Number(item.latitude),
+      longitude: Number(item.longitude),
+      radius: Number(item.radius),
+      radiusUnits: item.radiusUnits === 'MILES' ? 'MILES' : 'KILOMETERS',
+      action: item.action === 'exclude' ? 'exclude' : 'include',
+    }))
+    .filter((item) => (
+      Number.isFinite(item.latitude)
+      && Number.isFinite(item.longitude)
+      && item.radius > 0
+    ));
+}
+
 function mapLocations(form) {
+  const option = form.locationOption === 'PRESENCE' ? 'PRESENCE' : 'PRESENCE_OR_INTEREST';
   const mode = form.locationMode || 'ALL_COUNTRIES';
   if (mode === 'COUNTRY_IN') {
     return {
       mode: 'COUNTRY_IN',
-      option: 'PRESENCE_OR_INTEREST',
-      items: [
-        {
-          id: INDIA_GEO_ID,
-          name: 'India',
-          type: 'Country',
-          action: 'include',
-        },
-      ],
+      option,
+      items: [{ ...INDIA_LOCATION }],
+      proximities: [],
     };
   }
   if (mode === 'ENTER_ANOTHER') {
-    const name = String(form.locationOther || '').trim();
     return {
       mode: 'ENTER_ANOTHER',
-      option: 'PRESENCE_OR_INTEREST',
-      items: name
-        ? [{ id: '', name, type: 'Unknown', action: 'include' }]
-        : [],
+      option,
+      items: mapLocationItems(form.locationItems),
+      proximities: mapProximities(form.locationRadii),
     };
   }
   return {
     mode: 'ALL_COUNTRIES',
-    option: 'PRESENCE_OR_INTEREST',
+    option,
     items: [],
+    proximities: [],
   };
 }
 
