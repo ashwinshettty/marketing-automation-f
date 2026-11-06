@@ -1,0 +1,79 @@
+{
+  "startedAt": "2026-11-02T04:30:22.061Z",
+  "finishedAt": "2026-11-02T04:30:22.070Z",
+  "ownerId": "user-1",
+  "correlationId": "995543be-201d-4fd5-a00a-1a754d3cfc40",
+  "userPrompt": "Make a video about coffee.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 2,
+      "at": "2026-11-02T04:30:22.063Z",
+      "detail": {
+        "requestId": "b66ceaac-0f77-4720-8f88-190ae8f1282e",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 4,
+      "at": "2026-11-02T04:30:22.065Z",
+      "detail": {
+        "workflow": "unknown",
+        "intent": "clarification_required",
+        "continuityMode": "none",
+        "confidence": 0.35,
+        "reason": "The prompt does not clearly indicate a lesson or advertisement purpose.",
+        "signals": [],
+        "requiresClarification": true
+      }
+    },
+    {
+      "name": "clarification_required",
+      "atMs": 7,
+      "at": "2026-11-02T04:30:22.068Z",
+      "detail": {
+        "question": "Should this be an educational lesson video or a marketing advertisement?"
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "unknown",
+    "intent": "clarification_required",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": null,
+    "confidence": 0.35,
+    "requiresClarification": true,
+    "clarificationQuestion": "Should this be an educational lesson video or a marketing advertisement?",
+    "reason": "The prompt does not clearly indicate a lesson or advertisement purpose.",
+    "signals": [],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "unknown",
+  "selectedPath": "unknown / clarification_required",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": null,
+    "audienceDescription": null,
+    "targetAudienceLegacy": null
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "errors": []
+}

@@ -1,0 +1,171 @@
+{
+  "startedAt": "2026-11-02T04:17:05.012Z",
+  "finishedAt": "2026-11-02T04:17:05.148Z",
+  "ownerId": "user-1",
+  "correlationId": "1b9271dd-ce8c-4189-94c9-986bd138e04f",
+  "userPrompt": "Explain photosynthesis for beginners.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 2,
+      "at": "2026-11-02T04:17:05.014Z",
+      "detail": {
+        "requestId": "ab678e68-c663-4a21-86f9-4f740b60b7e7",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 3,
+      "at": "2026-11-02T04:17:05.015Z",
+      "detail": {
+        "workflow": "lesson",
+        "intent": "start_lesson",
+        "continuityMode": "none",
+        "confidence": 0.97,
+        "reason": "Purpose language indicates an educational lesson outcome.",
+        "signals": [
+          "lesson_purpose_language",
+          "academic_subject"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "lesson_plan_start",
+      "atMs": 6,
+      "at": "2026-11-02T04:17:05.018Z",
+      "detail": {
+        "seriesId": null
+      }
+    },
+    {
+      "name": "lesson_plan_finished",
+      "atMs": 127,
+      "at": "2026-11-02T04:17:05.139Z",
+      "detail": {
+        "success": true,
+        "seriesId": "b6d89dd5-88fe-4cd9-a7eb-c7f2a3fa7991",
+        "sceneId": "3929b321-5a86-4afd-9cd3-e966c396ec7d",
+        "generationStatus": "NOT_INVOKED"
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "lesson",
+    "intent": "start_lesson",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": "beginners",
+    "audienceCategory": "learners",
+    "audienceDescription": "beginners",
+    "confidence": 0.97,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates an educational lesson outcome.",
+    "signals": [
+      "lesson_purpose_language",
+      "academic_subject"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "lesson",
+  "selectedPath": "lesson / start_lesson",
+  "characterOrBrand": {
+    "id": "95bb5fed-d497-4d97-bf59-ca221ddfa0a0",
+    "seriesId": "b6d89dd5-88fe-4cd9-a7eb-c7f2a3fa7991",
+    "version": 1,
+    "referenceAssetIds": [],
+    "appearance": "Adult science teacher, about 35 years old, warm medium-brown skin, and a round face.",
+    "faceRules": "Dark brown eyes, soft eyebrows, a clean-shaven jaw, and a calm smile.",
+    "hairRules": "Short black hair, neatly combed, with no hat or hair accessory.",
+    "clothingRules": "White lab coat over a navy collared shirt and khaki trousers.",
+    "voice": {
+      "description": "English, neutral General American accent, medium pitch, warm tone, moderate pace, and clear classroom delivery.",
+      "referenceAssetId": null
+    },
+    "personality": "Friendly, patient, and energetic.",
+    "speakingStyle": "Uses one simple analogy, short sentences, and a steady teaching pace.",
+    "environmentPreferences": "Bright school science classroom with a whiteboard, a periodic-table poster, and a lab bench.",
+    "visualStyle": "Realistic classroom lighting, medium framing, and warm natural colors.",
+    "profileLabel": "Default teacher profile",
+    "profileOrigin": "default",
+    "profileFieldSources": {
+      "appearance": "default",
+      "faceRules": "default",
+      "hairRules": "default",
+      "clothingRules": "default",
+      "personality": "default",
+      "speakingStyle": "default",
+      "visualStyle": "default",
+      "environmentPreferences": "default",
+      "voice": "default"
+    },
+    "permittedVariations": [],
+    "approvedChanges": [
+      {
+        "field": "profile",
+        "description": "Established the labeled default teacher profile.",
+        "previous": "",
+        "at": "2026-11-02T04:17:05.124Z"
+      }
+    ],
+    "createdAt": "2026-11-02T04:17:05.030Z",
+    "updatedAt": "2026-11-02T04:17:05.124Z"
+  },
+  "storyOrCampaign": {
+    "id": "b6d89dd5-88fe-4cd9-a7eb-c7f2a3fa7991",
+    "type": "series"
+  },
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": "learners",
+    "audienceDescription": "beginners",
+    "targetAudienceLegacy": "beginners"
+  },
+  "llmOptimizedPromptForSeedance": {
+    "status": "CANDIDATE_ONLY_NOT_SENT",
+    "seedanceInvoked": false,
+    "text": "[Character]\nProfile: Default teacher profile\nAppearance: Adult science teacher, about 35 years old, warm medium-brown skin, and a round face.\nFace: Dark brown eyes, soft eyebrows, a clean-shaven jaw, and a calm smile.\nHair: Short black hair, neatly combed, with no hat or hair accessory.\nClothing: White lab coat over a navy collared shirt and khaki trousers.\nVoice: English, neutral General American accent, medium pitch, warm tone, moderate pace, and clear classroom delivery.\nPersonality: Friendly, patient, and energetic.\nTeaching style: Uses one simple analogy, short sentences, and a steady teaching pace.\nStyle: Realistic classroom lighting, medium framing, and warm natural colors.\n[Environment]\nBright school science classroom with a whiteboard, a periodic-table poster, and a lab bench.\n[Continuity]\nPlanned scene only.\nNo previous planned scene.\nRules: Persistent character identity, face, and hairstyle stay fixed unless an approved change says otherwise. Planned scenes are proposals. They are not observed video events.\n[Scene]\nObjective: Explain photosynthesis for beginners\nOpening: Open.\nAction: Teacher gestures.\nDialogue: photosynthesis for beginners is the focus.\nEnding beat: Pause.\nDuration seconds: 8\n[Constraints]\nDo not change face, hairstyle, or identity.\nDo not change clothing.\nDo not change the established environment.\nDo not depict this plan as an observed or already generated video.\nNo character or style changes are authorized in this scene.\n[Assets]\nNo verified reference assets."
+  },
+  "tokens": {
+    "provider": "mock",
+    "model": "mock-model",
+    "calls": 1,
+    "repairs": null,
+    "latencyMs": 0,
+    "inputTokens": 40,
+    "outputTokens": 30,
+    "cachedTokens": null,
+    "totalTokens": 70,
+    "tokenSource": "measured",
+    "fallbackUsed": false
+  },
+  "cost": {
+    "status": "COST_UNAVAILABLE",
+    "costSource": "unavailable",
+    "estimatedInputUsd": null,
+    "estimatedOutputUsd": null,
+    "estimatedTotalUsd": null,
+    "pricingConfigVersion": "story-llm-usd-per-million-v1",
+    "pricedAt": "2026-11-02T04:17:05.144Z",
+    "inputUsdPerMillion": null,
+    "outputUsdPerMillion": null,
+    "reason": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied.",
+    "videoGenerationUsd": null,
+    "note": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied."
+  },
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "errors": []
+}

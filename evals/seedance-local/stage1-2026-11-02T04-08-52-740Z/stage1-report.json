@@ -1,0 +1,26 @@
+{
+  "startedAt": "2026-11-02T04:08:52.745Z",
+  "stage": 1,
+  "purpose": "connectivity_auth_timeout_parse_only",
+  "generationInvoked": false,
+  "env": {
+    "keyPresent": false,
+    "keyLength": 0,
+    "keyPrefix": null,
+    "seedanceEnabledEnv": null,
+    "seedanceEnvLabel": null,
+    "videoGenerationEnabled": null,
+    "explicitBaseUrl": null,
+    "allowGenerateFlag": false
+  },
+  "disabledAdapter": {
+    "pass": true,
+    "code": "VIDEO_GENERATION_DISABLED",
+    "message": "Video generation is not enabled. The story pipeline stops after the dry-run manifest."
+  },
+  "probes": [],
+  "summary": {
+    "pass": false,
+    "reason": "SEEDANCE_API_KEY missing"
+  }
+}

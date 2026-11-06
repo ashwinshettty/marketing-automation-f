@@ -1,0 +1,169 @@
+{
+  "startedAt": "2026-11-02T04:30:22.592Z",
+  "finishedAt": "2026-11-02T04:30:22.613Z",
+  "ownerId": "user-1",
+  "correlationId": "39a30720-2adf-4377-a230-bb4c5e34b09d",
+  "userPrompt": "Explain leaves for the Plants lesson.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 2,
+      "at": "2026-11-02T04:30:22.594Z",
+      "detail": {
+        "requestId": "6b99b08d-150e-4732-b511-f3cbeafd3f23",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 4,
+      "at": "2026-11-02T04:30:22.596Z",
+      "detail": {
+        "workflow": "lesson",
+        "intent": "start_lesson",
+        "continuityMode": "none",
+        "confidence": 0.92,
+        "reason": "Purpose language indicates an educational lesson outcome.",
+        "signals": [
+          "lesson_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "lesson_plan_start",
+      "atMs": 7,
+      "at": "2026-11-02T04:30:22.599Z",
+      "detail": {
+        "seriesId": null
+      }
+    },
+    {
+      "name": "lesson_plan_finished",
+      "atMs": 15,
+      "at": "2026-11-02T04:30:22.607Z",
+      "detail": {
+        "success": true,
+        "seriesId": "99a69eb3-5411-4cb8-812d-8914f5390138",
+        "sceneId": "65c3ef8c-d4ae-44fc-9bbb-e4bc1162ca54",
+        "generationStatus": "NOT_INVOKED"
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "lesson",
+    "intent": "start_lesson",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": "learners",
+    "audienceCategory": "learners",
+    "audienceDescription": "learners",
+    "confidence": 0.92,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates an educational lesson outcome.",
+    "signals": [
+      "lesson_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "lesson",
+  "selectedPath": "lesson / start_lesson",
+  "characterOrBrand": {
+    "id": "e447b3ac-b008-4b45-a9e8-f1f03c386a04",
+    "seriesId": "99a69eb3-5411-4cb8-812d-8914f5390138",
+    "version": 1,
+    "referenceAssetIds": [],
+    "appearance": "Adult science teacher, about 35 years old, warm medium-brown skin, and a round face.",
+    "faceRules": "Dark brown eyes, soft eyebrows, a clean-shaven jaw, and a calm smile.",
+    "hairRules": "Short black hair, neatly combed, with no hat or hair accessory.",
+    "clothingRules": "White lab coat over a navy collared shirt and khaki trousers.",
+    "voice": {
+      "description": "English, neutral General American accent, medium pitch, warm tone, moderate pace, and clear classroom delivery.",
+      "referenceAssetId": null
+    },
+    "personality": "Friendly, patient, and energetic.",
+    "speakingStyle": "Uses one simple analogy, short sentences, and a steady teaching pace.",
+    "environmentPreferences": "Bright school science classroom with a whiteboard, a periodic-table poster, and a lab bench.",
+    "visualStyle": "Realistic classroom lighting, medium framing, and warm natural colors.",
+    "profileLabel": "Default teacher profile",
+    "profileOrigin": "default",
+    "profileFieldSources": {
+      "appearance": "default",
+      "faceRules": "default",
+      "hairRules": "default",
+      "clothingRules": "default",
+      "personality": "default",
+      "speakingStyle": "default",
+      "visualStyle": "default",
+      "environmentPreferences": "default",
+      "voice": "default"
+    },
+    "permittedVariations": [],
+    "approvedChanges": [
+      {
+        "field": "profile",
+        "description": "Established the labeled default teacher profile.",
+        "previous": "",
+        "at": "2026-11-02T04:30:22.605Z"
+      }
+    ],
+    "createdAt": "2026-11-02T04:30:22.601Z",
+    "updatedAt": "2026-11-02T04:30:22.605Z"
+  },
+  "storyOrCampaign": {
+    "id": "99a69eb3-5411-4cb8-812d-8914f5390138",
+    "type": "series"
+  },
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": "learners",
+    "audienceDescription": "learners",
+    "targetAudienceLegacy": "learners"
+  },
+  "llmOptimizedPromptForSeedance": {
+    "status": "CANDIDATE_ONLY_NOT_SENT",
+    "seedanceInvoked": false,
+    "text": "[Character]\nProfile: Default teacher profile\nAppearance: Adult science teacher, about 35 years old, warm medium-brown skin, and a round face.\nFace: Dark brown eyes, soft eyebrows, a clean-shaven jaw, and a calm smile.\nHair: Short black hair, neatly combed, with no hat or hair accessory.\nClothing: White lab coat over a navy collared shirt and khaki trousers.\nVoice: English, neutral General American accent, medium pitch, warm tone, moderate pace, and clear classroom delivery.\nPersonality: Friendly, patient, and energetic.\nTeaching style: Uses one simple analogy, short sentences, and a steady teaching pace.\nStyle: Realistic classroom lighting, medium framing, and warm natural colors.\n[Environment]\nBright school science classroom with a whiteboard, a periodic-table poster, and a lab bench.\n[Continuity]\nPlanned scene only.\nNo previous planned scene.\nRules: Persistent character identity, face, and hairstyle stay fixed unless an approved change says otherwise. Planned scenes are proposals. They are not observed video events.\n[Scene]\nObjective: Explain leaves\nOpening: Open.\nAction: Teacher gestures.\nDialogue: leaves is the focus.\nEnding beat: Pause.\nDuration seconds: 8\n[Constraints]\nDo not change face, hairstyle, or identity.\nDo not change clothing.\nDo not change the established environment.\nDo not depict this plan as an observed or already generated video.\nNo character or style changes are authorized in this scene.\n[Assets]\nNo verified reference assets."
+  },
+  "tokens": {
+    "provider": "mock",
+    "model": "mock-model",
+    "calls": 1,
+    "repairs": null,
+    "latencyMs": 0,
+    "inputTokens": 40,
+    "outputTokens": 30,
+    "cachedTokens": null,
+    "totalTokens": 70,
+    "tokenSource": "measured",
+    "fallbackUsed": false
+  },
+  "cost": {
+    "status": "COST_UNAVAILABLE",
+    "costSource": "unavailable",
+    "estimatedInputUsd": null,
+    "estimatedOutputUsd": null,
+    "estimatedTotalUsd": null,
+    "pricingConfigVersion": "story-llm-usd-per-million-v1",
+    "pricedAt": "2026-11-02T04:30:22.611Z",
+    "inputUsdPerMillion": null,
+    "outputUsdPerMillion": null,
+    "reason": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied.",
+    "videoGenerationUsd": null,
+    "note": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied."
+  },
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "errors": []
+}

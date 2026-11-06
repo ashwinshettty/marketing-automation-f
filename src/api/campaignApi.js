@@ -144,3 +144,13 @@ export const uploadCampaignImage = async (campaignId, file) => {
     },
   });
 };
+
+export const fetchAllCampaigns = async () => {
+  const response = await authApi.get('/campaigns/get-Allcampaigns');
+  return response.data;
+};
+
+export const filterCampaigns = async (params) => {
+  const response = await authApi.get('/campaigns/filter-campaign', { params });
+  return response.data;
+};

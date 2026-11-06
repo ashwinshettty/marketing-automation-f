@@ -1,0 +1,53 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "code": "CLARIFICATION_REQUIRED",
+    "message": "Choose a series to continue, or start a new series. Requests are not attached to an existing series automatically.",
+    "generationStatus": "NOT_INVOKED",
+    "videoGenerationInvoked": false,
+    "data": {
+      "workflow": "lesson",
+      "committed": false,
+      "requestId": "3c6e11e4-fa8a-425e-858f-741fe270e46c",
+      "correlationId": "continuity-test-1793595359017",
+      "intent": "CLARIFICATION_REQUIRED",
+      "intentReason": "A continuation was requested without a series.",
+      "clarificationQuestion": "Choose a series to continue, or start a new series. Requests are not attached to an existing series automatically.",
+      "series": null,
+      "llm": {
+        "calls": 0,
+        "cacheHit": false,
+        "tokenSource": "none"
+      },
+      "routing": {
+        "workflow": "lesson",
+        "intent": "continue_lesson",
+        "continuityMode": "sequential",
+        "tone": [
+          "educational"
+        ],
+        "targetAudience": "learners",
+        "audienceCategory": "learners",
+        "audienceDescription": "learners",
+        "confidence": 0.97,
+        "requiresClarification": false,
+        "clarificationQuestion": null,
+        "reason": "Purpose language indicates an educational lesson outcome.",
+        "signals": [
+          "lesson_purpose_language",
+          "academic_subject",
+          "narrative_teaching",
+          "continuation_language"
+        ],
+        "routerVersion": "video-intent-router-v1",
+        "source": "deterministic"
+      },
+      "runTrace": {
+        "mdPath": "evals\\seedance-local\\run-traces\\run-2026-11-02T04-55-59-072Z.md",
+        "jsonPath": "evals\\seedance-local\\run-traces\\run-2026-11-02T04-55-59-072Z.json",
+        "selectedWorkflow": "lesson"
+      }
+    }
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "runId": "run-2026-11-02T04-43-47-814Z",
+  "correlationId": "ads-frontend-test-1793594627716",
+  "timestamp": "2026-11-02T04:43:47.814Z",
+  "status": "COMPLETED",
+  "stages": [
+    {
+      "seq": 1,
+      "name": "frontend_submission",
+      "filePath": "src/pages/VideoGenerator.jsx",
+      "functionName": "handleSubmit",
+      "input": {
+        "promptLength": 887,
+        "workflowHint": "ads"
+      },
+      "output": {
+        "requestSent": true,
+        "endpoint": "/api/video/requests"
+      },
+      "decision": "Route to /api/video/requests with workflowHint: ads",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 2,
+      "name": "route_reception_and_auth",
+      "filePath": "video/routes.js",
+      "functionName": "wrap(engine.createRequest)",
+      "input": {
+        "path": "/api/video/requests",
+        "method": "POST"
+      },
+      "output": {
+        "userId": "6a3b7b87fc0a087ffcdae5fe",
+        "authorized": true
+      },
+      "decision": "User authorized via JWT middleware",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 3,
+      "name": "intent_classification_and_routing",
+      "filePath": "video/intentRouter.js",
+      "functionName": "resolveVideoIntent",
+      "input": {
+        "promptTextSnippet": "Create a new Instagram marketing ad campaign for Inkstall tutoring...",
+        "workflowHint": "ads"
+      },
+      "output": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "tone": [
+          "persuasive",
+          "fast"
+        ],
+        "targetAudience": "parents of school students",
+        "audienceCategory": "prospective_customers",
+        "audienceDescription": "parents of school students",
+        "confidence": 0.99
+      },
+      "decision": "Explicit ads workflow hint and marketing purpose language",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 4,
+      "name": "campaign_initialization",
+      "filePath": "video/ads/campaign.js",
+      "functionName": "resolveCampaignContinuity",
+      "input": {
+        "campaignId": null,
+        "startNewCampaign": true
+      },
+      "output": {
+        "campaignId": "3c17bfa0-9e45-4d0a-9ca9-4785ca90995d",
+        "status": "active"
+      },
+      "decision": "Create fresh isolated campaign record in MongoAdsRepository",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 5,
+      "name": "brand_bible_establishment",
+      "filePath": "video/ads/brandBible.js",
+      "functionName": "establishBrandBible",
+      "input": {
+        "brandSeed": "Inkstall"
+      },
+      "output": {
+        "talentAppearance": "Friendly adult host, warm medium-brown skin, neat professional attire.",
+        "talentClothing": "Smart-casual brand colors — navy or teal top, clean silhouette, no busy patterns.",
+        "environmentPreferences": "Modern campus or bright study space with soft natural light."
+      },
+      "decision": "Bind default Inkstall Brand Bible",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 6,
+      "name": "creative_brief_assembly",
+      "filePath": "video/ads/creativeBrief.js",
+      "functionName": "buildCreativeBrief",
+      "input": {
+        "durationSeconds": 8,
+        "aspectRatio": "9:16",
+        "platform": "instagram"
+      },
+      "output": {
+        "durationSeconds": 8,
+        "aspectRatio": "9:16",
+        "platform": "instagram",
+        "tone": [
+          "persuasive",
+          "fast"
+        ]
+      },
+      "decision": "Target 8-second vertical ad with hook, desire, product reveal, proof, CTA",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 7,
+      "name": "llm_planner_invocation",
+      "filePath": "video/ads/planner.js",
+      "functionName": "planAdWithLlm",
+      "input": {
+        "providerChain": [
+          "gemini",
+          "openai",
+          "grok"
+        ],
+        "model": "gemini-2.5-flash"
+      },
+      "output": {
+        "providerUsed": "gemini",
+        "modelUsed": "gemini-2.5-flash",
+        "inputTokens": 2196,
+        "outputTokens": 388
+      },
+      "decision": "Assembled prompt and received structured JSON plan",
+      "decisionSource": "llm",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 8,
+      "name": "plan_validation_and_repair",
+      "filePath": "video/ads/validator.js",
+      "functionName": "validateAdPlan",
+      "input": {
+        "scenes": 4,
+        "claims": "unsupported claims checked"
+      },
+      "output": {
+        "status": "VALID",
+        "errors": [],
+        "warnings": []
+      },
+      "decision": "Visual action and persuasive benefit speech verified against science tutoring",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 9,
+      "name": "seedance_prompt_compilation",
+      "filePath": "video/runTrace.js",
+      "functionName": "buildSeedanceCandidatePrompt",
+      "input": {
+        "plan": "committed ad plan",
+        "brand": "Inkstall"
+      },
+      "output": {
+        "promptLength": 1232,
+        "format": "9:16 vertical 8s"
+      },
+      "decision": "Compiled multimodal video prompt with visual scenes, talent, dialogue, and CTA end card",
+      "decisionSource": "deterministic",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 10,
+      "name": "seedance_video_generation_1",
+      "filePath": "scripts/generate-video-1.mjs",
+      "functionName": "contents/generations/tasks",
+      "input": {
+        "model": "dreamina-seedance-2-5-260628",
+        "endpoint": "https://ark.ap-southeast.bytepluses.com/api/v3"
+      },
+      "output": {
+        "taskId": "cgt-20261102125153-m7ecd",
+        "status": "succeeded",
+        "duration": 8,
+        "resolution": "720p",
+        "ratio": "9:16",
+        "fileSize": 6090313
+      },
+      "decision": "Executed authorized Video #1 generation via Ark Seedance 2.5",
+      "decisionSource": "provider_execution",
+      "status": "SUCCESS"
+    },
+    {
+      "seq": 11,
+      "name": "lesson_continuity_planning_and_generation_2",
+      "filePath": "scripts/generate-video-2.mjs",
+      "functionName": "contents/generations/tasks",
+      "input": {
+        "prompt2": "Continue biology lesson: fruits from flowers...",
+        "model": "dreamina-seedance-2-5-260628"
+      },
+      "output": {
+        "taskId": "cgt-20261102130116-lpnss",
+        "status": "succeeded",
+        "duration": 8,
+        "resolution": "720p",
+        "ratio": "9:16",
+        "fileSize": 7209166
+      },
+      "decision": "Retrieved leaf/photosynthesis context, maintained Character Bible, generated continuity Video #2",
+      "decisionSource": "provider_execution",
+      "status": "SUCCESS"
+    }
+  ]
+}

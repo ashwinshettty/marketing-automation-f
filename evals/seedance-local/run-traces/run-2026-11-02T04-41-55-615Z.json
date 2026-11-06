@@ -1,0 +1,83 @@
+{
+  "startedAt": "2026-11-02T04:41:55.617Z",
+  "finishedAt": "2026-11-02T04:41:55.630Z",
+  "ownerId": "user-1",
+  "correlationId": "740b6231-620b-4912-ae9d-287304c15e1c",
+  "userPrompt": "Do something mysterious with pixels.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 4,
+      "at": "2026-11-02T04:41:55.621Z",
+      "detail": {
+        "requestId": "a4dfc0d9-aef8-4af2-9741-ba2b21e10d5c",
+        "workflowHint": "music_video",
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 6,
+      "at": "2026-11-02T04:41:55.623Z",
+      "detail": {
+        "workflow": "unknown",
+        "intent": "unknown",
+        "continuityMode": "none",
+        "confidence": 0.99,
+        "reason": "Unsupported workflow type \"music_video\".",
+        "signals": [
+          "unsupported_workflow_hint"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "unknown_workflow",
+      "atMs": 11,
+      "at": "2026-11-02T04:41:55.628Z",
+      "detail": {
+        "reason": "Unsupported workflow type \"music_video\"."
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "unknown",
+    "intent": "unknown",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": null,
+    "confidence": 0.99,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Unsupported workflow type \"music_video\".",
+    "signals": [
+      "unsupported_workflow_hint"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "unknown",
+  "selectedPath": "unknown / unknown",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": null,
+    "audienceDescription": null,
+    "targetAudienceLegacy": null
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "errors": []
+}

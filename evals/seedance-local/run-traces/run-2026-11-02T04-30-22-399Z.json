@@ -1,0 +1,217 @@
+{
+  "startedAt": "2026-11-02T04:30:22.399Z",
+  "finishedAt": "2026-11-02T04:30:22.426Z",
+  "ownerId": "user-1",
+  "correlationId": "ae12f3a9-45f4-4c3d-a8e8-82e2fb5b7c23",
+  "userPrompt": "Create a cinematic product launch film.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 2,
+      "at": "2026-11-02T04:30:22.401Z",
+      "detail": {
+        "requestId": "2861e6f9-a7f8-49e6-af7c-d0de963780d4",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 5,
+      "at": "2026-11-02T04:30:22.404Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.97,
+        "reason": "Purpose language indicates a marketing advertisement outcome.",
+        "signals": [
+          "ads_purpose_language",
+          "product_marketing_context"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 9,
+      "at": "2026-11-02T04:30:22.408Z",
+      "detail": {
+        "tone": [
+          "cinematic"
+        ],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 10,
+      "at": "2026-11-02T04:30:22.409Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_continuity_resolved",
+      "atMs": 12,
+      "at": "2026-11-02T04:30:22.411Z",
+      "detail": {
+        "action": "new_campaign",
+        "sequenceNumber": 1,
+        "createdCampaign": true,
+        "campaignId": "1338fc1e-15bc-45aa-9ba1-68d121ab3fb7"
+      }
+    },
+    {
+      "name": "ads_intent_classified",
+      "atMs": 14,
+      "at": "2026-11-02T04:30:22.413Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "reason": "The request starts a new campaign."
+      }
+    },
+    {
+      "name": "ads_llm_planning_start",
+      "atMs": 16,
+      "at": "2026-11-02T04:30:22.415Z",
+      "detail": {
+        "hasLlm": false,
+        "brandName": null
+      }
+    },
+    {
+      "name": "ads_llm_planning_finished",
+      "atMs": 18,
+      "at": "2026-11-02T04:30:22.417Z",
+      "detail": {
+        "calls": 0,
+        "repairs": 0,
+        "hasPlan": true,
+        "model": null,
+        "provider": null,
+        "llmInvocationCount": 0
+      }
+    },
+    {
+      "name": "ads_plan_committed",
+      "atMs": 25,
+      "at": "2026-11-02T04:30:22.424Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "campaignId": "1338fc1e-15bc-45aa-9ba1-68d121ab3fb7",
+        "adId": "af18a752-82af-495f-835f-d13af15b34e3",
+        "sequenceNumber": 1,
+        "validation": "VALID",
+        "audience": {
+          "audienceCategory": "prospective_customers",
+          "audienceDescription": "prospective customers",
+          "targetAudienceLegacy": "prospective customers"
+        }
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [
+      "cinematic"
+    ],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.97,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates a marketing advertisement outcome.",
+    "signals": [
+      "ads_purpose_language",
+      "product_marketing_context"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / NEW_CAMPAIGN / new_campaign",
+  "characterOrBrand": {
+    "name": "",
+    "voice": "Clear, friendly, and trustworthy without hype.",
+    "visualStyle": "Bright product moments, clean overlays, high-contrast CTA end cards.",
+    "talentAppearance": "Friendly adult host in neat professional attire.",
+    "talentClothing": "Smart-casual brand colors, clean silhouette, no busy patterns.",
+    "talentPersonality": "Encouraging, precise, and approachable.",
+    "environmentPreferences": "Bright, product-relevant setting with soft natural light.",
+    "version": 1
+  },
+  "storyOrCampaign": {
+    "id": "1338fc1e-15bc-45aa-9ba1-68d121ab3fb7",
+    "title": "Create a cinematic product launch film.",
+    "objective": "Create a cinematic product launch film.",
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers"
+  },
+  "tone": {
+    "creativeBriefTone": [
+      "cinematic"
+    ],
+    "routingTones": [
+      "cinematic"
+    ]
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": {
+    "status": "CANDIDATE_ONLY_NOT_SENT",
+    "seedanceInvoked": false,
+    "text": "Workflow: ads (planning only — Seedance NOT_INVOKED)\nCampaign: Create a cinematic product launch film.\nObjective: Create a cinematic product launch film.\nAudienceCategory: prospective_customers\nAudienceDescription: prospective customers\nTone: cinematic\nPlatform: general\nAspect: 9:16\nDurationSeconds: 8\nTalent: Friendly adult host in neat professional attire.\nClothing: Smart-casual brand colors, clean silhouette, no busy patterns.\nBrand voice: Clear, friendly, and trustworthy without hype.\nVisual style: Bright product moments, clean overlays, high-contrast CTA end cards.\nEnvironment: Bright, product-relevant setting with soft natural light.\n\nBeats:\nHook: Every choice carries a little uncertainty.\nProblem: \nDesire: \nProduct reveal: \nProof: \nCTA: Apply today.\n\nVisual action: Slow push-in on the product with soft backlight and a quiet hold.\nDialogue / spoken script: Finding your way through it shouldn't feel this heavy.\nOpening bridge: \n\nScene sequence:\n1. {\"beat\":\"hook\",\"visualAction\":\"Slow push-in on the product with soft backlight and a quiet hold.\",\"dialogue\":\"Every choice carries a little uncertainty.\"}\n2. {\"beat\":\"product_reveal\",\"visualAction\":\"Slow push-in on the product with soft backlight and a quiet hold.\",\"dialogue\":\"With the product, finding your way gets quieter.\"}\n3. {\"beat\":\"cta\",\"visualAction\":\"End card with logo and offer text holding for two seconds.\",\"dialogue\":\"Apply today.\"}"
+  },
+  "tokens": {
+    "provider": null,
+    "model": null,
+    "calls": 0,
+    "repairs": 0,
+    "latencyMs": null,
+    "inputTokens": null,
+    "outputTokens": null,
+    "cachedTokens": null,
+    "totalTokens": null,
+    "tokenSource": null,
+    "fallbackUsed": false
+  },
+  "cost": {
+    "status": "COST_UNAVAILABLE",
+    "costSource": "unavailable",
+    "estimatedInputUsd": null,
+    "estimatedOutputUsd": null,
+    "estimatedTotalUsd": null,
+    "pricingConfigVersion": "story-llm-usd-per-million-v1",
+    "pricedAt": "2026-11-02T04:30:22.421Z",
+    "inputUsdPerMillion": null,
+    "outputUsdPerMillion": null,
+    "reason": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied.",
+    "videoGenerationUsd": null,
+    "note": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied."
+  },
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": {
+    "requestId": "ba968321-f6af-4040-adee-26b9435a3665",
+    "campaignId": "1338fc1e-15bc-45aa-9ba1-68d121ab3fb7",
+    "adId": "af18a752-82af-495f-835f-d13af15b34e3"
+  },
+  "errors": []
+}

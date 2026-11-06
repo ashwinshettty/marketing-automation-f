@@ -1,0 +1,670 @@
+{
+  "startedAt": "2026-11-03T04:54:07.650Z",
+  "finishedAt": "2026-11-03T04:54:27.610Z",
+  "ownerId": "user_batch-02_1793681647649",
+  "correlationId": "be28ca9e-8451-4bbf-92ac-c3892a921f73",
+  "userPrompt": "Make a funny ad for students who hate geometry.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 2,
+      "at": "2026-11-03T04:54:07.652Z",
+      "detail": {
+        "requestId": "3e4d57a9-9146-4eab-8100-2ab93fde8418",
+        "workflowHint": "ads",
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 8,
+      "at": "2026-11-03T04:54:07.658Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.99,
+        "reason": "Explicit ads workflow context was provided.",
+        "signals": [
+          "explicit_workflow_context",
+          "lesson_purpose_language",
+          "ads_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 12,
+      "at": "2026-11-03T04:54:07.662Z",
+      "detail": {
+        "tone": [
+          "funny"
+        ],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 14,
+      "at": "2026-11-03T04:54:07.664Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_continuity_resolved",
+      "atMs": 19,
+      "at": "2026-11-03T04:54:07.669Z",
+      "detail": {
+        "action": "new_campaign",
+        "sequenceNumber": 1,
+        "createdCampaign": true,
+        "campaignId": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7"
+      }
+    },
+    {
+      "name": "ads_intent_classified",
+      "atMs": 22,
+      "at": "2026-11-03T04:54:07.672Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "reason": "The request starts a new campaign."
+      }
+    },
+    {
+      "name": "ads_creative_intelligence_concept_selected",
+      "atMs": 34,
+      "at": "2026-11-03T04:54:07.684Z",
+      "detail": {
+        "conceptId": "concept_geometry_humor",
+        "angle": "Relatable Humor",
+        "narrativeStructure": "HUMOR_RELIEF",
+        "singleFocusMessage": "Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click."
+      }
+    },
+    {
+      "name": "ads_llm_planning_start",
+      "atMs": 41,
+      "at": "2026-11-03T04:54:07.691Z",
+      "detail": {
+        "hasLlm": true,
+        "brandName": null
+      }
+    },
+    {
+      "name": "llm_request_ads_plan_primary",
+      "atMs": 43,
+      "at": "2026-11-03T04:54:07.693Z",
+      "detail": {
+        "systemPromptChars": 12909,
+        "userMessageChars": 5827,
+        "modelConfiguration": {
+          "providerPrimary": "gemini",
+          "modelPrimary": "gemini-2.5-flash",
+          "maxOutputTokens": 4096,
+          "responseFormat": {
+            "type": "json_object"
+          },
+          "structuredOutput": true,
+          "temperature": null,
+          "fallbackEnabled": true
+        }
+      }
+    },
+    {
+      "name": "ads_llm_planning_finished",
+      "atMs": 19936,
+      "at": "2026-11-03T04:54:27.586Z",
+      "detail": {
+        "calls": 1,
+        "repairs": 0,
+        "hasPlan": true,
+        "model": "grok-4.3",
+        "provider": "grok",
+        "llmInvocationCount": 1
+      }
+    },
+    {
+      "name": "ads_plan_committed",
+      "atMs": 19954,
+      "at": "2026-11-03T04:54:27.604Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "campaignId": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+        "adId": "cf289788-d40d-41d6-b741-ea9cb10a8065",
+        "sequenceNumber": 1,
+        "validation": "VALID",
+        "audience": {
+          "audienceCategory": "prospective_customers",
+          "audienceDescription": "prospective customers",
+          "targetAudienceLegacy": "prospective customers"
+        }
+      }
+    }
+  ],
+  "llmInvocations": [
+    {
+      "phase": "ads_plan_primary",
+      "systemPrompt": "You are the principal Ads creative director and video-generation planner for short, high-conversion marketing videos (Inkstall and similar education / product brands).\nReturn ONLY one compact JSON object that matches the ads plan schema. No markdown fences, no commentary, no trailing text.\nKeep ad.dialogue short enough for ad.targetDurationSeconds (about 2 words per second; strictly 15–20 words for an 8s ad). Prefer 2–4 sceneSequence beats.\nsceneSequence[].beat must be one of: hook, problem, desire, product_reveal, proof, cta (never scene_1 / beat_2).\nEvery sceneSequence[].dialogue must be a non-empty spoken line or voice-over (never \"\").\nad.visualAction and every sceneSequence[].visualAction must describe observable on-screen staging (camera, gesture, prop, UI) — never copy dialogue or hook text.\nThis is NOT an educational lesson planner. Do not invent teacher recaps, \"Previously, we learned…\", classroom pedagogy, or homework language.\nFocus on campaign objective, Brand Bible continuity, hook, problem/desire, product reveal, proof, and a clear CTA.\n\n\nADAPTIVE NARRATIVE STRUCTURES & CLEAN EDUCATIONAL DEMONSTRATIONS:\n- The creative narrative structure adapts to the advertising objective:\n  1. EMOTIONAL_PROGRESSION: Relatable student/parent anxiety → Visible tutor whiteboard explanation → Visible relief reaction.\n  2. PRODUCT_DEMONSTRATION: Concept friction → Clean whiteboard diagram/curve demonstration → Conceptual breakthrough. Does NOT require parent drama.\n  3. UNEXPECTED_REVEAL: Intriguing curiosity/myth hook → Surprising educational insight → Action CTA. Does NOT require emotional sorrow.\n  4. VISUAL_CONTRAST: Chaos of crowded 60-student batch vs Calm, personalized 1-on-1 focus.\n  5. DIRECT_VALUE_PROP: Board exam / syllabus friction → Dedicated Inkstall method → Action CTA.\n  6. HUMOR_RELIEF: Relatable study struggle → Comic turn → Quick tutor payoff.\n\nCLEAN EDUCATIONAL WHITEBOARD DEMONSTRATIONS (NOT EMPTY VOIDS):\n- Digital whiteboards and screens must feature clean, text-free educational demonstrations:\n  - Geometric diagrams, coordinate axes, trigonometric curves, colored vectors, directional arrows, molecular structures.\n  - Visual geometric transformations (e.g. complex triangle problem simplifying into clear intuitive steps).\n  - Clean interactive digital tablet gestures without legible handwriting.\n- NEVER request readable text, words, alphanumeric numbers, chemical formulas, or equations on the board.\n- The visual demonstrates CONCEPTUAL UNDERSTANDING purely through shapes, diagrams, and visual movement.\n\nDURATION-AWARE SINGLE PRIMARY MESSAGE (8-SECOND VERTICAL FORMAT):\n- Prioritize ONE primary advertising message per 8-second spot (e.g. 1-on-1 diagnostic, or conceptual whiteboard tutoring).\n- Never cram an overloaded feature laundry list (no multi-item lists like \"1-on-1 + doubts + test series + parent app\").\n- Strictly limit spoken dialogue to 15-20 words (max 36 syllables; ends by 5.8-6.0s) so at least 2.0s is reserved for the silent holding of the deterministic CTA booking card.\n\nHONEST CHARACTER CONTINUITY & CAMERA STABILITY:\n- Text descriptors (e.g. \"female Indian tutor in smart teal top, hair neatly tied\") guide visual generation, but diffusion models do NOT guarantee biometrically identical faces.\n- Use stable camera staging (medium shots, gentle push-ins); avoid disorienting 180-degree cuts or drastic angle shifts that trigger identity drift.\n- When reference image assets are provided, attach them via the referenceMedia pipeline.\n\nAUDIENCE UNDERSTANDING & PAIN-POINT FOCUS:\n- Never write generic ads for \"everyone\" or vague \"students\". Target the specific viewer and their frustration (e.g. parents anxious about child's dropping math scores, exam preparation stress, fear of falling behind in crowded classrooms).\n- The viewer must instantly think: \"This understands my problem, and this is exactly what I need.\"\n- For parent-focused ads: show concern through subtle, realistic behavior — not exaggerated anxiety or artificial smiling. A parent quietly looking at a report card with a slight frown is more authentic than a parent dramatically clutching their head.\n- Emotional transitions must be gradual: tension → tutor appears → visible guidance → calm relief. Never jump abruptly from despair to joy without a visible causal event (the tutor explaining a concept on screen).\n\nFIRST-SECOND HOOK (0–1.5s):\n- The opening visual must immediately communicate a relatable tension or friction event relevant to the problem.\n- Prohibit slow fade-ins, smiling faces doing nothing, unnecessary logo animations, and generic classroom footage.\n- Examples: A frustrated student staring at confusing formulas with an eraser, a parent looking worriedly at a report card, a ticking countdown clock.\n- Avoid exaggerated despair — realistic concern (furrowed brow, tired posture, quiet worry) is more persuasive than theatrical distress.\n\nCORE MECHANISM & PRODUCT CLARITY (1.5–5.5s):\n- Position Inkstall's concrete value proposition: 1-on-1 personalized live tutoring with expert teachers on an interactive digital whiteboard.\n- Show the breakthrough \"aha!\" moment where concept clarity is unlocked, replacing confusion with confidence.\n- The emotional resolution must be visually caused by the tutor's explanation — not merely narrated. Something must happen on the whiteboard or screen that the student responds to with visible understanding.\n- Inkstall positioning: personalized 1-on-1 and small-group tuition, subject-specialist teachers, interactive learning, individualized pace, trustworthy academic support.\n- Do NOT invent: academic guarantees, success statistics, testimonials, or promotional offers.\n\nVISUAL CONTINUITY REQUIREMENTS (ALL SCENES):\n- Every scene must share identical character descriptors in visualAction: same talent (gender, age range, clothing color), same environment category (indoor home vs tutoring screen vs classroom). Do not allow characters to change appearance or teleport between locations without a motivated cut.\n- Establish a visual anchor in the first scene (e.g. \"Indian mother in blue salwar kameez at warm-lit kitchen table\") and explicitly reuse it in subsequent scenes: \"same mother now visibly relaxed at the same table\".\n- Camera work should feel motivated: if the previous scene is wide, the next can push in. Never use random or disorienting cuts.\n- Lighting must remain consistent scene-to-scene: warm amber home lighting for family scenes; cool soft white screen glow for digital tutoring scenes.\n- Use transition signals in visualAction: \"cut to\", \"camera holds on\", \"slow push-in\", \"dissolve to\" — never leave the transition implicit.\n\nCLEAN BLANK SURFACES & SEEDANCE STAGING MANDATE:\n- The video generation model (Seedance) generates visuals only; it cannot render accurate typography, text, formulas, or UI text.\n- Every visualAction MUST stage clean, blank, or abstract surfaces: e.g. \"Tutor gestures at a clean, blank digital whiteboard with a simple geometrical sketch\", \"Student looks up smiling from a clean desk\", \"Tablet screen shows an abstract glowing learning graph with NO readable text\".\n- CRITICAL: Never instruct Seedance to show brand names, website URLs, CTA text, phone numbers, or any readable typographic element. All such content is added deterministically in post-production.\n- Prohibit readable letters, numbers, whiteboard writing, captions, subtitles, logos, UI labels, mathematical equations, or fake UI text in visualAction.\n- Use: blank whiteboards, clean surfaces, abstract educational visuals, text-free interfaces, glowing diagrams without labels.\n\nDECISIVE CALL TO ACTION (5.5–8.0s):\n- Clear, concise voice-over only. The CTA card content (brand name, URL, booking text) is rendered deterministically by the typography engine — never by Seedance.\n- The final scene's visualAction must show a calm, conclusive human moment (student studying confidently, parent smiling genuinely) with no on-screen text requests.\n- The CTA beat must be at least 2.0s long for the deterministic end card to hold.\n- Ban unsupported guarantees (no \"100% marks guaranteed\") or artificial urgency.\n\nHonor creativeBrief as structured constraints:\n- tone (funny, cinematic, persuasive, educational, fast, …) must shape dialogue, visuals, and beats\n- pacing must match creativeBrief.pacing\n- targetAudience, platform, aspectRatio, and durationSeconds are hard constraints\n- continuityMode sequential: advance from previousAd without restarting the brand intro\n- openingBridge: one natural spoken advertising line a host could say aloud from campaignContinuity.bridgeBrief (previousKeyMessage + nextNarrativePurpose + tone). Never use production notes such as \"the next beat shows\", \"Last beat:\", or \"Building on …?\". Never copy the user prompt or splice question-mark fragments\n- If previousAdSource is \"planned\", the prior spot was planned only (not a generated/succeeded video); keep continuity honest and do not imply a rendered prior ad\n- Honor creativeBrief.tone and pacing for THIS spot even when continuing a campaign (funny → persuasive must change voice, not just labels): drop joke/gag register, lead with a clear benefit reason, do not reuse the prior funny punchline structure, and do not reuse the prior hook verbatim\n- When tone includes cinematic or premium: write spoken film narration from a human emotional journey grounded in THIS campaign's productFacts / objective — cinematic style is reusable; semantics are not. Arc: a person's uncertainty → the weight of the choice → a quieter realization → product earned in that resolution. Ground examples in the current domain (education/admissions → school-choice pressure; meal kits → weeknight dinner pressure). Never import another product's domain (e.g. no \"school choice\" VO for a meal-kit brand). Ban brochure speech (\"navigate with confidence\", \"simplifies the process\", \"admissions can be overwhelming\", \"ready for the next step\", \"unlock … future/path/potential\", \"bright future\", \"discover … guidance\"). Ban visual-description-as-dialogue (\"soft sunlight on the papers\", \"one quiet breath at the kitchen table\", \"camera pans…\", \"Then BrandName.\"). Put camera/staging only in visualAction. At least one non-CTA line must work if heard with eyes closed as a human thought. Cinematic must be audible in dialogue, not only in visuals\n- When tone includes funny: write a real joke beat — setup (specific situation), turn (unexpected twist or exaggeration), payoff (product as punchline). Ban thin stock filler (\"It's tough!\", \"We can help!\", \"No sweat!\", \"Math is hard!\"). Keep lines natural when spoken aloud. Still ban lesson-recap / classroom / homework pedagogy language; comedy about product stress is fine without schoolroom framing\n- When tone includes persuasive (including continuations): every non-CTA line should carry a concrete benefit (time saved, exam confidence, dinner in under 20 minutes, clearer comparison). Ban stock filler (\"We've got you!\", \"Confidence is key!\", \"Too little time, too much to do.\"). OpeningBridge alone is not enough — ad.dialogue and scene lines must also speak the benefit\n- When tone includes instructional or educational: calmly walk the viewer through a real method — at least two concrete comparison or process steps parents can follow (e.g. curriculum vs facilities, subjects vs fees, side-by-side program points). Ban slogan-only lines (\"Compare schools with ease.\", \"Inkstall simplifies your search.\") without demonstrating how. Show how the product supports those steps in spoken dialogue and scene beats\n- continuityMode variation / intent NEW_AD_VARIATION: keep campaign identity and product facts, change creative execution relative to variationOfAdId; do not assume every viewer saw the prior ad\n- intent REVISE_AD: revise the targeted ad in place; do not invent a new sequence beat as if this were the next spot\n- intent NEW_BRAND_IDENTITY: propose a new persistent talent/brand profile via brandInstructions.requestedChanges (field/description objects); do not silently overwrite the previous profile in narration alone\n- intent STYLE_CHANGE: update visual style only; preserve talent identity and voice\n- intent BRAND_CHANGE: approved edits to the current Brand Bible fields only\n\nBrand Bible rules:\n- Copy voice, visualStyle, talentAppearance, talentClothing, and productFacts from brandBible unless an authorized brand/style intent exists\n- Never invent medical or guaranteed-placement claims\n- Only assert product capabilities supported by brandBible.productFacts, approvedClaims, or the campaign objective\n- Semantic matches of prior ads inform creative context only; they never change Brand Bible identity\n\nNever authorize or trigger video generation. Planning only.\nRequired top-level fields:\nintent, needsClarification, clarificationQuestion, campaignObjective, targetAudience,\nnarrativeContext, brandInstructions, ad, sceneSequence, warnings.",
+      "userMessage": "Context:\n{\"requestId\":\"c102fb8f-3bee-43ca-977a-8008c9bcfc16\",\"workflow\":\"ads\",\"normalizedUserRequest\":\"Make a funny ad for students who hate geometry.\",\"requestedDurationSeconds\":8,\"platform\":\"general\",\"aspectRatio\":\"9:16\",\"creativeBrief\":{\"tone\":[\"funny\"],\"pacing\":\"playful\",\"targetAudience\":\"prospective customers\",\"audienceCategory\":\"prospective_customers\",\"audienceDescription\":\"prospective customers\",\"platform\":\"general\",\"aspectRatio\":\"9:16\",\"durationSeconds\":8,\"campaignObjective\":\"Make a funny ad for students who hate geometry.\",\"continuityMode\":\"none\",\"intent\":\"new_campaign\",\"variationOfAdId\":null,\"promptExcerpt\":\"Make a funny ad for students who hate geometry.\",\"confidence\":0.99,\"inheritedFromPriorAd\":false,\"concept\":{\"conceptId\":\"concept_geometry_humor\",\"angle\":\"Relatable Humor\",\"narrativeStructure\":\"HUMOR_RELIEF\",\"singleFocusMessage\":\"Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click.\",\"hookCategory\":\"Relatability\",\"hook\":\"Why does geometry feel like negotiating with alien shapes?\",\"visualHook\":\"Student staring in comic bewilderment at an upside-down protractor surrounded by eraser dust.\",\"dialogue\":\"Geometry feeling like an alien language? Inkstall 1-on-1 whiteboard tutors make proofs simple. Book your free demo.\",\"cta\":\"Book Your Free Demo on Inkstall\",\"productMechanism\":\"Patient 1-on-1 whiteboard guidance unravelling confusing shapes\",\"targetAudience\":\"Parents of School Students (Exam/Marks Anxiety)\",\"characterAnchor\":\"10th grade student at cluttered study table with compass and geometric sketches; friendly patient math tutor in teal top.\",\"clothingAnchor\":\"Comfortable casual student tee and smart signature teal tutor top.\",\"environmentAnchor\":\"Student study table with compass, protractor, and crumpled geometry sketches.\",\"cinematicStyle\":\"Playful documentary framing, snappy comic timing, natural study light with zero artificial glitz.\",\"adaptiveConstraints\":{\"requiresComicTurn\":true,\"requiresEmotionalCausality\":false,\"characterContinuityScope\":\"student_comic_relief\"},\"permittedDemonstrationVisuals\":[\"geometric_diagrams\",\"visual_geometric_transformations\",\"colored_vector_arrows\"],\"timing\":{\"score\":10,\"wordCount\":17,\"syllableCount\":28,\"estimatedSeconds\":6.25,\"speechRateWordsPerSec\":2.13,\"syllablesPerSec\":4.48,\"ctaWindowSeconds\":1.75,\"hasSufficientCtaWindow\":true,\"isNaturalPacing\":true,\"diagnostics\":[]},\"hookEval\":{\"score\":10,\"category\":\"curiosity\",\"categoryLabel\":\"Curiosity\",\"diagnostics\":[],\"hasGenericStock\":false,\"isCompliant\":true},\"valEval\":{\"score\":10,\"matchedMechanisms\":[\"1-on-1 personalized tutoring\",\"interactive digital whiteboard / live tutoring\"],\"diagnostics\":[],\"isGrounded\":true},\"overallScore\":10},\"narrativeStructure\":\"HUMOR_RELIEF\",\"singleFocusMessage\":\"Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click.\",\"adaptiveConstraints\":{\"requiresComicTurn\":true,\"requiresEmotionalCausality\":false,\"characterContinuityScope\":\"student_comic_relief\"},\"permittedDemonstrationVisuals\":[\"geometric_diagrams\",\"visual_geometric_transformations\",\"colored_vector_arrows\"]},\"classifiedIntent\":\"NEW_CAMPAIGN\",\"campaign\":{\"id\":\"6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7\",\"title\":\"Make a funny ad for students who hate geometry.\",\"objective\":\"Make a funny ad for students who hate geometry.\",\"targetAudience\":\"prospective customers\"},\"brandBible\":{\"id\":\"33521750-30ee-46d4-aef8-09bb8ec21ab7\",\"name\":\"\",\"voice\":\"Clear, friendly, and trustworthy without hype.\",\"visualStyle\":\"Bright product moments, clean overlays, high-contrast CTA end cards.\",\"talentAppearance\":\"Friendly adult host in neat professional attire.\",\"talentClothing\":\"Smart-casual brand colors, clean silhouette, no busy patterns.\",\"talentPersonality\":\"Encouraging, precise, and approachable.\",\"environmentPreferences\":\"Bright, product-relevant setting with soft natural light.\",\"approvedClaims\":[],\"productFacts\":[\"Make a funny ad for students who hate geometry.\"],\"forbiddenClaims\":[\"guaranteed results\",\"guaranteed placement\",\"guaranteed admission\",\"guaranteed acceptance\",\"medical cure\",\"100% success\"],\"version\":1},\"campaignContinuity\":{\"action\":\"new_campaign\",\"sequenceNumber\":1,\"previousSuccessfulAdId\":null,\"previousAdSource\":null,\"continuedFrom\":null,\"revisesAdId\":null,\"redo\":false,\"suggestedOpeningBridge\":\"\",\"bridgeBrief\":null,\"previousAd\":null,\"variationOfAdId\":null,\"selectionReason\":\"No active campaign is topically related to this request.\"},\"semanticRetrieval\":{\"concepts\":[],\"relatedConcepts\":[],\"domain\":\"\",\"subdomain\":\"\",\"rankedAdIds\":[],\"reason\":\"Prior ads ranked by marketing concept overlap for creative context only.\"},\"rules\":[\"Do not use educational lesson recap language.\",\"Preserve Brand Bible voice, talent identity, and approved claims unless NEW_BRAND_IDENTITY / STYLE_CHANGE / BRAND_CHANGE is classified.\",\"Semantic matches inform creative context only; they never change Brand Bible identity.\",\"Include a clear CTA.\",\"Obey creativeBrief tone, pacing, audience, platform, and continuityMode.\",\"Write openingBridge from campaignContinuity.bridgeBrief (previousKeyMessage + nextNarrativePurpose + tone); never copy the user prompt; keep it natural spoken advertising copy (no “next beat shows” / production notes).\",\"Every sceneSequence item needs non-empty dialogue or voice-over plus an observable visualAction.\",\"Funny→persuasive continuations must change spoken register to a clear benefit reason; cinematic tone must be audible in dialogue, not only visuals, and must avoid unlock-future clichés.\",\"Funny tone needs a comic setup, turn, and payoff — not thin stock lines like “It’s tough!” / “We can help!”.\",\"If campaignContinuity.previousAdSource is \\\"planned\\\", advance from planned creative only — do not invent a prior generated-video success.\",\"generationStatus remains NOT_INVOKED until a video adapter is authorized separately.\"]}",
+      "injectedContext": {
+        "requestId": "c102fb8f-3bee-43ca-977a-8008c9bcfc16",
+        "workflow": "ads",
+        "normalizedUserRequest": "Make a funny ad for students who hate geometry.",
+        "requestedDurationSeconds": 8,
+        "platform": "general",
+        "aspectRatio": "9:16",
+        "creativeBrief": {
+          "tone": [
+            "funny"
+          ],
+          "pacing": "playful",
+          "targetAudience": "prospective customers",
+          "audienceCategory": "prospective_customers",
+          "audienceDescription": "prospective customers",
+          "platform": "general",
+          "aspectRatio": "9:16",
+          "durationSeconds": 8,
+          "campaignObjective": "Make a funny ad for students who hate geometry.",
+          "continuityMode": "none",
+          "intent": "new_campaign",
+          "variationOfAdId": null,
+          "promptExcerpt": "Make a funny ad for students who hate geometry.",
+          "confidence": 0.99,
+          "inheritedFromPriorAd": false,
+          "concept": {
+            "conceptId": "concept_geometry_humor",
+            "angle": "Relatable Humor",
+            "narrativeStructure": "HUMOR_RELIEF",
+            "singleFocusMessage": "Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click.",
+            "hookCategory": "Relatability",
+            "hook": "Why does geometry feel like negotiating with alien shapes?",
+            "visualHook": "Student staring in comic bewilderment at an upside-down protractor surrounded by eraser dust.",
+            "dialogue": "Geometry feeling like an alien language? Inkstall 1-on-1 whiteboard tutors make proofs simple. Book your free demo.",
+            "cta": "Book Your Free Demo on Inkstall",
+            "productMechanism": "Patient 1-on-1 whiteboard guidance unravelling confusing shapes",
+            "targetAudience": "Parents of School Students (Exam/Marks Anxiety)",
+            "characterAnchor": "10th grade student at cluttered study table with compass and geometric sketches; friendly patient math tutor in teal top.",
+            "clothingAnchor": "Comfortable casual student tee and smart signature teal tutor top.",
+            "environmentAnchor": "Student study table with compass, protractor, and crumpled geometry sketches.",
+            "cinematicStyle": "Playful documentary framing, snappy comic timing, natural study light with zero artificial glitz.",
+            "adaptiveConstraints": {
+              "requiresComicTurn": true,
+              "requiresEmotionalCausality": false,
+              "characterContinuityScope": "student_comic_relief"
+            },
+            "permittedDemonstrationVisuals": [
+              "geometric_diagrams",
+              "visual_geometric_transformations",
+              "colored_vector_arrows"
+            ],
+            "timing": {
+              "score": 10,
+              "wordCount": 17,
+              "syllableCount": 28,
+              "estimatedSeconds": 6.25,
+              "speechRateWordsPerSec": 2.13,
+              "syllablesPerSec": 4.48,
+              "ctaWindowSeconds": 1.75,
+              "hasSufficientCtaWindow": true,
+              "isNaturalPacing": true,
+              "diagnostics": []
+            },
+            "hookEval": {
+              "score": 10,
+              "category": "curiosity",
+              "categoryLabel": "Curiosity",
+              "diagnostics": [],
+              "hasGenericStock": false,
+              "isCompliant": true
+            },
+            "valEval": {
+              "score": 10,
+              "matchedMechanisms": [
+                "1-on-1 personalized tutoring",
+                "interactive digital whiteboard / live tutoring"
+              ],
+              "diagnostics": [],
+              "isGrounded": true
+            },
+            "overallScore": 10
+          },
+          "narrativeStructure": "HUMOR_RELIEF",
+          "singleFocusMessage": "Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click.",
+          "adaptiveConstraints": {
+            "requiresComicTurn": true,
+            "requiresEmotionalCausality": false,
+            "characterContinuityScope": "student_comic_relief"
+          },
+          "permittedDemonstrationVisuals": [
+            "geometric_diagrams",
+            "visual_geometric_transformations",
+            "colored_vector_arrows"
+          ]
+        },
+        "classifiedIntent": "NEW_CAMPAIGN",
+        "campaign": {
+          "id": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+          "title": "Make a funny ad for students who hate geometry.",
+          "objective": "Make a funny ad for students who hate geometry.",
+          "targetAudience": "prospective customers"
+        },
+        "brandBible": {
+          "id": "33521750-30ee-46d4-aef8-09bb8ec21ab7",
+          "name": "",
+          "voice": "Clear, friendly, and trustworthy without hype.",
+          "visualStyle": "Bright product moments, clean overlays, high-contrast CTA end cards.",
+          "talentAppearance": "Friendly adult host in neat professional attire.",
+          "talentClothing": "Smart-casual brand colors, clean silhouette, no busy patterns.",
+          "talentPersonality": "Encouraging, precise, and approachable.",
+          "environmentPreferences": "Bright, product-relevant setting with soft natural light.",
+          "approvedClaims": [],
+          "productFacts": [
+            "Make a funny ad for students who hate geometry."
+          ],
+          "forbiddenClaims": [
+            "guaranteed results",
+            "guaranteed placement",
+            "guaranteed admission",
+            "guaranteed acceptance",
+            "medical cure",
+            "100% success"
+          ],
+          "version": 1
+        },
+        "campaignContinuity": {
+          "action": "new_campaign",
+          "sequenceNumber": 1,
+          "previousSuccessfulAdId": null,
+          "previousAdSource": null,
+          "continuedFrom": null,
+          "revisesAdId": null,
+          "redo": false,
+          "suggestedOpeningBridge": "",
+          "bridgeBrief": null,
+          "previousAd": null,
+          "variationOfAdId": null,
+          "selectionReason": "No active campaign is topically related to this request."
+        },
+        "semanticRetrieval": {
+          "concepts": [],
+          "relatedConcepts": [],
+          "domain": "",
+          "subdomain": "",
+          "rankedAdIds": [],
+          "reason": "Prior ads ranked by marketing concept overlap for creative context only."
+        },
+        "rules": [
+          "Do not use educational lesson recap language.",
+          "Preserve Brand Bible voice, talent identity, and approved claims unless NEW_BRAND_IDENTITY / STYLE_CHANGE / BRAND_CHANGE is classified.",
+          "Semantic matches inform creative context only; they never change Brand Bible identity.",
+          "Include a clear CTA.",
+          "Obey creativeBrief tone, pacing, audience, platform, and continuityMode.",
+          "Write openingBridge from campaignContinuity.bridgeBrief (previousKeyMessage + nextNarrativePurpose + tone); never copy the user prompt; keep it natural spoken advertising copy (no “next beat shows” / production notes).",
+          "Every sceneSequence item needs non-empty dialogue or voice-over plus an observable visualAction.",
+          "Funny→persuasive continuations must change spoken register to a clear benefit reason; cinematic tone must be audible in dialogue, not only visuals, and must avoid unlock-future clichés.",
+          "Funny tone needs a comic setup, turn, and payoff — not thin stock lines like “It’s tough!” / “We can help!”.",
+          "If campaignContinuity.previousAdSource is \"planned\", advance from planned creative only — do not invent a prior generated-video success.",
+          "generationStatus remains NOT_INVOKED until a video adapter is authorized separately."
+        ]
+      },
+      "modelConfiguration": {
+        "providerPrimary": "gemini",
+        "modelPrimary": "gemini-2.5-flash",
+        "maxOutputTokens": 4096,
+        "responseFormat": {
+          "type": "json_object"
+        },
+        "structuredOutput": true,
+        "temperature": null,
+        "fallbackEnabled": true,
+        "provider": "grok",
+        "model": "grok-4.3",
+        "requestedModel": "gemini-2.5-flash",
+        "fallbackUsed": true,
+        "fallbackReason": "rate_limit",
+        "providerAttempts": [
+          {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "openai",
+            "model": "gpt-4o-mini",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "grok",
+            "model": "grok-4.3",
+            "status": "succeeded",
+            "classification": null,
+            "attempts": 1
+          }
+        ]
+      },
+      "llmCompletion": "{\n  \"intent\": \"new_campaign\",\n  \"needsClarification\": false,\n  \"clarificationQuestion\": \"\",\n  \"campaignObjective\": \"Make a funny ad for students who hate geometry.\",\n  \"targetAudience\": \"prospective customers\",\n  \"narrativeContext\": {\n    \"tone\": \"funny\",\n    \"pacing\": \"playful\",\n    \"narrativeStructure\": \"HUMOR_RELIEF\",\n    \"singleFocusMessage\": \"Inkstall 1-on-1 whiteboard sessions make angles and proofs finally click.\",\n    \"openingBridge\": \"\"\n  },\n  \"brandInstructions\": {\n    \"requestedChanges\": {}\n  },\n  \"ad\": {\n    \"targetDurationSeconds\": 8,\n    \"dialogue\": \"Geometry turning into alien shapes? Inkstall 1-on-1 makes proofs click. Book free demo.\",\n    \"visualAction\": \"10th grade student at cluttered study table stares in comic bewilderment at upside-down protractor amid eraser dust, playful documentary framing with natural study light.\",\n    \"cta\": \"Book Your Free Demo on Inkstall\"\n  },\n  \"sceneSequence\": [\n    {\n      \"beat\": \"hook\",\n      \"dialogue\": \"Geometry turning into alien shapes?\",\n      \"visualAction\": \"Cut to close-up of student in casual tee at study table, wide-eyed confusion as protractor flips comically, clean blank surfaces around.\"\n    },\n    {\n      \"beat\": \"product_reveal\",\n      \"dialogue\": \"Inkstall 1-on-1 makes proofs click.\",\n      \"visualAction\": \"Friendly adult host in neat teal top enters frame, gestures at clean digital whiteboard with simple colored geometric diagrams and arrows transforming shapes.\"\n    },\n    {\n      \"beat\": \"cta\",\n      \"dialogue\": \"Book free demo.\",\n      \"visualAction\": \"Camera holds on student smiling at the transformation, calm conclusive moment with no text, soft natural light.\"\n    }\n  ],\n  \"warnings\": []\n}",
+      "usage": {
+        "inputTokens": 4128,
+        "outputTokens": 405,
+        "totalTokens": 5285
+      },
+      "latencyMs": 18557,
+      "parsedResult": {
+        "intent": "NEW_CAMPAIGN",
+        "needsClarification": false,
+        "clarificationQuestion": null,
+        "campaignObjective": "Make a funny ad for students who hate geometry.",
+        "targetAudience": "prospective customers",
+        "narrativeContext": {
+          "previousAdId": null,
+          "continuitySummary": "",
+          "campaignFactsToPreserve": []
+        },
+        "brandInstructions": {
+          "preserveIdentity": true,
+          "preserveVoice": true,
+          "preserveVisualStyle": true,
+          "requestedChanges": []
+        },
+        "ad": {
+          "hook": "Geometry turning into alien shapes?",
+          "problem": "",
+          "desire": "",
+          "productReveal": "",
+          "proof": "",
+          "cta": "Book Your Free Demo on Inkstall",
+          "visualAction": "10th grade student at cluttered study table stares in comic bewilderment at upside-down protractor amid eraser dust, playful documentary framing with natural study light.",
+          "dialogue": "Geometry turning into alien shapes? Inkstall 1-on-1 makes proofs click. Book free demo.",
+          "openingBridge": "",
+          "targetDurationSeconds": 8,
+          "platform": "general",
+          "aspectRatio": "9:16"
+        },
+        "sceneSequence": [
+          {
+            "beat": "hook",
+            "visualAction": "Cut to close-up of student in casual tee at study table, wide-eyed confusion as protractor flips comically, clean blank surfaces around.",
+            "dialogue": "Geometry turning into alien shapes?"
+          },
+          {
+            "beat": "product_reveal",
+            "visualAction": "Friendly adult host in neat teal top enters frame, gestures at clean digital whiteboard with simple colored geometric diagrams and arrows transforming shapes.",
+            "dialogue": "Inkstall 1-on-1 makes proofs click."
+          },
+          {
+            "beat": "cta",
+            "visualAction": "Camera holds on student smiling at the transformation, calm conclusive moment with no text, soft natural light.",
+            "dialogue": "Book free demo."
+          }
+        ],
+        "warnings": []
+      },
+      "postProcessing": [
+        {
+          "step": "parseAdPlan",
+          "stage": "ok",
+          "ok": true,
+          "issues": [],
+          "parseError": null
+        }
+      ]
+    }
+  ],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [
+      "funny"
+    ],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.99,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Explicit ads workflow context was provided.",
+    "signals": [
+      "explicit_workflow_context",
+      "lesson_purpose_language",
+      "ads_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / NEW_CAMPAIGN / new_campaign",
+  "characterOrBrand": {
+    "name": "",
+    "voice": "Clear, friendly, and trustworthy without hype.",
+    "visualStyle": "Bright product moments, clean overlays, high-contrast CTA end cards.",
+    "talentAppearance": "Friendly adult host in neat professional attire.",
+    "talentClothing": "Smart-casual brand colors, clean silhouette, no busy patterns.",
+    "talentPersonality": "Encouraging, precise, and approachable.",
+    "environmentPreferences": "Bright, product-relevant setting with soft natural light.",
+    "version": 1
+  },
+  "storyOrCampaign": {
+    "id": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+    "title": "Make a funny ad for students who hate geometry.",
+    "objective": "Make a funny ad for students who hate geometry.",
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers"
+  },
+  "tone": {
+    "creativeBriefTone": [
+      "funny"
+    ],
+    "routingTones": [
+      "funny"
+    ]
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": {
+    "status": "CANDIDATE_ONLY_NOT_SENT",
+    "seedanceInvoked": false,
+    "text": "Workflow: ads (SCRIPT_LOCKED — Seedance NOT_INVOKED)\nFormat: 9:16 vertical video, 8 seconds duration\nScriptId: eb907564-9c89-44cc-b8da-dd412bb252f3\nScriptHash: 8ce19c3695380bbcf0b6abdbb4812e3a23fdb4452aa36a6ec2e6fab30a589118\nSeedance Generation Mode: Visuals Only (Clean Blank Surfaces)\n\nSetting: Student study table with compass, protractor, and crumpled geometry sketches.\nTalent: 10th grade student at cluttered study table with compass and geometric sketches; friendly patient math tutor in teal top. wearing Comfortable casual student tee and smart signature teal tutor top..\nCamera & Lighting: Playful documentary framing, snappy comic timing, natural study light with zero artificial glitz.\n\nVisual Action Flow:\n1. [hook] Cut to close-up of student in casual tee at study table, wide-eyed confusion as protractor flips comically, clean blank surfaces around.\n2. [product_reveal] Friendly adult host in neat teal top enters frame, gestures at clean digital whiteboard with simple colored geometric diagrams and arrows transforming shapes.\n3. [cta] Camera holds on student smiling at the transformation, calm conclusive moment with no text, soft natural light.\n\n[Speech Context (For Pacing & Motion Timing Only — Do NOT Render As Text)]:\nAudio narration: \"Geometry turning into alien shapes? Inkstall 1-on-1 makes proofs click. Book free demo.\"\n\n[Mandatory Negative Typography Constraints / Clean Surfaces]:\n- Do not render readable text, letters, numbers, symbols, words, or typography on any surface.\n- Do not render subtitles, captions, lower-thirds, or end cards in the generated video.\n- All whiteboards, screens, signs, notebooks, and background charts must remain clean, blank, or abstractly illustrated without legible writing.\n- Do not generate AI logos, brand watermarks, or end cards.\n- All typography, brand names, and subtitles are rendered deterministically outside generation.",
+    "scriptId": "eb907564-9c89-44cc-b8da-dd412bb252f3",
+    "scriptHash": "8ce19c3695380bbcf0b6abdbb4812e3a23fdb4452aa36a6ec2e6fab30a589118",
+    "scriptLocked": true
+  },
+  "tokens": {
+    "provider": "grok",
+    "model": "grok-4.3",
+    "calls": 1,
+    "repairs": 0,
+    "latencyMs": 18557,
+    "inputTokens": 4128,
+    "outputTokens": 405,
+    "cachedTokens": null,
+    "totalTokens": 4533,
+    "tokenSource": "measured",
+    "fallbackUsed": true
+  },
+  "cost": {
+    "status": "COST_UNAVAILABLE",
+    "costSource": "unavailable",
+    "estimatedInputUsd": null,
+    "estimatedOutputUsd": null,
+    "estimatedTotalUsd": null,
+    "pricingConfigVersion": "story-llm-usd-per-million-v1",
+    "pricedAt": "2026-11-03T04:54:27.601Z",
+    "inputUsdPerMillion": null,
+    "outputUsdPerMillion": null,
+    "reason": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied.",
+    "videoGenerationUsd": null,
+    "note": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied."
+  },
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": {
+    "requestId": "c102fb8f-3bee-43ca-977a-8008c9bcfc16",
+    "campaignId": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+    "adId": "cf289788-d40d-41d6-b741-ea9cb10a8065"
+  },
+  "continuityProvenance": {
+    "workflow": "ads",
+    "currentCampaignId": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+    "currentAdId": "cf289788-d40d-41d6-b741-ea9cb10a8065",
+    "predecessorAdId": null,
+    "continuityMode": "none",
+    "crossWorkflowContaminationBlocked": true,
+    "provenanceStatus": "INITIAL_CAMPAIGN_AD"
+  },
+  "errors": [],
+  "canonicalScript": {
+    "scriptId": "eb907564-9c89-44cc-b8da-dd412bb252f3",
+    "scriptVersion": 1,
+    "workflowType": "ads",
+    "seriesId": null,
+    "campaignId": "6e3aae5c-e7fd-4d32-ae76-cde29c5e4ff7",
+    "sceneId": null,
+    "adId": "2e62dcda-6e4b-494f-8ffc-0059ea48abcc",
+    "language": "en-IN",
+    "targetAudience": "prospective customers",
+    "durationSeconds": 8,
+    "dialogue": "Geometry turning into alien shapes? Inkstall 1-on-1 makes proofs click. Book free demo.",
+    "narration": "Geometry turning into alien shapes? Inkstall 1-on-1 makes proofs click. Book free demo.",
+    "visualBeats": [
+      {
+        "beatIndex": 0,
+        "beatName": "hook",
+        "visualAction": "Cut to close-up of student in casual tee at study table, wide-eyed confusion as protractor flips comically, clean blank surfaces around.",
+        "dialogue": "Geometry turning into alien shapes?",
+        "durationSeconds": 2.7
+      },
+      {
+        "beatIndex": 1,
+        "beatName": "product_reveal",
+        "visualAction": "Friendly adult host in neat teal top enters frame, gestures at clean digital whiteboard with simple colored geometric diagrams and arrows transforming shapes.",
+        "dialogue": "Inkstall 1-on-1 makes proofs click.",
+        "durationSeconds": 2.7
+      },
+      {
+        "beatIndex": 2,
+        "beatName": "cta",
+        "visualAction": "Camera holds on student smiling at the transformation, calm conclusive moment with no text, soft natural light.",
+        "dialogue": "Book free demo.",
+        "durationSeconds": 2.6
+      }
+    ],
+    "subtitleSegments": [
+      {
+        "segmentId": "e8a99044-4394-440e-a8c0-3b5bd7a49a3e",
+        "sequenceIndex": 0,
+        "startTimeSec": 0,
+        "endTimeSec": 2,
+        "text": "Geometry turning into alien"
+      },
+      {
+        "segmentId": "b28fad87-d6b7-4fcb-b9b7-9f5267f6962e",
+        "sequenceIndex": 1,
+        "startTimeSec": 2,
+        "endTimeSec": 4,
+        "text": "shapes? Inkstall 1-on-1 makes"
+      },
+      {
+        "segmentId": "fcccbcda-01e2-4699-b209-fecd811b847f",
+        "sequenceIndex": 2,
+        "startTimeSec": 4,
+        "endTimeSec": 6,
+        "text": "proofs click. Book free"
+      },
+      {
+        "segmentId": "a7bf70bc-d33b-42a6-a816-cb9ce82d61d2",
+        "sequenceIndex": 3,
+        "startTimeSec": 6,
+        "endTimeSec": 8,
+        "text": "demo."
+      }
+    ],
+    "textAssets": [
+      {
+        "textAssetId": "381fc403-99ca-479d-b5bd-94bfc6a03794",
+        "purpose": "brand_name",
+        "text": "Inkstall",
+        "position": {
+          "x": "left",
+          "y": "top",
+          "marginPercent": 6,
+          "safeArea": "mobile-9:16"
+        },
+        "style": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "fontSizePx": 22,
+          "fontWeight": "bold",
+          "color": "#FFFFFF",
+          "backgroundColor": "rgba(15, 23, 42, 0.75)",
+          "borderRadiusPx": 6
+        },
+        "timing": {
+          "startTimeSec": 0,
+          "endTimeSec": 8
+        }
+      },
+      {
+        "textAssetId": "df3f396a-0264-4df4-8f4f-e77ffc79d973",
+        "purpose": "cta_card",
+        "text": "Book Your Free Demo on Inkstall",
+        "position": {
+          "x": "center",
+          "y": "bottom",
+          "marginPercent": 10,
+          "safeArea": "mobile-9:16"
+        },
+        "style": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "fontSizePx": 28,
+          "fontWeight": "bold",
+          "color": "#FFFFFF",
+          "backgroundColor": "#0284C7",
+          "borderRadiusPx": 12
+        },
+        "timing": {
+          "startTimeSec": 5.5,
+          "endTimeSec": 8
+        }
+      }
+    ],
+    "productionTimeline": {
+      "totalDurationSeconds": 8,
+      "beatSumSeconds": 8,
+      "narrationEstimatedSeconds": 5.2,
+      "narrationCompletionDeadlineSeconds": 6,
+      "ctaOverlayStartSeconds": 5.5,
+      "ctaHoldingWindowSeconds": 2.5,
+      "guaranteedCtaWindowPassed": true
+    },
+    "characterId": null,
+    "brandId": null,
+    "continuityReferences": {
+      "predecessorSeriesId": null,
+      "predecessorSceneId": null,
+      "predecessorAdId": null,
+      "predecessorTopic": null,
+      "continuityMode": "none"
+    },
+    "validationStatus": "LOCKED",
+    "lockedAt": "2026-11-03T04:54:27.594Z",
+    "scriptHash": "8ce19c3695380bbcf0b6abdbb4812e3a23fdb4452aa36a6ec2e6fab30a589118"
+  }
+}

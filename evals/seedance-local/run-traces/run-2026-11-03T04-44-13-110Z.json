@@ -1,0 +1,159 @@
+{
+  "startedAt": "2026-11-03T04:44:13.112Z",
+  "finishedAt": null,
+  "ownerId": "user_batch-01_1793681053106",
+  "correlationId": "420a6ba9-c88a-4f05-b524-505a1e3b1efb",
+  "userPrompt": "Make an ad for 10th grade maths.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 7,
+      "at": "2026-11-03T04:44:13.119Z",
+      "detail": {
+        "requestId": "9e8ba838-41ba-4dd2-9994-2d6e2f1f208e",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 16,
+      "at": "2026-11-03T04:44:13.128Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.92,
+        "reason": "Purpose language indicates a marketing advertisement outcome.",
+        "signals": [
+          "ads_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 22,
+      "at": "2026-11-03T04:44:13.134Z",
+      "detail": {
+        "tone": [],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 23,
+      "at": "2026-11-03T04:44:13.135Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_continuity_resolved",
+      "atMs": 41,
+      "at": "2026-11-03T04:44:13.153Z",
+      "detail": {
+        "action": "new_campaign",
+        "sequenceNumber": 1,
+        "createdCampaign": true,
+        "campaignId": "8d8312d8-fae3-4527-9024-23cbf448d0bb"
+      }
+    },
+    {
+      "name": "ads_intent_classified",
+      "atMs": 47,
+      "at": "2026-11-03T04:44:13.159Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "reason": "The request starts a new campaign."
+      }
+    },
+    {
+      "name": "ads_creative_intelligence_concept_selected",
+      "atMs": 140,
+      "at": "2026-11-03T04:44:13.252Z",
+      "detail": {
+        "conceptId": "concept_maths_demonstration",
+        "angle": "Product Demonstration",
+        "narrativeStructure": "PRODUCT_DEMONSTRATION",
+        "singleFocusMessage": "Visual whiteboard concept breakdowns reveal the mechanism behind difficult formulas."
+      }
+    },
+    {
+      "name": "ads_llm_planning_start",
+      "atMs": 150,
+      "at": "2026-11-03T04:44:13.262Z",
+      "detail": {
+        "hasLlm": true,
+        "brandName": null
+      }
+    },
+    {
+      "name": "llm_request_ads_plan_primary",
+      "atMs": 192,
+      "at": "2026-11-03T04:44:13.304Z",
+      "detail": {
+        "systemPromptChars": 12909,
+        "userMessageChars": 5963,
+        "modelConfiguration": {
+          "providerPrimary": "gemini",
+          "modelPrimary": "gemini-2.5-flash",
+          "maxOutputTokens": 4096,
+          "responseFormat": {
+            "type": "json_object"
+          },
+          "structuredOutput": true,
+          "temperature": null,
+          "fallbackEnabled": true
+        }
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.92,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates a marketing advertisement outcome.",
+    "signals": [
+      "ads_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / new_campaign",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "continuityProvenance": null,
+  "errors": []
+}

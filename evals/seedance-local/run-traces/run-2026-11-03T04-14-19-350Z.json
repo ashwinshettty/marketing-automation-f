@@ -1,0 +1,176 @@
+{
+  "startedAt": "2026-11-03T04:14:19.353Z",
+  "finishedAt": "2026-11-03T04:14:19.458Z",
+  "ownerId": "user_eval_1793679259348",
+  "correlationId": "04c450ff-6bc5-41af-abaa-6f0168c57bce",
+  "userPrompt": "make an ad for 10th grade maths",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 6,
+      "at": "2026-11-03T04:14:19.359Z",
+      "detail": {
+        "requestId": "8791e195-1921-47bf-9576-e47753bbf79c",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 24,
+      "at": "2026-11-03T04:14:19.377Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.92,
+        "reason": "Purpose language indicates a marketing advertisement outcome.",
+        "signals": [
+          "ads_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 36,
+      "at": "2026-11-03T04:14:19.389Z",
+      "detail": {
+        "tone": [],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 40,
+      "at": "2026-11-03T04:14:19.393Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_continuity_resolved",
+      "atMs": 56,
+      "at": "2026-11-03T04:14:19.409Z",
+      "detail": {
+        "action": "new_campaign",
+        "sequenceNumber": 1,
+        "createdCampaign": true,
+        "campaignId": "9c63f850-88fd-4481-a3d3-645a5bc9a302"
+      }
+    },
+    {
+      "name": "ads_intent_classified",
+      "atMs": 60,
+      "at": "2026-11-03T04:14:19.413Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "reason": "The request starts a new campaign."
+      }
+    },
+    {
+      "name": "ads_creative_intelligence_concept_selected",
+      "atMs": 74,
+      "at": "2026-11-03T04:14:19.427Z",
+      "detail": {
+        "conceptId": "concept_A_problem_recognition",
+        "angle": "Problem Recognition",
+        "narrativeStructure": "EMOTIONAL_PROGRESSION",
+        "singleFocusMessage": "1-on-1 live diagnostic tutoring with dedicated subject specialist"
+      }
+    },
+    {
+      "name": "ads_llm_planning_start",
+      "atMs": 84,
+      "at": "2026-11-03T04:14:19.437Z",
+      "detail": {
+        "hasLlm": true,
+        "brandName": null
+      }
+    },
+    {
+      "name": "llm_request_ads_plan_primary",
+      "atMs": 87,
+      "at": "2026-11-03T04:14:19.440Z",
+      "detail": {
+        "systemPromptChars": 12909,
+        "userMessageChars": 3376,
+        "modelConfiguration": {
+          "providerPrimary": "openai-compatible",
+          "modelPrimary": null,
+          "maxOutputTokens": 4096,
+          "responseFormat": {
+            "type": "json_object"
+          },
+          "structuredOutput": true,
+          "temperature": null,
+          "fallbackEnabled": false
+        }
+      }
+    },
+    {
+      "name": "ads_llm_planning_error",
+      "atMs": 90,
+      "at": "2026-11-03T04:14:19.443Z",
+      "detail": {
+        "classification": "provider"
+      }
+    },
+    {
+      "name": "ads_plan_failed",
+      "atMs": 102,
+      "at": "2026-11-03T04:14:19.455Z",
+      "detail": {
+        "code": "LLM_ERROR",
+        "message": "The ads planner could not complete the request. The campaign was not changed."
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.92,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates a marketing advertisement outcome.",
+    "signals": [
+      "ads_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / new_campaign",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "continuityProvenance": null,
+  "errors": []
+}

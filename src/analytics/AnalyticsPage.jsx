@@ -1,23 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   fetchAnalyticsExport,
-  fetchAnalyticsLeads,
   fetchAnalyticsSummary,
   startAnalyticsExport,
 } from '../api/analyticsApi';
 import { fetchCounsellors } from '../api/lookupApi';
 import { toast } from '../utils/toast';
-import { PRESETS, formatNumber } from './format';
-import ActionCenter from './ActionCenter';
+import { PRESETS } from './format';
 import AnalyticsCharts from './AnalyticsCharts';
-import AnalyticsLeadTable from './AnalyticsLeadTable';
-import FunnelSection from './FunnelSection';
+import CampaignRecords from './CampaignRecords';
 import IntelligenceSections from './IntelligenceSections';
 import KpiGrid from './KpiGrid';
-import LeadDrawer from './LeadDrawer';
 import MarketingStage from './MarketingStage';
-import PerformanceTables, { ChannelBreakdown } from './PerformanceTables';
+import MetaLeadRecords from './MetaLeadRecords';
+import { ChannelBreakdown } from './PerformanceTables';
 
 const VIEWS = [
   ['overview', 'Overview'],
@@ -26,18 +23,6 @@ const VIEWS = [
   ['places', 'Places'],
   ['creatives', 'Creatives'],
 ];
-
-const EMPTY_TABLE = {
-  search: '',
-  stage: '',
-  qualification: '',
-  converted: '',
-  noFollowUp: '',
-  missingAttribution: '',
-  sort: 'createdAt',
-  direction: 'desc',
-  page: 1,
-};
 
 const Glyph = ({ children, className = 'h-4 w-4 text-brand-muted' }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -88,16 +73,9 @@ const AnalyticsPage = () => {
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [summaryError, setSummaryError] = useState('');
-  const [tableFilters, setTableFilters] = useState(EMPTY_TABLE);
-  const [leads, setLeads] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, total: 0, totalPages: 1, hasNextPage: false, hasPrevPage: false });
-  const [tableLoading, setTableLoading] = useState(true);
-  const [tableError, setTableError] = useState('');
-  const [selected, setSelected] = useState(null);
   const [exporting, setExporting] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 1279px)').matches);
 
   useEffect(() => {
     fetchCounsellors().then(setOwners).catch(() => setOwners([]));
@@ -108,15 +86,11 @@ const AnalyticsPage = () => {
       if (VIEWS.some(([id]) => id === event.detail)) setView(event.detail);
     };
     const onFilters = () => setFiltersOpen((open) => !open);
-    const media = window.matchMedia('(max-width: 1279px)');
-    const onMedia = () => setNarrow(media.matches);
-    media.addEventListener('change', onMedia);
     window.addEventListener('analytics-open-view', onOpen);
     window.addEventListener('analytics-toggle-filters', onFilters);
     return () => {
       window.removeEventListener('analytics-open-view', onOpen);
       window.removeEventListener('analytics-toggle-filters', onFilters);
-      media.removeEventListener('change', onMedia);
     };
   }, []);
 
@@ -172,36 +146,10 @@ const AnalyticsPage = () => {
     return () => controller.abort();
   }, [globalParams, customReady, reloadKey]);
 
-  useEffect(() => {
-    if (!customReady) return undefined;
-    const controller = new AbortController();
-    setTableLoading(true);
-    setTableError('');
-    fetchAnalyticsLeads({ ...globalParams, ...tableFilters, limit: 25 }, controller.signal)
-      .then((data) => {
-        if (controller.signal.aborted) return;
-        setLeads(data.leads || []);
-        setPagination(data.pagination);
-      })
-      .catch((error) => {
-        if (controller.signal.aborted) return;
-        setLeads([]);
-        setTableError(error.message || 'Could not load leads');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setTableLoading(false);
-      });
-    return () => controller.abort();
-  }, [globalParams, tableFilters, customReady, reloadKey]);
-
-  const onTableChange = useCallback((patch) => {
-    setTableFilters((current) => ({ ...current, ...patch }));
-  }, []);
-
   const downloadExport = async (kind) => {
     setExporting(true);
     try {
-      const started = await startAnalyticsExport({ ...globalParams, ...tableFilters, kind });
+      const started = await startAnalyticsExport({ ...globalParams, kind });
       const payload = typeof started.data === 'string' ? JSON.parse(started.data) : started.data;
       if (!payload?.jobId) throw new Error(payload?.message || 'Export did not start');
       for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -242,18 +190,12 @@ const AnalyticsPage = () => {
     setOwnerId('');
     setLocation('');
     setGrain('');
-    setTableFilters(EMPTY_TABLE);
   };
 
   const openStage = (move) => {
     if (!move) return;
     if (move.go === 'city' && move.city) {
       setLocation(move.city);
-      return;
-    }
-    if (move.go === 'attribution') {
-      setTableFilters((current) => ({ ...current, missingAttribution: 'yes', page: 1 }));
-      setView('leads');
       return;
     }
     if (move.go === 'campaigns' || move.go === 'leads' || move.go === 'places' || move.go === 'creatives' || move.go === 'overview') {
@@ -394,7 +336,7 @@ const AnalyticsPage = () => {
               view === id ? 'border-brand-yellow text-brand-navy' : 'border-transparent text-brand-muted'
             }`}
           >
-            {label}{id === 'leads' && pagination.total > 0 ? ` ${formatNumber(pagination.total)}` : ''}
+            {label}
           </button>
         ))}
       </div>
@@ -422,59 +364,14 @@ const AnalyticsPage = () => {
       )}
 
       {view === 'campaigns' && (
-        summaryLoading ? <p className="text-sm text-brand-muted">Loading campaigns…</p> : summary && (
-          <div className="min-w-0 max-w-full space-y-4">
-            <PerformanceTables
-              channels={summary.channels || []}
-              campaigns={summary.campaigns || []}
-              onCampaign={setCampaign}
-              showChannels={false}
-              onExport={() => downloadExport('campaigns')}
-              exporting={exporting}
-            />
-          </div>
-        )
+        <div className="min-w-0 max-w-full">
+          <CampaignRecords platform={platform} />
+        </div>
       )}
 
       {view === 'leads' && (
-        <div className="min-w-0 max-w-full space-y-4">
-          {!summaryLoading && summary && (
-            <FunnelSection funnel={summary.funnel} onSelectStage={(stage) => onTableChange({ stage, page: 1 })} />
-          )}
-          <div className="grid min-w-0 items-start gap-4 xl:grid-cols-12">
-            <div className="xl:col-span-8">
-              <AnalyticsLeadTable
-                leads={leads}
-                pagination={pagination}
-                filters={tableFilters}
-                loading={tableLoading}
-                error={tableError}
-                onChange={onTableChange}
-                onOpen={setSelected}
-                selectedId={selected?.id}
-                stageCounts={Object.fromEntries((summary?.funnel?.stages || []).map((stage) => [stage.key, stage.count]).concat([['lost', summary?.funnel?.outcomes?.lost || 0]]))}
-              />
-            </div>
-            <div className="hidden xl:col-span-4 xl:block">
-              {selected && !narrow ? (
-                <LeadDrawer embedded lead={selected} owners={owners} onClose={() => setSelected(null)} onSaved={() => setReloadKey((value) => value + 1)} />
-              ) : (
-                <div className="rounded-2xl border border-brand-yellow/40 bg-white px-4 py-10 text-center text-sm text-brand-muted">
-                  Select a lead to see contact details, the activity timeline, notes, and follow-up actions.
-                </div>
-              )}
-            </div>
-          </div>
-          {!summaryLoading && summary && (
-            <ActionCenter
-              actions={summary.actions}
-              onOpenLead={setSelected}
-              onViewCampaign={(key) => {
-                setCampaign(key);
-                setView('campaigns');
-              }}
-            />
-          )}
+        <div className="min-w-0 max-w-full">
+          <MetaLeadRecords />
         </div>
       )}
 
@@ -501,10 +398,6 @@ const AnalyticsPage = () => {
           {(summary?.limitations || []).map((line) => <li key={line}>{line}</li>)}
         </ul>
       </details>
-
-      {selected && (view !== 'leads' || narrow) && (
-        <LeadDrawer lead={selected} owners={owners} onClose={() => setSelected(null)} onSaved={() => setReloadKey((value) => value + 1)} />
-      )}
 
       {filtersOpen && (
         <div className="fixed inset-0 z-[60] lg:hidden">

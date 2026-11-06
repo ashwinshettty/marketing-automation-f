@@ -1,4 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { uploadStoryAsset } from '../api/storyApi';
+import { createVideoRequest } from '../api/videoApi';
 
 const MODES = [
   { value: 'ref-to-video', label: 'Ref-to-video' },
@@ -20,6 +22,10 @@ const DURATIONS = [
 const QUANTITIES = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const USD_PER_1K_TOKENS = 0.0107;
+const SERIES_STORAGE_KEY = 'story-series-id';
+const CAMPAIGN_STORAGE_KEY = 'ads-campaign-id';
+/** Force ads path for Video Generator manual tests (intent router still records reason). */
+const DEFAULT_WORKFLOW_HINT = 'ads';
 
 const RESOLUTION_TOKEN_WEIGHT = {
   '480P': 0.7,
@@ -106,7 +112,8 @@ const VideoGeneratorPage = () => {
   const modeMenuRef = useRef(null);
   const settingsMenuRef = useRef(null);
   const mentionMenuRef = useRef(null);
-  const burnRafRef = useRef(null);
+  const seriesIdRef = useRef(sessionStorage.getItem(SERIES_STORAGE_KEY) || '');
+  const campaignIdRef = useRef(sessionStorage.getItem(CAMPAIGN_STORAGE_KEY) || '');
 
   const [prompt, setPrompt] = useState('');
   const [mode, setMode] = useState('ref-to-video');
@@ -124,9 +131,10 @@ const VideoGeneratorPage = () => {
   const [mentionQuery, setMentionQuery] = useState('');
   const [mentionStart, setMentionStart] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
-  const [isBurning, setIsBurning] = useState(false);
+  const [isBurning] = useState(false);
   const [burnedTokens, setBurnedTokens] = useState(0);
-  const [sessionBurned, setSessionBurned] = useState(0);
+  const [sessionBurned] = useState(0);
+  const [planning, setPlanning] = useState(false);
 
   const estimatedTokens = useMemo(
     () =>
@@ -177,49 +185,6 @@ const VideoGeneratorPage = () => {
     if (isBurning) return;
     setBurnedTokens(0);
   }, [estimatedTokens, isBurning]);
-
-  useEffect(
-    () => () => {
-      if (burnRafRef.current) cancelAnimationFrame(burnRafRef.current);
-    },
-    [],
-  );
-
-  const stopBurn = () => {
-    if (burnRafRef.current) cancelAnimationFrame(burnRafRef.current);
-    burnRafRef.current = null;
-    setIsBurning(false);
-  };
-
-  const startBurnSimulation = (targetTokens) => {
-    stopBurn();
-    setIsBurning(true);
-    setBurnedTokens(0);
-    const startedAt = performance.now();
-    const durationMs = Math.min(14000, Math.max(2800, targetTokens / 18));
-
-    const tick = (now) => {
-      const elapsed = now - startedAt;
-      const t = Math.min(1, elapsed / durationMs);
-      const eased = 1 - (1 - t) ** 2.2;
-      setBurnedTokens(targetTokens * eased);
-
-      if (t < 1) {
-        burnRafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      setBurnedTokens(targetTokens);
-      setSessionBurned((total) => total + targetTokens);
-      setIsBurning(false);
-      burnRafRef.current = null;
-      setStatusMessage(
-        'Simulated burn finished. Connect Seedance 2.5 to stream live usage here.',
-      );
-    };
-
-    burnRafRef.current = requestAnimationFrame(tick);
-  };
 
   const syncMentionState = (text, caret) => {
     const active = getActiveMention(text, caret);
@@ -316,18 +281,95 @@ const VideoGeneratorPage = () => {
     });
   };
 
-  const handleGenerate = (event) => {
+  const handleGenerate = async (event) => {
     event.preventDefault();
     if (!prompt.trim()) {
       setStatusMessage('Add a prompt before generating.');
       return;
     }
-    if (isBurning) return;
+    if (isBurning || planning) return;
     setModeOpen(false);
     setSettingsOpen(false);
     setMentionOpen(false);
-    setStatusMessage('Burning tokens… Seedance API not connected yet.');
-    startBurnSimulation(estimatedTokens);
+    setPlanning(true);
+    setStatusMessage('');
+    try {
+      const referenceAssetIds = [];
+      for (const item of references) {
+        if (item.assetId) {
+          referenceAssetIds.push(item.assetId);
+          continue;
+        }
+        if (!item.file) continue;
+        const created = await uploadStoryAsset({
+          file: item.file,
+          type: item.type === 'video' ? 'video' : 'character_image',
+          seriesId: seriesIdRef.current || undefined,
+          provenance: item.name,
+        });
+        item.assetId = created.data.asset.id;
+        referenceAssetIds.push(item.assetId);
+      }
+      const seconds = Number(duration);
+      const durationSeconds = Number.isInteger(seconds)
+        ? seconds
+        : (DURATION_SECONDS[duration] ?? 8);
+      const wantsNewCampaign = /\b(?:create|start|begin|open)\s+(?:a\s+)?new\b[\s\S]{0,48}\bcampaign\b/i
+        .test(prompt.trim());
+      const result = await createVideoRequest({
+        prompt: prompt.trim(),
+        workflowHint: DEFAULT_WORKFLOW_HINT,
+        ...(campaignIdRef.current && !wantsNewCampaign
+          ? { campaignId: campaignIdRef.current }
+          : {}),
+        ...(wantsNewCampaign || !campaignIdRef.current
+          ? { startNewCampaign: Boolean(wantsNewCampaign || !campaignIdRef.current) }
+          : {}),
+        ...(seriesIdRef.current ? { seriesId: seriesIdRef.current } : {}),
+        ...(referenceAssetIds.length ? { referenceAssetIds } : {}),
+        durationSeconds,
+        aspectRatio: aspectRatio === 'Smart' ? '16:9' : aspectRatio,
+        platform: 'instagram',
+        sound: soundOn,
+        quantity,
+        requestedMode: mode,
+        resolution,
+        format,
+        idempotencyKey: crypto.randomUUID(),
+      });
+      const workflow = result.data?.workflow || result.data?.routing?.workflow || '';
+      const nextCampaignId = result.data?.campaign?.id || '';
+      if (nextCampaignId) {
+        campaignIdRef.current = nextCampaignId;
+        sessionStorage.setItem(CAMPAIGN_STORAGE_KEY, nextCampaignId);
+      }
+      const nextSeriesId = result.data?.series?.id || '';
+      if (nextSeriesId) {
+        seriesIdRef.current = nextSeriesId;
+        sessionStorage.setItem(SERIES_STORAGE_KEY, nextSeriesId);
+      }
+      const tracePath = result.data?.runTrace?.mdPath || '';
+      const tokens = result.data?.llm?.totalTokens;
+      const cost = result.data?.llm?.estimatedCost;
+      setStatusMessage(
+        [
+          `${workflow || 'video'} plan saved. Video generation was not invoked.`,
+          tokens != null ? `Tokens: ${tokens}.` : null,
+          cost != null ? `Est. LLM cost: $${cost}.` : null,
+          tracePath ? `Run trace: ${tracePath}` : null,
+        ].filter(Boolean).join(' '),
+      );
+    } catch (error) {
+      const tracePath = error.body?.data?.runTrace?.mdPath;
+      setStatusMessage(
+        [
+          error.message || 'The request could not be planned.',
+          tracePath ? `Run trace: ${tracePath}` : null,
+        ].filter(Boolean).join(' '),
+      );
+    } finally {
+      setPlanning(false);
+    }
   };
 
   const burnProgress =
@@ -691,7 +733,7 @@ const VideoGeneratorPage = () => {
 
               <button
                 type="submit"
-                disabled={isBurning}
+                disabled={isBurning || planning}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#7aa2ff] text-white shadow-md transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Generate video"
                 title="Generate video"

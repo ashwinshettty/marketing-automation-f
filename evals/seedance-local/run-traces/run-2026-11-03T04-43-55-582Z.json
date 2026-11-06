@@ -1,0 +1,94 @@
+{
+  "startedAt": "2026-11-03T04:43:55.582Z",
+  "finishedAt": "2026-11-03T04:43:57.438Z",
+  "ownerId": "user_batch-02_1793681035582",
+  "correlationId": "283de70a-6a1e-49a5-947e-e99424d03d97",
+  "userPrompt": "Make a funny ad for students who hate geometry.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 3,
+      "at": "2026-11-03T04:43:55.585Z",
+      "detail": {
+        "requestId": "9e49afdf-9728-4b0b-b782-13889523c510",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 1848,
+      "at": "2026-11-03T04:43:57.430Z",
+      "detail": {
+        "workflow": "unknown",
+        "intent": "clarification_required",
+        "continuityMode": "none",
+        "confidence": 0.48,
+        "reason": "Lesson and advertisement signals are balanced; purpose is ambiguous.",
+        "signals": [
+          "lesson_purpose_language",
+          "ads_purpose_language",
+          "balanced_signals",
+          "llm_classification_failed"
+        ],
+        "requiresClarification": true
+      }
+    },
+    {
+      "name": "clarification_required",
+      "atMs": 1854,
+      "at": "2026-11-03T04:43:57.436Z",
+      "detail": {
+        "question": "Should this be an educational lesson video or a marketing advertisement?"
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "unknown",
+    "intent": "clarification_required",
+    "continuityMode": "none",
+    "tone": [
+      "funny"
+    ],
+    "targetAudience": null,
+    "confidence": 0.48,
+    "requiresClarification": true,
+    "clarificationQuestion": "Should this be an educational lesson video or a marketing advertisement?",
+    "reason": "Lesson and advertisement signals are balanced; purpose is ambiguous.",
+    "signals": [
+      "lesson_purpose_language",
+      "ads_purpose_language",
+      "balanced_signals",
+      "llm_classification_failed"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "unknown",
+  "selectedPath": "unknown / clarification_required",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": [
+      "funny"
+    ]
+  },
+  "audience": {
+    "audienceCategory": null,
+    "audienceDescription": null,
+    "targetAudienceLegacy": null
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "continuityProvenance": null,
+  "errors": []
+}

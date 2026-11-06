@@ -1,0 +1,215 @@
+{
+  "startedAt": "2026-11-02T04:41:55.772Z",
+  "finishedAt": "2026-11-02T04:41:55.837Z",
+  "ownerId": "user-1",
+  "correlationId": "8e26ee25-acb1-4fa5-ac2b-dea97968f63c",
+  "userPrompt": "Create a funny Instagram ad for my café.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 3,
+      "at": "2026-11-02T04:41:55.775Z",
+      "detail": {
+        "requestId": "4a456b13-7548-4c5a-bd93-648f4e58688a",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": null,
+        "aspectRatio": null
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 5,
+      "at": "2026-11-02T04:41:55.777Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.92,
+        "reason": "Purpose language indicates a marketing advertisement outcome.",
+        "signals": [
+          "ads_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 9,
+      "at": "2026-11-02T04:41:55.781Z",
+      "detail": {
+        "tone": [
+          "funny"
+        ],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 11,
+      "at": "2026-11-02T04:41:55.783Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_continuity_resolved",
+      "atMs": 21,
+      "at": "2026-11-02T04:41:55.793Z",
+      "detail": {
+        "action": "new_campaign",
+        "sequenceNumber": 1,
+        "createdCampaign": true,
+        "campaignId": "bf04e306-263f-40ac-9192-7ca5ae4fccb0"
+      }
+    },
+    {
+      "name": "ads_intent_classified",
+      "atMs": 30,
+      "at": "2026-11-02T04:41:55.802Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "reason": "The request starts a new campaign."
+      }
+    },
+    {
+      "name": "ads_llm_planning_start",
+      "atMs": 37,
+      "at": "2026-11-02T04:41:55.809Z",
+      "detail": {
+        "hasLlm": false,
+        "brandName": null
+      }
+    },
+    {
+      "name": "ads_llm_planning_finished",
+      "atMs": 39,
+      "at": "2026-11-02T04:41:55.811Z",
+      "detail": {
+        "calls": 0,
+        "repairs": 0,
+        "hasPlan": true,
+        "model": null,
+        "provider": null,
+        "llmInvocationCount": 0
+      }
+    },
+    {
+      "name": "ads_plan_committed",
+      "atMs": 62,
+      "at": "2026-11-02T04:41:55.834Z",
+      "detail": {
+        "intent": "NEW_CAMPAIGN",
+        "campaignId": "bf04e306-263f-40ac-9192-7ca5ae4fccb0",
+        "adId": "c79ecb47-3c6e-4d1e-8e9a-c820bfad3bdd",
+        "sequenceNumber": 1,
+        "validation": "VALID",
+        "audience": {
+          "audienceCategory": "prospective_customers",
+          "audienceDescription": "prospective customers",
+          "targetAudienceLegacy": "prospective customers"
+        }
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [
+      "funny"
+    ],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.92,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates a marketing advertisement outcome.",
+    "signals": [
+      "ads_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / NEW_CAMPAIGN / new_campaign",
+  "characterOrBrand": {
+    "name": "",
+    "voice": "Clear, friendly, and trustworthy without hype.",
+    "visualStyle": "Bright product moments, clean overlays, high-contrast CTA end cards.",
+    "talentAppearance": "Friendly adult host in neat professional attire.",
+    "talentClothing": "Smart-casual brand colors, clean silhouette, no busy patterns.",
+    "talentPersonality": "Encouraging, precise, and approachable.",
+    "environmentPreferences": "Bright, product-relevant setting with soft natural light.",
+    "version": 1
+  },
+  "storyOrCampaign": {
+    "id": "bf04e306-263f-40ac-9192-7ca5ae4fccb0",
+    "title": "Create a funny Instagram ad for my café.",
+    "objective": "Create a funny Instagram ad for my café.",
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers"
+  },
+  "tone": {
+    "creativeBriefTone": [
+      "funny"
+    ],
+    "routingTones": [
+      "funny"
+    ]
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": {
+    "status": "CANDIDATE_ONLY_NOT_SENT",
+    "seedanceInvoked": false,
+    "text": "Workflow: ads (planning only — Seedance NOT_INVOKED)\nCampaign: Create a funny Instagram ad for my café.\nObjective: Create a funny Instagram ad for my café.\nAudienceCategory: prospective_customers\nAudienceDescription: prospective customers\nTone: funny\nPlatform: general\nAspect: 9:16\nDurationSeconds: 8\nTalent: Friendly adult host in neat professional attire.\nClothing: Smart-casual brand colors, clean silhouette, no busy patterns.\nBrand voice: Clear, friendly, and trustworthy without hype.\nVisual style: Bright product moments, clean overlays, high-contrast CTA end cards.\nEnvironment: Bright, product-relevant setting with soft natural light.\n\nBeats:\nHook: School forms multiplying faster than your coffee?\nProblem: \nDesire: \nProduct reveal: \nProof: \nCTA: Apply today.\n\nVisual action: Quick jump cuts of a parent reacting, then a playful product insert.\nDialogue / spoken script: School forms multiplying faster than your coffee? Inkstall - admissions help before the chaos wins.\nOpening bridge: \n\nScene sequence:\n1. {\"beat\":\"hook\",\"visualAction\":\"Quick jump cuts of a parent reacting, then a playful product insert.\",\"dialogue\":\"School forms multiplying faster than your coffee?\"}\n2. {\"beat\":\"problem\",\"visualAction\":\"Parent freezes in a comic beat at a messy stack of papers.\",\"dialogue\":\"And somehow every tab is still the wrong one.\"}\n3. {\"beat\":\"product_reveal\",\"visualAction\":\"Clean product reveal filling the frame with brand color.\",\"dialogue\":\"Inkstall - admissions help before the chaos wins.\"}\n4. {\"beat\":\"cta\",\"visualAction\":\"End card with logo and offer text holding for two seconds.\",\"dialogue\":\"Apply today.\"}"
+  },
+  "tokens": {
+    "provider": null,
+    "model": null,
+    "calls": 0,
+    "repairs": 0,
+    "latencyMs": null,
+    "inputTokens": null,
+    "outputTokens": null,
+    "cachedTokens": null,
+    "totalTokens": null,
+    "tokenSource": null,
+    "fallbackUsed": false
+  },
+  "cost": {
+    "status": "COST_UNAVAILABLE",
+    "costSource": "unavailable",
+    "estimatedInputUsd": null,
+    "estimatedOutputUsd": null,
+    "estimatedTotalUsd": null,
+    "pricingConfigVersion": "story-llm-usd-per-million-v1",
+    "pricedAt": "2026-11-02T04:41:55.832Z",
+    "inputUsdPerMillion": null,
+    "outputUsdPerMillion": null,
+    "reason": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied.",
+    "videoGenerationUsd": null,
+    "note": "STORY_LLM_INPUT_USD_PER_MILLION and STORY_LLM_OUTPUT_USD_PER_MILLION must both be set. No silent default rate is applied."
+  },
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": {
+    "requestId": "95266df9-9351-4ce2-b4a0-393ab555e5c6",
+    "campaignId": "bf04e306-263f-40ac-9192-7ca5ae4fccb0",
+    "adId": "c79ecb47-3c6e-4d1e-8e9a-c820bfad3bdd"
+  },
+  "errors": []
+}

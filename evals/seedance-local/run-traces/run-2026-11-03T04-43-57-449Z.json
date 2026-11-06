@@ -1,0 +1,90 @@
+{
+  "startedAt": "2026-11-03T04:43:57.449Z",
+  "finishedAt": "2026-11-03T04:43:59.304Z",
+  "ownerId": "user_batch-03_1793681037449",
+  "correlationId": "84bd7d2b-c56c-4ffb-81a9-c33fd9259afc",
+  "userPrompt": "Make an ad showing how Inkstall makes difficult maths concepts easier to understand.",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 3,
+      "at": "2026-11-03T04:43:57.452Z",
+      "detail": {
+        "requestId": "be34f846-d4d4-4e81-97ac-c3fc1bfc8dd5",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 1845,
+      "at": "2026-11-03T04:43:59.294Z",
+      "detail": {
+        "workflow": "unknown",
+        "intent": "clarification_required",
+        "continuityMode": "none",
+        "confidence": 0.48,
+        "reason": "Lesson and advertisement signals are balanced; purpose is ambiguous.",
+        "signals": [
+          "lesson_purpose_language",
+          "ads_purpose_language",
+          "balanced_signals",
+          "llm_classification_failed"
+        ],
+        "requiresClarification": true
+      }
+    },
+    {
+      "name": "clarification_required",
+      "atMs": 1852,
+      "at": "2026-11-03T04:43:59.301Z",
+      "detail": {
+        "question": "Should this be an educational lesson video or a marketing advertisement?"
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "unknown",
+    "intent": "clarification_required",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": null,
+    "confidence": 0.48,
+    "requiresClarification": true,
+    "clarificationQuestion": "Should this be an educational lesson video or a marketing advertisement?",
+    "reason": "Lesson and advertisement signals are balanced; purpose is ambiguous.",
+    "signals": [
+      "lesson_purpose_language",
+      "ads_purpose_language",
+      "balanced_signals",
+      "llm_classification_failed"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "unknown",
+  "selectedPath": "unknown / clarification_required",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": null,
+    "audienceDescription": null,
+    "targetAudienceLegacy": null
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "continuityProvenance": null,
+  "errors": []
+}

@@ -1,0 +1,108 @@
+{
+  "startedAt": "2026-11-03T04:24:56.677Z",
+  "finishedAt": "2026-11-03T04:24:56.717Z",
+  "ownerId": "user_eval_1793679896673",
+  "correlationId": "a9e01719-9dbc-4c97-a067-2c53693be963",
+  "userPrompt": "make an ad for 10th grade maths",
+  "steps": [
+    {
+      "name": "request_received",
+      "atMs": 4,
+      "at": "2026-11-03T04:24:56.681Z",
+      "detail": {
+        "requestId": "64b8b5cb-6e63-420d-a3bf-3f76c88f2c46",
+        "workflowHint": null,
+        "campaignId": null,
+        "seriesId": null,
+        "lessonId": null,
+        "durationSeconds": 8,
+        "aspectRatio": "9:16"
+      }
+    },
+    {
+      "name": "routing_resolved",
+      "atMs": 13,
+      "at": "2026-11-03T04:24:56.690Z",
+      "detail": {
+        "workflow": "ads",
+        "intent": "new_campaign",
+        "continuityMode": "none",
+        "confidence": 0.92,
+        "reason": "Purpose language indicates a marketing advertisement outcome.",
+        "signals": [
+          "ads_purpose_language"
+        ],
+        "requiresClarification": false
+      }
+    },
+    {
+      "name": "ads_creative_brief_built",
+      "atMs": 19,
+      "at": "2026-11-03T04:24:56.696Z",
+      "detail": {
+        "tone": [],
+        "platform": "general",
+        "durationSeconds": 8,
+        "continuityMode": "none",
+        "preferVariation": false
+      }
+    },
+    {
+      "name": "ads_plan_start",
+      "atMs": 21,
+      "at": "2026-11-03T04:24:56.698Z",
+      "detail": {
+        "campaignId": null,
+        "startNewCampaign": null
+      }
+    },
+    {
+      "name": "ads_plan_failed",
+      "atMs": 34,
+      "at": "2026-11-03T04:24:56.711Z",
+      "detail": {
+        "code": "VALIDATION_ERROR",
+        "message": "The ads plan request is invalid."
+      }
+    }
+  ],
+  "llmInvocations": [],
+  "routing": {
+    "workflow": "ads",
+    "intent": "new_campaign",
+    "continuityMode": "none",
+    "tone": [],
+    "targetAudience": "prospective customers",
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "confidence": 0.92,
+    "requiresClarification": false,
+    "clarificationQuestion": null,
+    "reason": "Purpose language indicates a marketing advertisement outcome.",
+    "signals": [
+      "ads_purpose_language"
+    ],
+    "routerVersion": "video-intent-router-v1",
+    "source": "deterministic"
+  },
+  "selectedWorkflow": "ads",
+  "selectedPath": "ads / new_campaign",
+  "characterOrBrand": null,
+  "storyOrCampaign": null,
+  "tone": {
+    "routingTones": []
+  },
+  "audience": {
+    "audienceCategory": "prospective_customers",
+    "audienceDescription": "prospective customers",
+    "targetAudienceLegacy": "prospective customers"
+  },
+  "llmOptimizedPromptForSeedance": null,
+  "tokens": null,
+  "cost": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "resultRefs": null,
+  "continuityProvenance": null,
+  "errors": []
+}

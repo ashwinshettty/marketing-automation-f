@@ -1,0 +1,580 @@
+{
+  "success": true,
+  "code": null,
+  "message": null,
+  "generationStatus": "NOT_INVOKED",
+  "videoGenerationInvoked": false,
+  "data": {
+    "workflow": "lesson",
+    "committed": true,
+    "duplicate": false,
+    "cacheHit": false,
+    "requestId": "a7689291-75da-4057-9892-05499d653c8e",
+    "correlationId": "lesson-continuity-1793595512890",
+    "intent": "STYLE_CHANGE",
+    "intentReason": "The request asks for a visual style change without creating a new character.",
+    "series": {
+      "id": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "title": "Inkstall Biology Series: Plant Life and Growth",
+      "stateVersion": 3,
+      "storyBibleVersion": 1,
+      "coveredConcepts": [],
+      "latestSuccessfulSceneId": null,
+      "activeLessonId": "a179f0b7-4e1e-4eeb-abff-b949d0f58144"
+    },
+    "lesson": {
+      "id": "a179f0b7-4e1e-4eeb-abff-b949d0f58144",
+      "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "characterId": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+      "title": "Plant Biology: Leaves and Food Production",
+      "localDate": "2026-11-02",
+      "timezone": "Asia/Kolkata",
+      "latestSuccessfulSceneId": null,
+      "latestPlannedSceneId": "83f5f437-4b6a-4851-82bd-4a919bd12f2c",
+      "coveredConcepts": [],
+      "status": "active",
+      "createdAt": "2026-11-02T04:58:09.331Z",
+      "updatedAt": "2026-11-02T04:59:13.843Z"
+    },
+    "lessonContinuity": {
+      "action": "continue_lesson_without_prior_success",
+      "sequenceNumber": 2,
+      "previousSuccessfulSceneId": null,
+      "revisesSceneId": null,
+      "redo": false,
+      "bridgeMode": "none"
+    },
+    "character": {
+      "id": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+      "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "version": 1,
+      "referenceAssetIds": [],
+      "appearance": "Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.",
+      "faceRules": "Dark brown eyes, gentle eyebrows, and a calm encouraging smile.",
+      "hairRules": "Neat dark hair combed and tied back neatly, professional and clean.",
+      "clothingRules": "Smart teal top with clean silhouette and dark trousers.",
+      "voice": {
+        "description": "Warm, clear Indian English accent, friendly and articulate teaching delivery.",
+        "referenceAssetId": null
+      },
+      "personality": "Friendly, patient, encouraging, and articulate.",
+      "speakingStyle": "Clear natural Indian English delivery, steady teaching pace, one clear concept at a time.",
+      "environmentPreferences": "Bright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.",
+      "visualStyle": "Realistic classroom lighting, medium framing, warm natural educational colors.",
+      "profileLabel": "Default teacher profile",
+      "profileOrigin": "default",
+      "profileFieldSources": {
+        "appearance": "existing",
+        "faceRules": "existing",
+        "hairRules": "existing",
+        "clothingRules": "existing",
+        "personality": "existing",
+        "speakingStyle": "existing",
+        "visualStyle": "existing",
+        "environmentPreferences": "existing",
+        "voice": "existing"
+      },
+      "permittedVariations": [],
+      "approvedChanges": [
+        {
+          "field": "profile",
+          "description": "Established the labeled default teacher profile.",
+          "previous": "",
+          "at": "2026-11-02T04:58:06.443Z"
+        }
+      ],
+      "createdAt": "2026-11-02T04:58:06.442Z",
+      "updatedAt": "2026-11-02T04:58:06.443Z"
+    },
+    "previousScene": {
+      "id": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+      "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "lessonId": "a179f0b7-4e1e-4eeb-abff-b949d0f58144",
+      "characterId": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+      "sceneNumber": 1,
+      "sequenceNumber": 1,
+      "previousSceneId": null,
+      "previousSuccessfulSceneId": null,
+      "revisesSceneId": null,
+      "userRequest": "In this biology lesson, the tutor introduces leaves and photosynthesis, explaining how leaves help plants prepare food.",
+      "requestedTopic": "In this biology lesson, the tutor introduces lea",
+      "intent": "NEW_TOPIC_SAME_SERIES",
+      "objective": "Introduce leaves and photosynthesis by explaining how leaves help plants make food using sunlight.",
+      "dialogue": "Leaves use chlorophyll to capture sunlight and turn water plus carbon dioxide into food for the plant.",
+      "visualAction": "Tutor stands beside a large leaf diagram on the whiteboard and points to the leaf while speaking.",
+      "openingBridge": "",
+      "status": "planned",
+      "validationStatus": "VALID",
+      "generationStatus": "NOT_INVOKED",
+      "videoAssetId": null,
+      "targetDurationSeconds": 8,
+      "createdAt": "2026-11-02T04:58:32.746Z"
+    },
+    "scene": {
+      "id": "83f5f437-4b6a-4851-82bd-4a919bd12f2c",
+      "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "lessonId": "a179f0b7-4e1e-4eeb-abff-b949d0f58144",
+      "characterId": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+      "sceneNumber": 2,
+      "sequenceNumber": 2,
+      "previousSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+      "previousSuccessfulSceneId": null,
+      "revisesSceneId": null,
+      "userRequest": "Continue the educational story with the exact same tutor character from the previous video. The tutor is continuing the same biology lesson. She now explains how fruits develop from flowers and protect seeds. At the beginning, naturally connect this topic to the previous lesson about leaves and photosynthesis. Include a brief reference equivalent to: “Previously, we learnt how leaves help plants prepare food.” Continue with a friendly, clear Indian English teaching style. Preserve the same tutor's identity, face, clothing, hairstyle, voice, classroom, lighting, teaching personality and visual style. Do not mention the time of day or suggest that this is a different teaching session. Do not introduce a new tutor. Create an approximately 8-second video.",
+      "requestedTopic": "leaves and photosynthesis",
+      "intent": "STYLE_CHANGE",
+      "objective": "Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.",
+      "dialogue": "Fruits grow from flowers and protect the seeds inside.",
+      "visualAction": "Tutor gestures toward a simple flower-to-fruit diagram on the whiteboard.",
+      "openingBridge": "Previously, we learnt how leaves help plants prepare food.",
+      "status": "planned",
+      "validationStatus": "VALID",
+      "generationStatus": "NOT_INVOKED",
+      "videoAssetId": null,
+      "targetDurationSeconds": 8,
+      "createdAt": "2026-11-02T04:59:13.843Z",
+      "openingTransition": "",
+      "endingBeat": "",
+      "characterConstraints": {
+        "preserveIdentity": true,
+        "preserveClothing": true,
+        "preserveEnvironment": true,
+        "requestedChanges": []
+      },
+      "referencedAssetIds": [],
+      "compiledPrompt": "[Character]\nProfile: Default teacher profile\nAppearance: Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.\nFace: Dark brown eyes, gentle eyebrows, and a calm encouraging smile.\nHair: Neat dark hair combed and tied back neatly, professional and clean.\nClothing: Smart teal top with clean silhouette and dark trousers.\nVoice: Warm, clear Indian English accent, friendly and articulate teaching delivery.\nPersonality: Friendly, patient, encouraging, and articulate.\nTeaching style: Clear natural Indian English delivery, steady teaching pace, one clear concept at a time.\nStyle: Realistic classroom lighting, medium framing, warm natural educational colors.\n[Environment]\nBright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.\n[Continuity]\nPrevious scene introduced leaves and photosynthesis for food production; now advancing to fruit development from flowers.\nPrevious planned scene 1: Introduce leaves and photosynthesis by explaining how leaves help plants make food using sunlight.\nRules: Persistent character identity, face, and hairstyle stay fixed unless an approved change says otherwise. Planned scenes are proposals. They are not observed video events.\n[Scene]\nObjective: Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.\nAction: Tutor gestures toward a simple flower-to-fruit diagram on the whiteboard.\nDialogue: Fruits grow from flowers and protect the seeds inside.\nDuration seconds: 8\n[Constraints]\nDo not change face, hairstyle, or identity.\nDo not change clothing.\nDo not change the established environment.\nDo not depict this plan as an observed or already generated video.\nNo character or style changes are authorized in this scene.\n[Assets]\nNo verified reference assets.",
+      "validation": {
+        "status": "VALID",
+        "dialogueFits": true,
+        "estimatedDialogueSeconds": 3.6,
+        "speakingWordsPerSecond": 2.5,
+        "warnings": [],
+        "errors": []
+      },
+      "planningMetadata": {
+        "requestId": "a4b4bf31-0ddc-410b-abd2-847e28cfae58",
+        "classifierIntent": "STYLE_CHANGE",
+        "classifierReason": "The request asks for a visual style change without creating a new character.",
+        "plannerIntent": "NEW_TOPIC_SAME_SERIES",
+        "plannerVersion": "story-planner-v1",
+        "model": "grok-4.3",
+        "cacheHit": false,
+        "llmCalls": 1,
+        "continuityVersion": "story-continuity-v2",
+        "continuityDecisions": {
+          "semanticRetrieval": {
+            "selectedSceneIds": [
+              "19eb5929-7b9d-4975-8031-ecf4ed5d13cd"
+            ],
+            "topMatchSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+            "reason": "Earlier prompts were ranked by embedding similarity, concept overlap, domain path, and narrative usefulness, then filtered for topical compatibility."
+          },
+          "seriesContinuity": {
+            "action": "retain_series",
+            "reason": "Continue within the active series. Topic changes alone do not open a new series."
+          },
+          "characterContinuity": {
+            "action": "change_requires_approval",
+            "reason": "Edits to the active character or style stay on the plan until explicitly approved. Topic similarity never mutates the Character Bible."
+          },
+          "narrativeProgression": {
+            "previousSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+            "previousSceneNumber": 1,
+            "reason": "Narrative predecessor follows the saved scene sequence, not the highest semantic score."
+          }
+        },
+        "semanticTopMatchSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+        "lessonAction": "continue_lesson_without_prior_success",
+        "lessonSequenceNumber": 2,
+        "requestReferenceAssetIds": []
+      },
+      "semanticMetadata": {
+        "promptSummary": "Continue the educational story with the exact same tutor character from the previous video. The tutor is continuing the same biology lesson. She now explains how fruits develop fro",
+        "keywords": [
+          "continue",
+          "educational",
+          "story",
+          "exact",
+          "tutor",
+          "character",
+          "previous",
+          "continuing",
+          "biology",
+          "lesson",
+          "she",
+          "now",
+          "explains",
+          "fruits",
+          "develop",
+          "photosynthesis",
+          "leaves",
+          "seeds",
+          "flowers",
+          "plants"
+        ],
+        "concepts": [
+          "photosynthesis",
+          "leaves",
+          "fruits",
+          "seeds",
+          "flowers",
+          "plants",
+          "fruits develop from flowers",
+          "fruits protect seeds"
+        ],
+        "domain": "biology",
+        "subdomain": "botany",
+        "subjectPath": [
+          "science",
+          "biology",
+          "botany",
+          "photosynthesis"
+        ],
+        "primaryConcept": "photosynthesis",
+        "relatedSceneIds": [
+          "19eb5929-7b9d-4975-8031-ecf4ed5d13cd"
+        ],
+        "semanticModelVersion": "gemini:gemini-embedding-001",
+        "continuityVersion": "story-continuity-v2"
+      },
+      "manifest": {
+        "sceneId": "83f5f437-4b6a-4851-82bd-4a919bd12f2c",
+        "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+        "seriesStateVersion": 3,
+        "characterBibleId": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+        "characterBibleVersion": 1,
+        "storyBibleVersion": 1,
+        "previousSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+        "sceneObjective": "Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.",
+        "finalPrompt": "[Character]\nProfile: Default teacher profile\nAppearance: Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.\nFace: Dark brown eyes, gentle eyebrows, and a calm encouraging smile.\nHair: Neat dark hair combed and tied back neatly, professional and clean.\nClothing: Smart teal top with clean silhouette and dark trousers.\nVoice: Warm, clear Indian English accent, friendly and articulate teaching delivery.\nPersonality: Friendly, patient, encouraging, and articulate.\nTeaching style: Clear natural Indian English delivery, steady teaching pace, one clear concept at a time.\nStyle: Realistic classroom lighting, medium framing, warm natural educational colors.\n[Environment]\nBright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.\n[Continuity]\nPrevious scene introduced leaves and photosynthesis for food production; now advancing to fruit development from flowers.\nPrevious planned scene 1: Introduce leaves and photosynthesis by explaining how leaves help plants make food using sunlight.\nRules: Persistent character identity, face, and hairstyle stay fixed unless an approved change says otherwise. Planned scenes are proposals. They are not observed video events.\n[Scene]\nObjective: Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.\nAction: Tutor gestures toward a simple flower-to-fruit diagram on the whiteboard.\nDialogue: Fruits grow from flowers and protect the seeds inside.\nDuration seconds: 8\n[Constraints]\nDo not change face, hairstyle, or identity.\nDo not change clothing.\nDo not change the established environment.\nDo not depict this plan as an observed or already generated video.\nNo character or style changes are authorized in this scene.\n[Assets]\nNo verified reference assets.",
+        "assetRoles": [],
+        "verifiedAssetIds": [],
+        "requestedDurationSeconds": 8,
+        "visualConstraints": {
+          "appearance": "Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.",
+          "clothing": "Smart teal top with clean silhouette and dark trousers.",
+          "environment": "Bright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.",
+          "style": "Realistic classroom lighting, medium framing, warm natural educational colors.",
+          "preserveIdentity": true,
+          "preserveClothing": true,
+          "preserveEnvironment": true
+        },
+        "audioRequirements": {
+          "voiceReferenceAssetId": null,
+          "description": "Warm, clear Indian English accent, friendly and articulate teaching delivery.",
+          "soundRequested": null
+        },
+        "continuityMode": "style_change",
+        "frameContinuity": false,
+        "validationStatus": "VALID",
+        "warnings": [],
+        "llmUsage": {
+          "provider": "grok",
+          "model": "grok-4.3",
+          "requestedModel": "gemini-2.5-flash",
+          "fallbackUsed": true,
+          "fallbackReason": "rate_limit",
+          "providerAttempts": [
+            {
+              "provider": "gemini",
+              "model": "gemini-2.5-flash",
+              "status": "failed",
+              "classification": "rate_limit",
+              "attempts": 1
+            },
+            {
+              "provider": "openai",
+              "model": "gpt-4o-mini",
+              "status": "failed",
+              "classification": "rate_limit",
+              "attempts": 1
+            },
+            {
+              "provider": "grok",
+              "model": "grok-4.3",
+              "status": "succeeded",
+              "classification": null,
+              "attempts": 1
+            }
+          ],
+          "attemptCount": 3,
+          "plannerVersion": "story-planner-v1",
+          "calls": 1,
+          "cacheHit": false,
+          "inputTokens": 2761,
+          "outputTokens": 521,
+          "totalTokens": 3282,
+          "tokenSource": "measured",
+          "latencyMs": 33006,
+          "retryCount": 0,
+          "estimatedCost": null,
+          "costSource": "unavailable"
+        },
+        "plannerVersion": "story-planner-v1",
+        "generationStatus": "NOT_INVOKED",
+        "videoUrl": null,
+        "observedEvents": null,
+        "providerParameters": null,
+        "generationConstraints": {
+          "aspectRatio": null,
+          "resolution": null,
+          "format": null,
+          "quantity": 1,
+          "requestedMode": null,
+          "provider": null
+        }
+      },
+      "llmUsage": {
+        "provider": "grok",
+        "model": "grok-4.3",
+        "requestedModel": "gemini-2.5-flash",
+        "fallbackUsed": true,
+        "fallbackReason": "rate_limit",
+        "providerAttempts": [
+          {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "openai",
+            "model": "gpt-4o-mini",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "grok",
+            "model": "grok-4.3",
+            "status": "succeeded",
+            "classification": null,
+            "attempts": 1
+          }
+        ],
+        "attemptCount": 3,
+        "plannerVersion": "story-planner-v1",
+        "calls": 1,
+        "cacheHit": false,
+        "inputTokens": 2761,
+        "outputTokens": 521,
+        "totalTokens": 3282,
+        "tokenSource": "measured",
+        "latencyMs": 33006,
+        "retryCount": 0,
+        "estimatedCost": null,
+        "costSource": "unavailable"
+      },
+      "plannedConcepts": [
+        "fruits develop from flowers",
+        "fruits protect seeds"
+      ],
+      "coveredConcepts": [
+        "fruits develop from flowers",
+        "fruits protect seeds"
+      ],
+      "videoUrl": null,
+      "observedEvents": null
+    },
+    "manifest": {
+      "sceneId": "83f5f437-4b6a-4851-82bd-4a919bd12f2c",
+      "seriesId": "bb6f9370-324b-453b-bc01-f373bd712098",
+      "seriesStateVersion": 3,
+      "characterBibleId": "2de6c7ec-7382-4841-87e4-1eca13d9f636",
+      "characterBibleVersion": 1,
+      "storyBibleVersion": 1,
+      "previousSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+      "sceneObjective": "Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.",
+      "finalPrompt": "[Character]\nProfile: Default teacher profile\nAppearance: Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.\nFace: Dark brown eyes, gentle eyebrows, and a calm encouraging smile.\nHair: Neat dark hair combed and tied back neatly, professional and clean.\nClothing: Smart teal top with clean silhouette and dark trousers.\nVoice: Warm, clear Indian English accent, friendly and articulate teaching delivery.\nPersonality: Friendly, patient, encouraging, and articulate.\nTeaching style: Clear natural Indian English delivery, steady teaching pace, one clear concept at a time.\nStyle: Realistic classroom lighting, medium framing, warm natural educational colors.\n[Environment]\nBright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.\n[Continuity]\nPrevious scene introduced leaves and photosynthesis for food production; now advancing to fruit development from flowers.\nPrevious planned scene 1: Introduce leaves and photosynthesis by explaining how leaves help plants make food using sunlight.\nRules: Persistent character identity, face, and hairstyle stay fixed unless an approved change says otherwise. Planned scenes are proposals. They are not observed video events.\n[Scene]\nObjective: Connect leaves and photosynthesis to the new topic and explain how fruits develop from flowers to protect seeds.\nAction: Tutor gestures toward a simple flower-to-fruit diagram on the whiteboard.\nDialogue: Fruits grow from flowers and protect the seeds inside.\nDuration seconds: 8\n[Constraints]\nDo not change face, hairstyle, or identity.\nDo not change clothing.\nDo not change the established environment.\nDo not depict this plan as an observed or already generated video.\nNo character or style changes are authorized in this scene.\n[Assets]\nNo verified reference assets.",
+      "assetRoles": [],
+      "verifiedAssetIds": [],
+      "requestedDurationSeconds": 8,
+      "visualConstraints": {
+        "appearance": "Friendly adult Indian science tutor in her early 30s, warm medium-brown skin, and a round approachable face.",
+        "clothing": "Smart teal top with clean silhouette and dark trousers.",
+        "environment": "Bright modern science classroom with a whiteboard, laboratory posters, and soft natural lighting.",
+        "style": "Realistic classroom lighting, medium framing, warm natural educational colors.",
+        "preserveIdentity": true,
+        "preserveClothing": true,
+        "preserveEnvironment": true
+      },
+      "audioRequirements": {
+        "voiceReferenceAssetId": null,
+        "description": "Warm, clear Indian English accent, friendly and articulate teaching delivery.",
+        "soundRequested": null
+      },
+      "continuityMode": "style_change",
+      "frameContinuity": false,
+      "validationStatus": "VALID",
+      "warnings": [],
+      "llmUsage": {
+        "provider": "grok",
+        "model": "grok-4.3",
+        "requestedModel": "gemini-2.5-flash",
+        "fallbackUsed": true,
+        "fallbackReason": "rate_limit",
+        "providerAttempts": [
+          {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "openai",
+            "model": "gpt-4o-mini",
+            "status": "failed",
+            "classification": "rate_limit",
+            "attempts": 1
+          },
+          {
+            "provider": "grok",
+            "model": "grok-4.3",
+            "status": "succeeded",
+            "classification": null,
+            "attempts": 1
+          }
+        ],
+        "attemptCount": 3,
+        "plannerVersion": "story-planner-v1",
+        "calls": 1,
+        "cacheHit": false,
+        "inputTokens": 2761,
+        "outputTokens": 521,
+        "totalTokens": 3282,
+        "tokenSource": "measured",
+        "latencyMs": 33006,
+        "retryCount": 0,
+        "estimatedCost": null,
+        "costSource": "unavailable"
+      },
+      "plannerVersion": "story-planner-v1",
+      "generationStatus": "NOT_INVOKED",
+      "videoUrl": null,
+      "observedEvents": null,
+      "providerParameters": null,
+      "generationConstraints": {
+        "aspectRatio": null,
+        "resolution": null,
+        "format": null,
+        "quantity": 1,
+        "requestedMode": null,
+        "provider": null
+      }
+    },
+    "validation": {
+      "status": "VALID",
+      "dialogueFits": true,
+      "estimatedDialogueSeconds": 3.6,
+      "speakingWordsPerSecond": 2.5,
+      "warnings": [],
+      "errors": []
+    },
+    "llm": {
+      "provider": "grok",
+      "model": "grok-4.3",
+      "requestedModel": "gemini-2.5-flash",
+      "fallbackUsed": true,
+      "fallbackReason": "rate_limit",
+      "providerAttempts": [
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-flash",
+          "status": "failed",
+          "classification": "rate_limit",
+          "attempts": 1
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "status": "failed",
+          "classification": "rate_limit",
+          "attempts": 1
+        },
+        {
+          "provider": "grok",
+          "model": "grok-4.3",
+          "status": "succeeded",
+          "classification": null,
+          "attempts": 1
+        }
+      ],
+      "attemptCount": 3,
+      "plannerVersion": "story-planner-v1",
+      "calls": 1,
+      "cacheHit": false,
+      "inputTokens": 2761,
+      "outputTokens": 521,
+      "totalTokens": 3282,
+      "tokenSource": "measured",
+      "latencyMs": 33006,
+      "retryCount": 0,
+      "estimatedCost": null,
+      "costSource": "unavailable"
+    },
+    "continuity": {
+      "principle": "Topic similarity selects relevant history. It does not, by itself, change the character.",
+      "decisions": {
+        "semanticRetrieval": {
+          "selectedSceneIds": [
+            "19eb5929-7b9d-4975-8031-ecf4ed5d13cd"
+          ],
+          "topMatchSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+          "reason": "Earlier prompts were ranked by embedding similarity, concept overlap, domain path, and narrative usefulness, then filtered for topical compatibility."
+        },
+        "seriesContinuity": {
+          "action": "retain_series",
+          "reason": "Continue within the active series. Topic changes alone do not open a new series."
+        },
+        "characterContinuity": {
+          "action": "change_requires_approval",
+          "reason": "Edits to the active character or style stay on the plan until explicitly approved. Topic similarity never mutates the Character Bible."
+        },
+        "narrativeProgression": {
+          "previousSceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+          "previousSceneNumber": 1,
+          "reason": "Narrative predecessor follows the saved scene sequence, not the highest semantic score."
+        }
+      },
+      "relevantScenes": [
+        {
+          "sceneId": "19eb5929-7b9d-4975-8031-ecf4ed5d13cd",
+          "sceneNumber": 1,
+          "score": 0.7735,
+          "interpretation": "strong"
+        }
+      ]
+    },
+    "routing": {
+      "workflow": "lesson",
+      "intent": "continue_lesson",
+      "continuityMode": "sequential",
+      "tone": [
+        "educational"
+      ],
+      "targetAudience": "learners",
+      "audienceCategory": "learners",
+      "audienceDescription": "learners",
+      "confidence": 0.97,
+      "requiresClarification": false,
+      "clarificationQuestion": null,
+      "reason": "Purpose language indicates an educational lesson outcome.",
+      "signals": [
+        "series_context_present",
+        "lesson_purpose_language",
+        "academic_subject",
+        "narrative_teaching",
+        "continuation_language"
+      ],
+      "routerVersion": "video-intent-router-v1",
+      "source": "deterministic"
+    },
+    "runTrace": {
+      "mdPath": "evals\\seedance-local\\run-traces\\run-2026-11-02T04-58-32-887Z.md",
+      "jsonPath": "evals\\seedance-local\\run-traces\\run-2026-11-02T04-58-32-887Z.json",
+      "selectedWorkflow": "lesson"
+    }
+  }
+}
