@@ -418,11 +418,17 @@ const VideoGeneratorPage = () => {
         );
       }
     } catch (error) {
-      const tracePath = error.body?.data?.runTrace?.mdPath;
+      const data = error.body?.data || {};
+      const tracePath = data.runTrace?.mdPath;
+      const detail = [
+        data.errorClass || data.failureCategory || error.body?.code || null,
+        data.providerMessage || null,
+      ].filter(Boolean).join(': ');
       setGenerationStatus(error.body?.generationStatus || 'FAILED');
       setStatusMessage(
         [
           error.message || 'The request could not be planned.',
+          detail || null,
           tracePath ? `Run trace: ${tracePath}` : null,
         ].filter(Boolean).join(' '),
       );
