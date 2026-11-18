@@ -249,6 +249,25 @@ export const LeadProvider = ({ children }) => {
     );
   }, []);
 
+  const removeLeadFromList = useCallback((leadId) => {
+    setLeads((current) => current.filter((item) => item.id !== leadId));
+    setSelectedLead((current) => (current?.id === leadId ? null : current));
+    setPagination((current) => {
+      const nextTotal = Math.max(0, (current.total || 0) - 1);
+      const nextTotalPages = Math.max(
+        1,
+        Math.ceil(nextTotal / (current.limit || DEFAULT_PAGE_SIZE)) || 1,
+      );
+      return {
+        ...current,
+        total: nextTotal,
+        totalPages: nextTotalPages,
+        hasNextPage: current.page < nextTotalPages,
+        hasPrevPage: current.page > 1,
+      };
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       leads,
@@ -263,6 +282,7 @@ export const LeadProvider = ({ children }) => {
       loadLeads,
       goToPage,
       updateLeadInList,
+      removeLeadFromList,
       selectedLead,
       selectedLeadId: selectedLead?.id ?? null,
       selectLead,
@@ -282,6 +302,7 @@ export const LeadProvider = ({ children }) => {
       loadLeads,
       goToPage,
       updateLeadInList,
+      removeLeadFromList,
       selectedLead,
       selectLead,
       selectLeadById,

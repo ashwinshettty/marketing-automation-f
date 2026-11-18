@@ -70,7 +70,7 @@ export const PRIMARY_SECTIONS = [
       {
         id: 'campaigns-more',
         collapsible: true,
-        defaultOpen: false,
+        defaultOpen: true,
         label: 'More',
         items: [
           { id: 'assets', label: 'Assets', path: `${GOOGLE_ADS_BASE}/campaigns/assets` },
@@ -78,6 +78,38 @@ export const PRIMARY_SECTIONS = [
             id: 'audiences',
             label: 'Audiences, keywords, and content',
             path: `${GOOGLE_ADS_BASE}/campaigns/audiences`,
+            children: [
+              {
+                id: 'keywords',
+                label: 'Keywords',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences/keywords`,
+              },
+              {
+                id: 'audiences-list',
+                label: 'Audiences',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences`,
+              },
+              {
+                id: 'locations',
+                label: 'Locations',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences/locations`,
+              },
+              {
+                id: 'content',
+                label: 'Content',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences/content`,
+              },
+              {
+                id: 'ad-schedule',
+                label: 'Ad schedule',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences/ad-schedule`,
+              },
+              {
+                id: 'bid-adjustments',
+                label: 'Advanced bid adjustments',
+                path: `${GOOGLE_ADS_BASE}/campaigns/audiences/bid-adjustments`,
+              },
+            ],
           },
           {
             id: 'change-history',

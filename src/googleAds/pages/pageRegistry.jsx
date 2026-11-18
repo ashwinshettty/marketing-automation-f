@@ -16,17 +16,9 @@ export const PAGE_REGISTRY = {
     'Auction insights, search terms, landing pages, and where ads showed.',
     ['Search terms', 'Auction insights', 'Devices and locations', 'Report editor'],
   ),
-  [`/google-ads/campaigns/ad-groups`]: page(
-    'Ad groups',
-    'Organize keywords and ads into tightly themed ad groups.',
-  ),
   [`/google-ads/campaigns/ads`]: page(
     'Ads',
     'Manage responsive search ads and other ad formats.',
-  ),
-  [`/google-ads/campaigns/asset-groups`]: page(
-    'Asset groups',
-    'Asset groups used by Performance Max campaigns.',
   ),
   [`/google-ads/campaigns/experiments`]: page(
     'Experiments',
@@ -35,14 +27,6 @@ export const PAGE_REGISTRY = {
   [`/google-ads/campaigns/campaign-groups`]: page(
     'Campaign groups',
     'Group related campaigns for shared reporting and budgets.',
-  ),
-  [`/google-ads/campaigns/assets`]: page(
-    'Assets',
-    'Sitelinks, callouts, images, and other assets linked to campaigns.',
-  ),
-  [`/google-ads/campaigns/audiences`]: page(
-    'Audiences, keywords, and content',
-    'Search keywords, audiences, locations, ad schedule, and content exclusions.',
   ),
   [`/google-ads/campaigns/change-history`]: page(
     'Change history',

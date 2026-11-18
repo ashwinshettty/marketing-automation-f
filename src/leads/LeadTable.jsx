@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSmsLeadStatuses } from '../api/smsApi';
+import { deleteStudent } from '../api/studentApi';
+import ConfirmModal from '../components/ConfirmModal';
 import SmsSendModal from '../components/sms/SmsSendModal';
 import { useLead } from '../context/LeadContext';
+import { toast } from '../utils/toast';
 import LeadEditModal from './lead-details/LeadEditModal';
 
-const ActionButton = ({ label, onClick, children, className = '' }) => (
+const ActionButton = ({ label, onClick, children, className = '', disabled = false }) => (
   <button
     type="button"
     onClick={onClick}
     aria-label={label}
-    className={`rounded-lg p-2 transition ${className}`}
+    disabled={disabled}
+    className={`rounded-lg p-2 transition disabled:cursor-not-allowed ${className}`}
   >
     {children}
   </button>
@@ -66,9 +70,22 @@ const LeadTypeBadge = ({ lead }) => {
 
 const LeadTable = () => {
   const navigate = useNavigate();
-  const { leads, loading, error, pagination, goToPage, selectLead, updateLeadInList, appliedFilters } =
-    useLead();
+  const {
+    leads,
+    loading,
+    error,
+    pagination,
+    goToPage,
+    selectLead,
+    updateLeadInList,
+    removeLeadFromList,
+    loadLeads,
+    appliedFilters,
+  } = useLead();
   const [editingLead, setEditingLead] = useState(null);
+  const [leadToDelete, setLeadToDelete] = useState(null);
+  const [deletingId, setDeletingId] = useState('');
+  const [actionError, setActionError] = useState('');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [smsModal, setSmsModal] = useState(null);
   const [bulkCount, setBulkCount] = useState('50');
@@ -131,7 +148,39 @@ const LeadTable = () => {
   };
 
   const handleEdit = (lead) => setEditingLead(lead);
-  const handleDelete = (lead) => console.log('Delete lead:', lead.id);
+
+  const handleDeleteClick = (lead) => {
+    setActionError('');
+    setLeadToDelete(lead);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!leadToDelete) return;
+
+    try {
+      setDeletingId(leadToDelete.id);
+      setActionError('');
+      await deleteStudent(leadToDelete.id, { type: leadToDelete.type });
+      removeLeadFromList(leadToDelete.id);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(leadToDelete.id);
+        return next;
+      });
+      toast.success(`“${leadToDelete.name}” deleted successfully`);
+      setLeadToDelete(null);
+      if (leads.length <= 1 && pagination.page > 1) {
+        loadLeads(pagination.page - 1);
+      } else {
+        loadLeads(pagination.page, { silent: true });
+      }
+    } catch (err) {
+      setActionError(err.message || 'Failed to delete lead');
+      toast.error(err.message || 'Failed to delete lead');
+    } finally {
+      setDeletingId('');
+    }
+  };
 
   const openBulkLimit = () => {
     const n = Math.min(500, Math.max(1, Number(bulkCount) || 0));
@@ -180,6 +229,12 @@ const LeadTable = () => {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-brand-yellow/40 bg-white shadow-sm">
+        {actionError && (
+          <div className="border-b border-red-100 bg-red-50 px-5 py-3 text-sm text-red-600">
+            {actionError}
+          </div>
+        )}
+
         {loading && (
           <div className="px-5 py-10 text-center text-sm text-brand-muted">
             Loading leads...
@@ -315,8 +370,9 @@ const LeadTable = () => {
                         </ActionButton>
                         <ActionButton
                           label={`Delete ${lead.name}`}
-                          onClick={() => handleDelete(lead)}
-                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteClick(lead)}
+                          disabled={deletingId === lead.id}
+                          className="text-red-600 hover:bg-red-50 disabled:opacity-50"
                         >
                           <DeleteIcon />
                         </ActionButton>
@@ -361,6 +417,22 @@ const LeadTable = () => {
           lead={editingLead}
           onClose={() => setEditingLead(null)}
           onSaved={updateLeadInList}
+        />
+      )}
+
+      {leadToDelete && (
+        <ConfirmModal
+          title="Delete Lead"
+          message={`Are you sure you want to delete "${leadToDelete.name}"? This cannot be undone.`}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          isLoading={deletingId === leadToDelete.id}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => {
+            if (!deletingId) {
+              setLeadToDelete(null);
+            }
+          }}
         />
       )}
 

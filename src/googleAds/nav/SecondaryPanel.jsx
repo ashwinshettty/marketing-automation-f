@@ -7,6 +7,7 @@ function LeafLink({ item, nested = false }) {
   return (
     <NavLink
       to={item.path}
+      end
       className={({ isActive }) =>
         `flex items-center justify-between gap-2 rounded-full px-3 py-2 text-sm transition-colors ${
           nested ? 'ml-3' : ''
@@ -32,41 +33,38 @@ function LeafLink({ item, nested = false }) {
 
 function ExpandableItem({ item }) {
   const { pathname } = useLocation();
-  const childActive = (item.children || []).some((child) => pathname.startsWith(child.path));
-  const [open, setOpen] = useState(childActive || false);
+  const normalized = pathname.replace(/\/$/, '') || pathname;
+  const childActive = (item.children || []).some((child) => {
+    const path = String(child.path || '').replace(/\/$/, '');
+    return normalized === path;
+  });
+  const selfActive = normalized === String(item.path || '').replace(/\/$/, '');
+  const [open, setOpen] = useState(childActive || selfActive || false);
 
   return (
-    <div>
+    <div className={open ? 'rounded-2xl bg-white p-1.5 shadow-sm' : ''}>
       <div className="flex items-center gap-1">
-        <NavLink
-          to={item.path}
-          className={({ isActive }) =>
-            `min-w-0 flex-1 truncate rounded-full px-3 py-2 text-sm transition-colors ${
-              isActive || childActive
-                ? 'bg-[var(--ga-blue)] font-medium text-white'
-                : 'text-[var(--ga-ink)] hover:bg-[var(--ga-hover)]'
-            }`
-          }
-        >
-          {item.label}
-        </NavLink>
         <button
           type="button"
           aria-expanded={open}
-          aria-label={`${open ? 'Collapse' : 'Expand'} ${item.label}`}
           onClick={() => setOpen((value) => !value)}
-          className="rounded-full p-2 text-[var(--ga-muted)] hover:bg-[var(--ga-hover)]"
+          className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-full px-3 py-2 text-left text-sm transition-colors ${
+            open || childActive || selfActive
+              ? 'font-medium text-[var(--ga-blue)]'
+              : 'text-[var(--ga-ink)] hover:bg-[var(--ga-hover)]'
+          }`}
         >
+          <span className="truncate">{item.label}</span>
           <GaIcon
             name="chevron"
-            className={`h-4 w-4 transition-transform ${open ? 'rotate-0' : '-rotate-90'}`}
+            className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : 'rotate-0'}`}
           />
         </button>
       </div>
       {open ? (
-        <div className="mt-1 space-y-0.5 border-l border-[var(--ga-border)] ml-4 pl-1">
+        <div className="mt-0.5 space-y-0.5">
           {(item.children || []).map((child) => (
-            <LeafLink key={child.id} item={child} nested />
+            <LeafLink key={child.id} item={child} />
           ))}
         </div>
       ) : null}

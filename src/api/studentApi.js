@@ -58,3 +58,10 @@ export const updateStudent = async (studentId, payload, { type } = {}) => {
   });
   return unwrap(response);
 };
+
+export const deleteStudent = async (studentId, { type } = {}) => {
+  const response = await authApi.delete(`/leads/${studentId}`, {
+    params: type ? { type } : undefined,
+  });
+  return unwrap(response);
+};

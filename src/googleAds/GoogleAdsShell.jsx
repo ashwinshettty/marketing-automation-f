@@ -1,13 +1,35 @@
-import { Outlet, useLocation, Link } from 'react-router-dom';
+import { Outlet, useLocation, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { GaIcon } from './icons/GoogleAdsIcons';
+import CampaignPickerDropdown from './campaigns/CampaignPickerDropdown';
 import PrimaryRail from './nav/PrimaryRail';
 import SecondaryPanel from './nav/SecondaryPanel';
-import { resolvePrimaryFromPath } from './nav/googleAdsNavConfig';
+import { GOOGLE_ADS_BASE, resolvePrimaryFromPath } from './nav/googleAdsNavConfig';
 import './googleAds.css';
 
 export default function GoogleAdsShell() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const primary = resolvePrimaryFromPath(pathname);
+  const campaignId = searchParams.get('campaignId') || '';
+  const campaignName = searchParams.get('campaign') || '';
+
+  const chooseCampaign = (id, campaign) => {
+    const next = new URLSearchParams(searchParams);
+    if (!id) {
+      next.delete('campaignId');
+      next.delete('campaign');
+    } else {
+      next.set('campaignId', id);
+      next.set('campaign', campaign?.name || '');
+    }
+    const query = next.toString();
+    if (pathname.includes('/overview') || pathname === GOOGLE_ADS_BASE || pathname === `${GOOGLE_ADS_BASE}/`) {
+      navigate({ pathname: `${GOOGLE_ADS_BASE}/overview`, search: query ? `?${query}` : '' });
+      return;
+    }
+    navigate({ pathname, search: query ? `?${query}` : '' });
+  };
 
   return (
     <div className="google-ads-shell flex h-screen min-h-0 flex-col bg-[var(--ga-surface)] text-[var(--ga-ink)]">
@@ -22,10 +44,13 @@ export default function GoogleAdsShell() {
           </Link>
           <div className="h-4 w-px bg-[var(--ga-border)]" />
           <div className="flex min-w-0 items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--ga-border)] px-2.5 py-1">
-              <GaIcon name="home" className="h-3.5 w-3.5 text-[var(--ga-muted)]" />
-              All campaigns
-            </span>
+            <CampaignPickerDropdown
+              campaignId={campaignId}
+              campaignName={campaignName}
+              allowAll
+              allLabel="All campaigns"
+              onChange={chooseCampaign}
+            />
             <span className="truncate text-[var(--ga-muted)]">Inkstall · 104-890-6125</span>
           </div>
         </div>
