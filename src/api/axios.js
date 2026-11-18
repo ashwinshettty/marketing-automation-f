@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { clearAuthSession, getAuthSession } from '../utils/authStorage';
+import { getAuthSession } from '../utils/authStorage';
+import { applyApiAuthFailure } from '../utils/apiAuthFailure';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_INKSTALL_BACKEND_API_URL || 'http://localhost:4000/api',
@@ -25,12 +26,9 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 401) {
-      clearAuthSession();
-
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+    const status = error.response?.status;
+    if (status === 401 || status === 403) {
+      applyApiAuthFailure({ status });
     }
 
     const message =
@@ -41,7 +39,7 @@ api.interceptors.response.use(
 
     const apiError = new Error(message);
     apiError.details = error.response?.data;
-    apiError.status = error.response?.status;
+    apiError.status = status;
 
     return Promise.reject(apiError);
   },

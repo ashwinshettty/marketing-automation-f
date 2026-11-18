@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ImageLightbox from './ImageLightbox';
+import { isProtectedWiUrl, loadProtectedImageSrc } from '../../api/client';
 
 export default function ScreenshotImage({
   src,
@@ -9,8 +10,28 @@ export default function ScreenshotImage({
   buttonClassName = 'block cursor-zoom-in',
 }) {
   const [open, setOpen] = useState(false);
+  const [displaySrc, setDisplaySrc] = useState(() => (isProtectedWiUrl(src) ? null : src));
 
-  if (!src) return null;
+  useEffect(() => {
+    let cancelled = false;
+    if (!src || !isProtectedWiUrl(src)) {
+      setDisplaySrc(src || null);
+      return undefined;
+    }
+    setDisplaySrc(null);
+    loadProtectedImageSrc(src)
+      .then((next) => {
+        if (!cancelled) setDisplaySrc(next);
+      })
+      .catch(() => {
+        if (!cancelled) setDisplaySrc(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  if (!src || !displaySrc) return null;
 
   return (
     <>
@@ -20,12 +41,12 @@ export default function ScreenshotImage({
         className={buttonClassName}
         aria-label={`View full size: ${alt}`}
       >
-        <img src={src} alt={alt} className={className} loading="lazy" />
+        <img src={displaySrc} alt={alt} className={className} loading="lazy" />
       </button>
       <ImageLightbox
         open={open}
         onClose={() => setOpen(false)}
-        src={src}
+        src={displaySrc}
         alt={alt}
         caption={caption}
       />

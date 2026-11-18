@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ButtonCopy from '@/components/smoothui/button-copy';
 import talecraftorLogo from '../../assets/talecraftor-logo.png';
-import { api } from '../../api/client';
+import { api, isProtectedWiUrl, loadProtectedImageSrc } from '../../api/client';
 import { buildOutreachPreviewHtml } from '../../utils/buildOutreachPreviewHtml';
 
 export default function EmailPreview({
@@ -15,6 +15,35 @@ export default function EmailPreview({
   callToAction = 'open_conversation',
 }) {
   const copyPayload = [subject ? `Subject: ${subject}` : '', body || ''].filter(Boolean).join('\n\n');
+  const [resolvedSrc, setResolvedSrc] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const assets = imageAssets || [];
+    Promise.all(assets.map(async (asset) => {
+      const raw = asset.previewUrl
+        || asset.url
+        || (auditId && emailId && asset.id ? api.getOutreachImageUrl(auditId, emailId, asset.id) : null);
+      if (!raw || !isProtectedWiUrl(raw)) return [asset.id || raw, raw];
+      const loaded = await loadProtectedImageSrc(raw);
+      return [asset.id || raw, loaded];
+    })).then((pairs) => {
+      if (cancelled) return;
+      setResolvedSrc(Object.fromEntries(pairs.filter((pair) => pair && pair[0])));
+    }).catch(() => {
+      if (!cancelled) setResolvedSrc({});
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [imageAssets, auditId, emailId]);
+
+  const resolveImageSrc = (asset) => {
+    const key = asset.id || asset.previewUrl || asset.url;
+    if (key && resolvedSrc[key]) return resolvedSrc[key];
+    const raw = asset.previewUrl || asset.url || null;
+    return raw && !isProtectedWiUrl(raw) ? raw : null;
+  };
 
   const srcDoc = useMemo(() => {
     if (!showBranding) {
@@ -24,12 +53,7 @@ export default function EmailPreview({
         imageAssets,
         callToAction,
         logoUrl: null,
-        resolveImageSrc: (asset) =>
-          asset.previewUrl ||
-          asset.url ||
-          (auditId && emailId && asset.id
-            ? api.getOutreachImageUrl(auditId, emailId, asset.id)
-            : null),
+        resolveImageSrc,
       });
     }
 
@@ -41,14 +65,9 @@ export default function EmailPreview({
       brandName: 'Talecraftor',
       website: 'https://talecraftor.com',
       logoUrl: talecraftorLogo,
-      resolveImageSrc: (asset) =>
-        asset.previewUrl ||
-        asset.url ||
-        (auditId && emailId && asset.id
-          ? api.getOutreachImageUrl(auditId, emailId, asset.id)
-          : null),
+      resolveImageSrc,
     });
-  }, [body, subject, imageAssets, callToAction, showBranding, auditId, emailId]);
+  }, [body, subject, imageAssets, callToAction, showBranding, resolvedSrc]);
 
   return (
     <article className="overflow-hidden rounded-lg border border-border">

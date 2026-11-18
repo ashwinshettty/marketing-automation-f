@@ -1,3 +1,5 @@
+import { evaluateSession } from './authSessionPolicy.js';
+
 const AUTH_KEYS = ['token', '_id', 'role', 'username'];
 
 export const saveAuthSession = ({ token, id, role, username }) => {
@@ -14,11 +16,18 @@ export const getAuthSession = () => ({
   username: localStorage.getItem('username'),
 });
 
-export const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
-  const id = localStorage.getItem('_id');
+export const isAuthenticated = (nowMs = Date.now()) => {
+  const session = getAuthSession();
+  const evaluation = evaluateSession(
+    { token: session.token, id: session._id },
+    nowMs,
+  );
+  return evaluation.authenticated;
+};
 
-  return Boolean(token && id);
+export const getSessionEvaluation = (nowMs = Date.now()) => {
+  const session = getAuthSession();
+  return evaluateSession({ token: session.token, id: session._id }, nowMs);
 };
 
 export const clearAuthSession = () => {

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { loginWithOtp, sendOtp } from '../api/authApi';
-import { isAuthenticated, saveAuthSession } from '../utils/authStorage';
+import { getSessionEvaluation, saveAuthSession } from '../utils/authStorage';
+import { resolveLoginLanding } from '../utils/authSessionPolicy';
 import AuthLayout from './AuthLayout';
 
 const OTP_LENGTH = 6;
@@ -47,8 +48,9 @@ const Login = () => {
     }
   }, [step]);
 
-  if (isAuthenticated()) {
-    return <Navigate to="/" replace />;
+  const loginLanding = resolveLoginLanding(getSessionEvaluation());
+  if (loginLanding.redirectTo) {
+    return <Navigate to={loginLanding.redirectTo} replace={loginLanding.replace} />;
   }
 
   const digitsOnlyPhone = phoneNo.replace(/\D/g, '').slice(0, 10);

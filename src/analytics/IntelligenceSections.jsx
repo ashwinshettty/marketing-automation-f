@@ -78,7 +78,7 @@ const IntelligenceSections = ({ summary, onJump, part = 'all' }) => {
           </article>
           <article className={panel}>
             <h2 className="text-base font-semibold text-brand-navy">Recorded revenue</h2>
-            <p className="mt-1 text-sm text-brand-muted">{delivery?.reason} Platform conversion value is not added to CRM revenue.</p>
+            <p className="mt-1 text-sm text-brand-muted">{delivery?.reason} Lead-stored CRM conversion amounts only — not cash collected. Platform conversion value is not added to CRM revenue.</p>
           </article>
         </section>
       )}

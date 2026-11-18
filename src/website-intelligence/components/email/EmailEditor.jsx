@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { api } from '../../api/client';
+import { api, isProtectedWiUrl, loadProtectedImageSrc } from '../../api/client';
 
 const IMAGE_MARKER_RE = /!\[([^\]]*)\]\(\s*(?:cid:)?(outreach-img-[a-zA-Z0-9_-]+)\s*\)/g;
 
@@ -52,6 +52,37 @@ function resolveImageSrc(cid, imageAssets, auditId, emailId) {
     return api.getOutreachImageUrl(auditId, emailId, asset.id);
   }
   return null;
+}
+
+function ProtectedEmailImage({ src, alt }) {
+  const [displaySrc, setDisplaySrc] = useState(() => (isProtectedWiUrl(src) ? null : src));
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!src || !isProtectedWiUrl(src)) {
+      setDisplaySrc(src || null);
+      return undefined;
+    }
+    loadProtectedImageSrc(src)
+      .then((next) => {
+        if (!cancelled) setDisplaySrc(next);
+      })
+      .catch(() => {
+        if (!cancelled) setDisplaySrc(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  if (!displaySrc) return null;
+  return (
+    <img
+      src={displaySrc}
+      alt={alt}
+      className="block h-auto w-full max-w-full object-contain"
+    />
+  );
 }
 
 function autoResize(textarea) {
@@ -217,11 +248,7 @@ export default function EmailEditor({
                   </Button>
                 </div>
                 {src ? (
-                  <img
-                    src={src}
-                    alt={block.alt || 'Email image'}
-                    className="block h-auto w-full max-w-full object-contain"
-                  />
+                  <ProtectedEmailImage src={src} alt={block.alt || 'Email image'} />
                 ) : (
                   <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                     Image attached ({block.alt || block.cid})

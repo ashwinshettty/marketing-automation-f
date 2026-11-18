@@ -1,13 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../utils/authStorage';
+import { resolveLogoutLanding } from '../utils/authSessionPolicy';
 
 const Logout = ({ onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearAuthSession();
+    const landing = resolveLogoutLanding();
+    if (landing.clearSession) {
+      clearAuthSession();
+    }
     onLogout?.();
-    navigate('/login', { replace: true });
+    navigate(landing.redirectTo, { replace: landing.replace });
   };
 
   return (

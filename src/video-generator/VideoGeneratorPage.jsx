@@ -1,6 +1,10 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { uploadStoryAsset } from '../api/storyApi';
-import { createVideoRequest } from '../api/videoApi';
+import {
+  createVideoRequest,
+  fetchVideoBlob,
+  pollVideoRequest,
+} from '../api/videoApi';
 
 const MODES = [
   { value: 'ref-to-video', label: 'Ref-to-video' },
@@ -135,6 +139,9 @@ const VideoGeneratorPage = () => {
   const [burnedTokens, setBurnedTokens] = useState(0);
   const [sessionBurned] = useState(0);
   const [planning, setPlanning] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState('');
+  const [videoObjectUrl, setVideoObjectUrl] = useState('');
+  const videoObjectUrlRef = useRef('');
 
   const estimatedTokens = useMemo(
     () =>
@@ -163,6 +170,10 @@ const VideoGeneratorPage = () => {
       return !mentionQuery || tag.includes(mentionQuery) || name.includes(mentionQuery);
     });
   }, [mentionOpen, mentionQuery, references]);
+
+  useEffect(() => () => {
+    if (videoObjectUrlRef.current) URL.revokeObjectURL(videoObjectUrlRef.current);
+  }, []);
 
   useEffect(() => {
     const onPointerDown = (event) => {
@@ -293,6 +304,12 @@ const VideoGeneratorPage = () => {
     setMentionOpen(false);
     setPlanning(true);
     setStatusMessage('');
+    setGenerationStatus('');
+    if (videoObjectUrlRef.current) {
+      URL.revokeObjectURL(videoObjectUrlRef.current);
+      videoObjectUrlRef.current = '';
+      setVideoObjectUrl('');
+    }
     try {
       const referenceAssetIds = [];
       for (const item of references) {
@@ -348,19 +365,61 @@ const VideoGeneratorPage = () => {
         seriesIdRef.current = nextSeriesId;
         sessionStorage.setItem(SERIES_STORAGE_KEY, nextSeriesId);
       }
+      const requestId = result.data?.requestId || '';
+      const genStatus = result.generationStatus
+        || result.data?.generationStatus
+        || 'NOT_INVOKED';
+      setGenerationStatus(genStatus);
       const tracePath = result.data?.runTrace?.mdPath || '';
       const tokens = result.data?.llm?.totalTokens;
       const cost = result.data?.llm?.estimatedCost;
-      setStatusMessage(
-        [
-          `${workflow || 'video'} plan saved. Video generation was not invoked.`,
-          tokens != null ? `Tokens: ${tokens}.` : null,
-          cost != null ? `Est. LLM cost: $${cost}.` : null,
-          tracePath ? `Run trace: ${tracePath}` : null,
-        ].filter(Boolean).join(' '),
-      );
+      const metaBits = [
+        tokens != null ? `Tokens: ${tokens}.` : null,
+        cost != null ? `Est. LLM cost: $${cost}.` : null,
+        tracePath ? `Run trace: ${tracePath}` : null,
+      ].filter(Boolean);
+
+      if (genStatus === 'GENERATING' && requestId) {
+        setStatusMessage(
+          [`${workflow || 'ads'} plan saved. Generating video…`, ...metaBits].join(' '),
+        );
+        const polled = await pollVideoRequest(requestId, {
+          onUpdate: (payload) => {
+            const status = payload?.generationStatus
+              || payload?.data?.request?.generationStatus
+              || 'GENERATING';
+            setGenerationStatus(status);
+            if (status === 'GENERATING') {
+              setStatusMessage('Generating video… this can take a few minutes.');
+            }
+          },
+        });
+        const finalStatus = polled?.generationStatus
+          || polled?.data?.request?.generationStatus
+          || 'FAILED';
+        setGenerationStatus(finalStatus);
+        if (finalStatus === 'SUCCEEDED') {
+          const blob = await fetchVideoBlob(requestId);
+          const objectUrl = URL.createObjectURL(blob);
+          videoObjectUrlRef.current = objectUrl;
+          setVideoObjectUrl(objectUrl);
+          setStatusMessage('Video ready.');
+        } else {
+          const errMsg = polled?.data?.request?.generationError?.message
+            || 'Video generation failed.';
+          setStatusMessage(errMsg);
+        }
+      } else {
+        setStatusMessage(
+          [
+            `${workflow || 'video'} plan saved. Video generation was not invoked.`,
+            ...metaBits,
+          ].join(' '),
+        );
+      }
     } catch (error) {
       const tracePath = error.body?.data?.runTrace?.mdPath;
+      setGenerationStatus(error.body?.generationStatus || 'FAILED');
       setStatusMessage(
         [
           error.message || 'The request could not be planned.',
@@ -390,6 +449,24 @@ const VideoGeneratorPage = () => {
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl lg:text-4xl">
             Experience video generation and let creativity shake
           </h1>
+          {generationStatus === 'GENERATING' ? (
+            <p className="mt-4 text-sm font-medium text-brand-navy/70">
+              Generating your video…
+            </p>
+          ) : null}
+          {videoObjectUrl ? (
+            <div className="mx-auto mt-6 max-w-md overflow-hidden rounded-2xl bg-black shadow-lg">
+              <video
+                key={videoObjectUrl}
+                src={videoObjectUrl}
+                controls
+                playsInline
+                className="max-h-[52vh] w-full object-contain"
+              >
+                <track kind="captions" />
+              </video>
+            </div>
+          ) : null}
         </div>
       </div>
 

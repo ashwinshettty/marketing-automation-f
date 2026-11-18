@@ -1,15 +1,46 @@
+import { getAuthSession } from '../../utils/authStorage';
+import { buildAuthHeaders, isProtectedWiUrl as matchProtectedWiUrl } from './requestAuth';
+
 // Amplify: https://api.bot.inkstall.in  |  local: http://localhost:3000
 const API_BASE = (import.meta.env.VITE_WI_API_URL || 'http://localhost:3000').replace(/\/$/, '');
 
+function authHeaders(extra = {}) {
+  const { token } = getAuthSession();
+  return buildAuthHeaders(token, extra);
+}
+
+export function isProtectedWiUrl(url) {
+  return matchProtectedWiUrl(url, API_BASE);
+}
+
+export async function loadProtectedImageSrc(url) {
+  if (!url || !isProtectedWiUrl(url)) return url || null;
+  const res = await fetch(url, { headers: authHeaders() });
+  if (!res.ok) return null;
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers: authHeaders({ 'Content-Type': 'application/json', ...options.headers }),
   });
 
   if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      const { applyApiAuthFailure } = await import('../../utils/apiAuthFailure.js');
+      applyApiAuthFailure({ status: res.status });
+    }
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error?.message || body.message || `Request failed: ${res.status}`);
+    const err = new Error(body.error?.message || body.message || `Request failed: ${res.status}`);
+    err.status = res.status;
+    throw err;
   }
 
   return res.json();
@@ -88,6 +119,7 @@ export const api = {
 
     const res = await fetch(`${API_BASE}/api/audits/${auditId}/emails/${emailId}/images`, {
       method: 'POST',
+      headers: authHeaders(),
       body: form,
     });
 

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { clearAuthSession, getAuthSession } from '../utils/authStorage';
+import { getAuthSession } from '../utils/authStorage';
+import { applyApiAuthFailure } from '../utils/apiAuthFailure';
 
 const authApi = axios.create({
   baseURL:
@@ -23,13 +24,21 @@ authApi.interceptors.request.use((config) => {
 authApi.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status;
+    // Login/OTP endpoints may return 401 without an established session; still apply policy.
+    if (status === 401 || status === 403) {
+      applyApiAuthFailure({ status });
+    }
+
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||
       error.message ||
       'Something went wrong';
 
-    return Promise.reject(new Error(message));
+    const apiError = new Error(message);
+    apiError.status = status;
+    return Promise.reject(apiError);
   },
 );
 
