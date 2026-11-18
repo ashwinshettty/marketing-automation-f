@@ -410,11 +410,24 @@ const VideoGeneratorPage = () => {
           setStatusMessage(errMsg);
         }
       } else {
+        const block = result.data?.generationError;
+        const blockDetail = block
+          ? [
+            block.code || 'GENERATION_BLOCKED',
+            block.message || null,
+            Array.isArray(block.issues) && block.issues.length
+              ? block.issues.map((issue) => issue?.code || issue?.message || String(issue)).slice(0, 4).join(', ')
+              : null,
+          ].filter(Boolean).join(': ')
+          : null;
         setStatusMessage(
           [
-            `${workflow || 'video'} plan saved. Video generation was not invoked.`,
+            genStatus === 'FAILED' || block
+              ? 'Ads plan saved, but video generation was blocked.'
+              : `${workflow || 'video'} plan saved. Video generation was not invoked.`,
+            blockDetail,
             ...metaBits,
-          ].join(' '),
+          ].filter(Boolean).join(' '),
         );
       }
     } catch (error) {
