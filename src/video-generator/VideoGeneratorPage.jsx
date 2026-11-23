@@ -3,6 +3,7 @@ import { uploadStoryAsset } from '../api/storyApi';
 import {
   createVideoRequest,
   fetchVideoBlob,
+  getLatestSucceededVideoRequest,
   pollVideoRequest,
 } from '../api/videoApi';
 
@@ -28,6 +29,7 @@ const QUANTITIES = [1, 2, 3, 4, 5, 6, 7, 8];
 const USD_PER_1K_TOKENS = 0.0107;
 const SERIES_STORAGE_KEY = 'story-series-id';
 const CAMPAIGN_STORAGE_KEY = 'ads-campaign-id';
+const LAST_VIDEO_REQUEST_KEY = 'video-generator-last-request-id';
 /** Force ads path for Video Generator manual tests (intent router still records reason). */
 const DEFAULT_WORKFLOW_HINT = 'ads';
 
@@ -173,6 +175,37 @@ const VideoGeneratorPage = () => {
 
   useEffect(() => () => {
     if (videoObjectUrlRef.current) URL.revokeObjectURL(videoObjectUrlRef.current);
+  }, []);
+
+  // Restore the latest completed video after refresh / leaving the page.
+  useEffect(() => {
+    let cancelled = false;
+    const restore = async () => {
+      try {
+        const cachedId = sessionStorage.getItem(LAST_VIDEO_REQUEST_KEY) || '';
+        let requestId = cachedId;
+        if (!requestId) {
+          const latest = await getLatestSucceededVideoRequest();
+          requestId = latest?.data?.requestId || latest?.data?.request?.id || '';
+        }
+        if (!requestId || cancelled) return;
+        const blob = await fetchVideoBlob(requestId);
+        if (cancelled) return;
+        if (videoObjectUrlRef.current) URL.revokeObjectURL(videoObjectUrlRef.current);
+        const objectUrl = URL.createObjectURL(blob);
+        videoObjectUrlRef.current = objectUrl;
+        setVideoObjectUrl(objectUrl);
+        setGenerationStatus('SUCCEEDED');
+        setStatusMessage('Showing your latest generated video.');
+        sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
+      } catch {
+        // No prior video for this user, or file missing — keep empty player.
+      }
+    };
+    restore();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -403,6 +436,7 @@ const VideoGeneratorPage = () => {
           const objectUrl = URL.createObjectURL(blob);
           videoObjectUrlRef.current = objectUrl;
           setVideoObjectUrl(objectUrl);
+          sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
           setStatusMessage('Video ready.');
         } else {
           const errMsg = polled?.data?.request?.generationError?.message

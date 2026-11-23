@@ -39,6 +39,12 @@ export const getVideoRequest = async (requestId) => {
   return response.data;
 };
 
+/** Most recent SUCCEEDED video request for the signed-in user (for player restore). */
+export const getLatestSucceededVideoRequest = async () => {
+  const response = await videoClient.get('/video/requests/latest-succeeded');
+  return response.data;
+};
+
 /**
  * Authenticated MP4 download — use blob URL for <video> (Bearer cannot be sent via src=).
  */
