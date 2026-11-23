@@ -531,56 +531,67 @@ const VideoGeneratorPage = () => {
         aria-hidden="true"
       />
 
-      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-3 py-6 sm:px-5 sm:py-8 lg:px-8">
-        <div className="w-full max-w-7xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-navy/55">
-            Seedance 2.5
-          </p>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl lg:text-4xl">
-            Experience video generation and let creativity shake
-          </h1>
-          {generationStatus === 'GENERATING' ? (
-            <p className="mt-4 text-sm font-medium text-brand-navy/70">
-              Generating your video…
-            </p>
-          ) : null}
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-6 sm:px-5 sm:py-8 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
+          {galleryVideos.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-navy/55">
+                Seedance 2.5
+              </p>
+              <h1 className="mt-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl lg:text-4xl">
+                Experience video generation and let creativity shake
+              </h1>
+              {generationStatus === 'GENERATING' ? (
+                <p className="mt-4 text-sm font-medium text-brand-navy/70">
+                  Generating your video…
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="w-full">
+              {generationStatus === 'GENERATING' ? (
+                <p className="mb-3 text-left text-sm font-medium text-brand-navy/70">
+                  Generating your video…
+                </p>
+              ) : null}
+              {/* One box per video only — first top-left, each new clip beside it. */}
+              <div className="flex flex-row flex-wrap items-start justify-start gap-2 sm:gap-3">
+                {galleryVideos.map((item) => (
+                  <button
+                    key={item.requestId}
+                    type="button"
+                    onClick={() => openVideoFullscreen(item.requestId)}
+                    className="group relative aspect-video w-[31%] min-w-[96px] max-w-[240px] flex-none overflow-hidden rounded-lg bg-black text-left shadow-sm ring-1 ring-brand-navy/10 transition hover:ring-brand-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+                    aria-label="Play video fullscreen"
+                  >
+                    <video
+                      ref={(node) => {
+                        if (node) galleryVideoElsRef.current[item.requestId] = node;
+                        else delete galleryVideoElsRef.current[item.requestId];
+                      }}
+                      src={item.url}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="h-full w-full object-cover"
+                    >
+                      <track kind="captions" />
+                    </video>
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition group-hover:opacity-100">
+                      <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-navy sm:text-xs">
+                        Fullscreen
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="relative shrink-0 border-t border-brand-navy/5 bg-brand-cream/90 px-3 pb-3 pt-3 backdrop-blur-sm sm:px-5 sm:pb-4 lg:px-8 lg:pb-5">
         <div className="mx-auto w-full max-w-7xl">
-        {galleryVideos.length > 0 ? (
-          <div className="mb-3 flex flex-row flex-wrap items-start justify-start gap-2 sm:mb-4 sm:gap-3">
-            {galleryVideos.map((item) => (
-              <button
-                key={item.requestId}
-                type="button"
-                onClick={() => openVideoFullscreen(item.requestId)}
-                className="group relative aspect-video w-[31%] min-w-[96px] max-w-[220px] flex-none overflow-hidden rounded-lg bg-black text-left shadow-sm ring-1 ring-brand-navy/10 transition hover:ring-brand-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy sm:w-[30%]"
-                aria-label="Play video fullscreen"
-              >
-                <video
-                  ref={(node) => {
-                    if (node) galleryVideoElsRef.current[item.requestId] = node;
-                    else delete galleryVideoElsRef.current[item.requestId];
-                  }}
-                  src={item.url}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="h-full w-full object-cover"
-                >
-                  <track kind="captions" />
-                </video>
-                <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition group-hover:opacity-100">
-                  <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-navy sm:text-xs">
-                    Fullscreen
-                  </span>
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : null}
         <form
           onSubmit={handleGenerate}
           className="relative overflow-visible rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_-40px_rgba(15,40,80,0.45)] sm:rounded-[28px] sm:p-4 lg:p-5"
