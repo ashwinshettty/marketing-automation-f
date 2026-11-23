@@ -3,6 +3,7 @@ import { uploadStoryAsset } from '../api/storyApi';
 import {
   createVideoRequest,
   fetchVideoBlob,
+  getLatestSucceededVideoRequest,
   getRecentSucceededVideoRequests,
   pollVideoRequest,
 } from '../api/videoApi';
@@ -215,34 +216,66 @@ const VideoGeneratorPage = () => {
     }
   }, []);
 
-  // Restore up to 3 recent completed videos into the thumbnail strip.
+  // Restore completed videos into the thumbnail strip (recent → latest → session).
   useEffect(() => {
     let cancelled = false;
+    const loadBlob = async (id) => {
+      const blob = await fetchVideoBlob(id);
+      return { requestId: id, url: URL.createObjectURL(blob) };
+    };
     const restore = async () => {
       try {
-        const recent = await getRecentSucceededVideoRequests(3);
-        const requests = recent?.data?.requests || [];
-        if (!requests.length || cancelled) return;
-        const loaded = [];
-        for (const request of requests.slice(0, 3)) {
-          const id = request?.id;
-          if (!id) continue;
+        const ids = [];
+        const seen = new Set();
+        const pushId = (id) => {
+          if (!id || seen.has(id)) return;
+          seen.add(id);
+          ids.push(id);
+        };
+
+        try {
+          const recent = await getRecentSucceededVideoRequests(3);
+          for (const request of recent?.data?.requests || []) pushId(request?.id);
+        } catch {
+          // Continue with older restore paths.
+        }
+
+        if (!ids.length) {
           try {
-            const blob = await fetchVideoBlob(id);
-            if (cancelled) return;
-            loaded.push({ requestId: id, url: URL.createObjectURL(blob) });
+            const latest = await getLatestSucceededVideoRequest();
+            pushId(latest?.data?.request?.id || latest?.data?.requestId);
+          } catch {
+            // Continue with session fallback.
+          }
+        }
+
+        const sessionId = sessionStorage.getItem(LAST_VIDEO_REQUEST_KEY);
+        if (sessionId) pushId(sessionId);
+
+        if (!ids.length || cancelled) return;
+
+        const loaded = [];
+        for (const id of ids.slice(0, 3)) {
+          try {
+            const item = await loadBlob(id);
+            if (cancelled) {
+              URL.revokeObjectURL(item.url);
+              return;
+            }
+            loaded.push(item);
           } catch {
             // Skip missing files for individual slots.
           }
         }
         if (cancelled || !loaded.length) return;
-        // API returns newest-first; reverse so oldest is left and new clips append right.
-        replaceGallery([...loaded].reverse());
+        // API / fallback order is newest-first; reverse so oldest is left.
+        const ordered = [...loaded].reverse();
+        replaceGallery(ordered);
         setGenerationStatus('SUCCEEDED');
         setStatusMessage('Click a clip for fullscreen.');
-        sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, loaded[0].requestId);
+        sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, ordered[ordered.length - 1].requestId);
       } catch {
-        // No prior videos for this user — keep empty slots.
+        // No prior videos for this user — keep empty gallery + hero copy.
       }
     };
     restore();

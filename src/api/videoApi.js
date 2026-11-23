@@ -41,16 +41,27 @@ export const getVideoRequest = async (requestId) => {
 
 /** Most recent SUCCEEDED video request for the signed-in user (for player restore). */
 export const getLatestSucceededVideoRequest = async () => {
-  const response = await videoClient.get('/video/requests/latest-succeeded');
-  return response.data;
+  try {
+    const response = await videoClient.get('/video/requests/latest-succeeded');
+    return response.data;
+  } catch (error) {
+    if (error.status === 404) return null;
+    throw error;
+  }
 };
 
 /** Up to N recent SUCCEEDED video requests for the gallery strip. */
 export const getRecentSucceededVideoRequests = async (limit = 3) => {
-  const response = await videoClient.get('/video/requests/recent-succeeded', {
-    params: { limit },
-  });
-  return response.data;
+  try {
+    const response = await videoClient.get('/video/requests/recent-succeeded', {
+      params: { limit },
+    });
+    return response.data;
+  } catch (error) {
+    // Older backends return 404 when the gallery route is missing or empty.
+    if (error.status === 404) return { data: { requests: [] } };
+    throw error;
+  }
 };
 
 /**
