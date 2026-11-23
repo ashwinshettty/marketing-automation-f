@@ -184,12 +184,14 @@ const VideoGeneratorPage = () => {
     setGalleryVideos(capped);
   };
 
-  const prependGalleryVideo = (requestId, objectUrl) => {
+  /** Newest clip goes to the right of existing boxes (one video → one box). */
+  const appendGalleryVideo = (requestId, objectUrl) => {
     const withoutDup = galleryVideosRef.current.filter((item) => item.requestId !== requestId);
-    for (const dropped of withoutDup.slice(2)) {
+    const next = [...withoutDup, { requestId, url: objectUrl }];
+    while (next.length > 3) {
+      const dropped = next.shift();
       if (dropped?.url) URL.revokeObjectURL(dropped.url);
     }
-    const next = [{ requestId, url: objectUrl }, ...withoutDup].slice(0, 3);
     galleryVideosRef.current = next;
     setGalleryVideos(next);
   };
@@ -234,9 +236,10 @@ const VideoGeneratorPage = () => {
           }
         }
         if (cancelled || !loaded.length) return;
-        replaceGallery(loaded);
+        // API returns newest-first; reverse so oldest is left and new clips append right.
+        replaceGallery([...loaded].reverse());
         setGenerationStatus('SUCCEEDED');
-        setStatusMessage('Showing your latest generated videos. Click a clip for fullscreen.');
+        setStatusMessage('Click a clip for fullscreen.');
         sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, loaded[0].requestId);
       } catch {
         // No prior videos for this user — keep empty slots.
@@ -469,7 +472,7 @@ const VideoGeneratorPage = () => {
         if (finalStatus === 'SUCCEEDED') {
           const blob = await fetchVideoBlob(requestId);
           const objectUrl = URL.createObjectURL(blob);
-          prependGalleryVideo(requestId, objectUrl);
+          appendGalleryVideo(requestId, objectUrl);
           sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
           setStatusMessage('Video ready. Click the clip for fullscreen.');
         } else {
@@ -546,24 +549,14 @@ const VideoGeneratorPage = () => {
 
       <div className="relative shrink-0 border-t border-brand-navy/5 bg-brand-cream/90 px-3 pb-3 pt-3 backdrop-blur-sm sm:px-5 sm:pb-4 lg:px-8 lg:pb-5">
         <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-3 grid grid-cols-3 gap-2 sm:mb-4 sm:gap-3">
-          {[0, 1, 2].map((slot) => {
-            const item = galleryVideos[slot];
-            if (!item) {
-              return (
-                <div
-                  key={`empty-${slot}`}
-                  className="aspect-video rounded-lg border border-dashed border-brand-navy/15 bg-white/50"
-                  aria-hidden="true"
-                />
-              );
-            }
-            return (
+        {galleryVideos.length > 0 ? (
+          <div className="mb-3 flex flex-row flex-wrap items-start justify-start gap-2 sm:mb-4 sm:gap-3">
+            {galleryVideos.map((item) => (
               <button
                 key={item.requestId}
                 type="button"
                 onClick={() => openVideoFullscreen(item.requestId)}
-                className="group relative aspect-video overflow-hidden rounded-lg bg-black text-left shadow-sm ring-1 ring-brand-navy/10 transition hover:ring-brand-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+                className="group relative aspect-video w-[31%] min-w-[96px] max-w-[220px] flex-none overflow-hidden rounded-lg bg-black text-left shadow-sm ring-1 ring-brand-navy/10 transition hover:ring-brand-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy sm:w-[30%]"
                 aria-label="Play video fullscreen"
               >
                 <video
@@ -585,9 +578,9 @@ const VideoGeneratorPage = () => {
                   </span>
                 </span>
               </button>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : null}
         <form
           onSubmit={handleGenerate}
           className="relative overflow-visible rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_-40px_rgba(15,40,80,0.45)] sm:rounded-[28px] sm:p-4 lg:p-5"
