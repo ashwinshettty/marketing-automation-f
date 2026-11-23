@@ -3,7 +3,7 @@ import { uploadStoryAsset } from '../api/storyApi';
 import {
   createVideoRequest,
   fetchVideoBlob,
-  getLatestSucceededVideoRequest,
+  getRecentSucceededVideoRequests,
   pollVideoRequest,
 } from '../api/videoApi';
 
@@ -142,8 +142,10 @@ const VideoGeneratorPage = () => {
   const [sessionBurned] = useState(0);
   const [planning, setPlanning] = useState(false);
   const [generationStatus, setGenerationStatus] = useState('');
-  const [videoObjectUrl, setVideoObjectUrl] = useState('');
-  const videoObjectUrlRef = useRef('');
+  /** Up to 3 recent videos: { requestId, url } */
+  const [galleryVideos, setGalleryVideos] = useState([]);
+  const galleryVideosRef = useRef([]);
+  const galleryVideoElsRef = useRef({});
 
   const estimatedTokens = useMemo(
     () =>
@@ -173,33 +175,71 @@ const VideoGeneratorPage = () => {
     });
   }, [mentionOpen, mentionQuery, references]);
 
+  const replaceGallery = (nextItems) => {
+    for (const item of galleryVideosRef.current) {
+      if (item?.url) URL.revokeObjectURL(item.url);
+    }
+    const capped = (nextItems || []).slice(0, 3);
+    galleryVideosRef.current = capped;
+    setGalleryVideos(capped);
+  };
+
+  const prependGalleryVideo = (requestId, objectUrl) => {
+    const withoutDup = galleryVideosRef.current.filter((item) => item.requestId !== requestId);
+    for (const dropped of withoutDup.slice(2)) {
+      if (dropped?.url) URL.revokeObjectURL(dropped.url);
+    }
+    const next = [{ requestId, url: objectUrl }, ...withoutDup].slice(0, 3);
+    galleryVideosRef.current = next;
+    setGalleryVideos(next);
+  };
+
+  const openVideoFullscreen = async (requestId) => {
+    const el = galleryVideoElsRef.current[requestId];
+    if (!el) return;
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      await el.play();
+    } catch {
+      // Fullscreen may be blocked; still try playback inline.
+      try { await el.play(); } catch { /* ignore */ }
+    }
+  };
+
   useEffect(() => () => {
-    if (videoObjectUrlRef.current) URL.revokeObjectURL(videoObjectUrlRef.current);
+    for (const item of galleryVideosRef.current) {
+      if (item?.url) URL.revokeObjectURL(item.url);
+    }
   }, []);
 
-  // Restore the latest completed video after refresh / leaving the page.
+  // Restore up to 3 recent completed videos into the thumbnail strip.
   useEffect(() => {
     let cancelled = false;
     const restore = async () => {
       try {
-        const cachedId = sessionStorage.getItem(LAST_VIDEO_REQUEST_KEY) || '';
-        let requestId = cachedId;
-        if (!requestId) {
-          const latest = await getLatestSucceededVideoRequest();
-          requestId = latest?.data?.requestId || latest?.data?.request?.id || '';
+        const recent = await getRecentSucceededVideoRequests(3);
+        const requests = recent?.data?.requests || [];
+        if (!requests.length || cancelled) return;
+        const loaded = [];
+        for (const request of requests.slice(0, 3)) {
+          const id = request?.id;
+          if (!id) continue;
+          try {
+            const blob = await fetchVideoBlob(id);
+            if (cancelled) return;
+            loaded.push({ requestId: id, url: URL.createObjectURL(blob) });
+          } catch {
+            // Skip missing files for individual slots.
+          }
         }
-        if (!requestId || cancelled) return;
-        const blob = await fetchVideoBlob(requestId);
-        if (cancelled) return;
-        if (videoObjectUrlRef.current) URL.revokeObjectURL(videoObjectUrlRef.current);
-        const objectUrl = URL.createObjectURL(blob);
-        videoObjectUrlRef.current = objectUrl;
-        setVideoObjectUrl(objectUrl);
+        if (cancelled || !loaded.length) return;
+        replaceGallery(loaded);
         setGenerationStatus('SUCCEEDED');
-        setStatusMessage('Showing your latest generated video.');
-        sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
+        setStatusMessage('Showing your latest generated videos. Click a clip for fullscreen.');
+        sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, loaded[0].requestId);
       } catch {
-        // No prior video for this user, or file missing — keep empty player.
+        // No prior videos for this user — keep empty slots.
       }
     };
     restore();
@@ -338,11 +378,6 @@ const VideoGeneratorPage = () => {
     setPlanning(true);
     setStatusMessage('');
     setGenerationStatus('');
-    if (videoObjectUrlRef.current) {
-      URL.revokeObjectURL(videoObjectUrlRef.current);
-      videoObjectUrlRef.current = '';
-      setVideoObjectUrl('');
-    }
     try {
       const referenceAssetIds = [];
       for (const item of references) {
@@ -434,10 +469,9 @@ const VideoGeneratorPage = () => {
         if (finalStatus === 'SUCCEEDED') {
           const blob = await fetchVideoBlob(requestId);
           const objectUrl = URL.createObjectURL(blob);
-          videoObjectUrlRef.current = objectUrl;
-          setVideoObjectUrl(objectUrl);
+          prependGalleryVideo(requestId, objectUrl);
           sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
-          setStatusMessage('Video ready.');
+          setStatusMessage('Video ready. Click the clip for fullscreen.');
         } else {
           const errMsg = polled?.data?.request?.generationError?.message
             || 'Video generation failed.';
@@ -507,24 +541,53 @@ const VideoGeneratorPage = () => {
               Generating your video…
             </p>
           ) : null}
-          {videoObjectUrl ? (
-            <div className="mx-auto mt-6 max-w-md overflow-hidden rounded-2xl bg-black shadow-lg">
-              <video
-                key={videoObjectUrl}
-                src={videoObjectUrl}
-                controls
-                playsInline
-                className="max-h-[52vh] w-full object-contain"
-              >
-                <track kind="captions" />
-              </video>
-            </div>
-          ) : null}
         </div>
       </div>
 
       <div className="relative shrink-0 border-t border-brand-navy/5 bg-brand-cream/90 px-3 pb-3 pt-3 backdrop-blur-sm sm:px-5 sm:pb-4 lg:px-8 lg:pb-5">
         <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-3 grid grid-cols-3 gap-2 sm:mb-4 sm:gap-3">
+          {[0, 1, 2].map((slot) => {
+            const item = galleryVideos[slot];
+            if (!item) {
+              return (
+                <div
+                  key={`empty-${slot}`}
+                  className="aspect-video rounded-lg border border-dashed border-brand-navy/15 bg-white/50"
+                  aria-hidden="true"
+                />
+              );
+            }
+            return (
+              <button
+                key={item.requestId}
+                type="button"
+                onClick={() => openVideoFullscreen(item.requestId)}
+                className="group relative aspect-video overflow-hidden rounded-lg bg-black text-left shadow-sm ring-1 ring-brand-navy/10 transition hover:ring-brand-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+                aria-label="Play video fullscreen"
+              >
+                <video
+                  ref={(node) => {
+                    if (node) galleryVideoElsRef.current[item.requestId] = node;
+                    else delete galleryVideoElsRef.current[item.requestId];
+                  }}
+                  src={item.url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                >
+                  <track kind="captions" />
+                </video>
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition group-hover:opacity-100">
+                  <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-navy sm:text-xs">
+                    Fullscreen
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
         <form
           onSubmit={handleGenerate}
           className="relative overflow-visible rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_-40px_rgba(15,40,80,0.45)] sm:rounded-[28px] sm:p-4 lg:p-5"

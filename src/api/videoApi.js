@@ -45,6 +45,14 @@ export const getLatestSucceededVideoRequest = async () => {
   return response.data;
 };
 
+/** Up to N recent SUCCEEDED video requests for the gallery strip. */
+export const getRecentSucceededVideoRequests = async (limit = 3) => {
+  const response = await videoClient.get('/video/requests/recent-succeeded', {
+    params: { limit },
+  });
+  return response.data;
+};
+
 /**
  * Authenticated MP4 download — use blob URL for <video> (Bearer cannot be sent via src=).
  */
