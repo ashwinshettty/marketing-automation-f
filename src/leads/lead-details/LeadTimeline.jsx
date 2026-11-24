@@ -128,7 +128,7 @@ const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
       {conversationId && (
         <form
           onSubmit={handleSend}
-          className="flex items-center gap-2 border-t border-slate-200 bg-white px-4 py-3"
+          className="flex min-w-0 items-center gap-1.5 border-t border-slate-200 bg-white px-3 py-2.5 sm:gap-2 sm:px-4 sm:py-3"
         >
           <button
             type="button"
@@ -144,7 +144,7 @@ const LeadTimeline = ({ lead, eventsRefreshKey = 0 }) => {
             onChange={(event) => setDraft(event.target.value)}
             placeholder={`Message ${lead.name} on WhatsApp`}
             disabled={isSending}
-            className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60"
+            className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60 sm:px-4"
           />
           <button
             type="submit"

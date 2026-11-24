@@ -78,14 +78,14 @@ const LeadDetails = () => {
 
   if (isFetchingLead && !lead) {
     return (
-      <div className="px-8 py-8 text-sm text-brand-muted">Loading lead details...</div>
+      <div className="px-3 py-4 text-sm text-brand-muted sm:px-6 sm:py-6 lg:px-8 lg:py-8">Loading lead details...</div>
     );
   }
 
   if (!lead) {
     if (fetchError && !fallbackLead) {
       return (
-        <div className="px-8 py-8 text-sm text-red-600">{fetchError}</div>
+        <div className="px-3 py-4 text-sm text-red-600 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{fetchError}</div>
       );
     }
 
@@ -94,7 +94,7 @@ const LeadDetails = () => {
 
   return (
     <TemplatePreviewProvider>
-      <div className="px-8 py-8">
+      <div className="min-w-0 max-w-full px-3 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <LeadInfoPanel lead={lead} onLeadUpdate={handleLeadUpdate} />
       </div>
     </TemplatePreviewProvider>

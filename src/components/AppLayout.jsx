@@ -63,7 +63,7 @@ const AppLayout = () => {
         </div>
 
         <main
-          className={`min-h-0 min-w-0 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0 ${
+          className={`min-h-0 min-w-0 flex-1 ${
             lockMainScroll ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
           }`}
         >

@@ -401,7 +401,7 @@ const WhatsAppChatPanel = ({
 
         <form
           onSubmit={handleSend}
-          className="border-t border-slate-200 bg-white px-4 py-3"
+          className="border-t border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3"
         >
           {selectedMedia && (
             <div className="mb-2 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
@@ -419,7 +419,7 @@ const WhatsAppChatPanel = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setShowTemplateModal(true)}
@@ -472,7 +472,7 @@ const WhatsAppChatPanel = ({
                   : `Message ${lead.name} on WhatsApp`
               }
               disabled={isSending}
-              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-[#25D366] disabled:opacity-60 sm:px-4"
             />
             <button
               type="submit"

@@ -153,22 +153,22 @@ const NotesPanel = ({ lead, onLeadUpdate }) => {
   };
 
   return (
-    <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+    <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:space-y-4 sm:p-4">
+      <div>
+        <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-semibold text-brand-navy">Notes</p>
-          <p className="text-xs text-brand-muted">
-            Capture context with automatic IST timestamps.
-          </p>
+          <button
+            type="button"
+            onClick={handleAddNote}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-navy px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-navy/90"
+          >
+            <PlusIcon />
+            Add
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleAddNote}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-navy px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-navy/90"
-        >
-          <PlusIcon />
-          Add
-        </button>
+        <p className="mt-0.5 text-xs text-brand-muted">
+          Capture context with automatic IST timestamps.
+        </p>
       </div>
 
       {notes.length > 0 ? (

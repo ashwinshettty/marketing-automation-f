@@ -16,11 +16,14 @@ const DEFAULT_PAGE_SIZE = 10;
 const FILTER_DEBOUNCE_MS = 400;
 const LEAD_LIVE_REFRESH_MS = 450;
 
+export const DEFAULT_LEAD_TYPE = 'enquiry';
+
 export const EMPTY_LEAD_FILTERS = {
   search: '',
   grade: '',
   board: '',
   source: '',
+  type: DEFAULT_LEAD_TYPE,
 };
 
 const LeadContext = createContext(null);
@@ -154,7 +157,11 @@ export const LeadProvider = ({ children }) => {
 
   useEffect(() => {
     setAppliedFilters((current) => {
-      if (current.grade === filters.grade && current.board === filters.board) {
+      if (
+        current.grade === filters.grade &&
+        current.board === filters.board &&
+        current.type === filters.type
+      ) {
         return current;
       }
 
@@ -162,9 +169,10 @@ export const LeadProvider = ({ children }) => {
         ...current,
         grade: filters.grade,
         board: filters.board,
+        type: filters.type || DEFAULT_LEAD_TYPE,
       };
     });
-  }, [filters.grade, filters.board]);
+  }, [filters.grade, filters.board, filters.type]);
 
   useEffect(() => {
     const abortController = new AbortController();

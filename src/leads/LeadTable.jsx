@@ -190,7 +190,7 @@ const LeadTable = () => {
 
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-3">
         <label className="flex items-center gap-2 text-sm text-brand-navy">
           <span className="font-medium">SMS first</span>
           <input
@@ -258,7 +258,7 @@ const LeadTable = () => {
             <table className="w-full min-w-[980px] text-left text-sm">
               <thead>
                 <tr className="border-b border-brand-yellow/30 bg-brand-cream">
-                  <th className="px-4 py-3.5">
+                  <th className="px-3 py-2.5 sm:px-4 sm:py-3.5">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
@@ -269,15 +269,15 @@ const LeadTable = () => {
                   {COLUMNS.map((col) => (
                     <th
                       key={col.key}
-                      className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wide text-brand-navy"
+                      className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand-navy sm:px-5 sm:py-3.5"
                     >
                       {col.label}
                     </th>
                   ))}
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wide text-brand-navy">
+                  <th className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand-navy sm:px-5 sm:py-3.5">
                     Last SMS
                   </th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wide text-brand-navy">
+                  <th className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand-navy sm:px-5 sm:py-3.5">
                     Action
                   </th>
                 </tr>
@@ -290,7 +290,7 @@ const LeadTable = () => {
                       index === leads.length - 1 ? 'border-b-0' : ''
                     }`}
                   >
-                    <td className="px-4 py-4">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-4">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(lead.id)}
@@ -298,26 +298,26 @@ const LeadTable = () => {
                         aria-label={`Select ${lead.name}`}
                       />
                     </td>
-                    <td className="px-5 py-4 text-brand-muted">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">
                       {(pagination.page - 1) * (pagination.limit || 10) + index + 1}
                     </td>
-                    <td className="px-5 py-4 font-medium text-brand-navy">{lead.name}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 font-medium text-brand-navy">{lead.name}</td>
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4">
                       <LeadTypeBadge lead={lead} />
                     </td>
-                    <td className="px-5 py-4 text-brand-muted">{lead.contactNo}</td>
-                    <td className="px-5 py-4 text-brand-muted">{lead.grade}</td>
-                    <td className="px-5 py-4 text-brand-muted">{lead.board}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">{lead.contactNo}</td>
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">{lead.grade}</td>
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">{lead.board}</td>
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4">
                       <span className="inline-flex rounded-full bg-brand-yellow/25 px-2.5 py-0.5 text-xs font-medium text-brand-navy">
                         {lead.source}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-brand-muted">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">
                       {lead.lastActivityAt || lead.createdAt}
                     </td>
-                    <td className="px-5 py-4 text-brand-muted">{lead.createdAt}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4 text-brand-muted">{lead.createdAt}</td>
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4">
                       {smsStatuses[lead.id] ? (
                         <div className="max-w-[180px]">
                           <p className="truncate text-xs font-semibold text-brand-navy">
@@ -352,7 +352,7 @@ const LeadTable = () => {
                         <span className="text-xs text-brand-muted">—</span>
                       )}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2.5 sm:px-5 sm:py-4">
                       <div className="flex items-center gap-1">
                         <ActionButton
                           label={`View ${lead.name}`}
@@ -386,7 +386,7 @@ const LeadTable = () => {
         )}
 
         {!loading && !error && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-brand-yellow/30 bg-brand-cream px-5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-brand-yellow/30 bg-brand-cream px-3 py-2.5 sm:px-5 sm:py-3">
             <p className="text-sm text-brand-muted">
               Page {pagination.page} of {pagination.totalPages} ({pagination.total} leads)
             </p>

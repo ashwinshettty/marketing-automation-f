@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 import { useLead } from '../context/LeadContext';
 import { fetchBoards, fetchGrades } from '../api/lookupApi';
 
+const LEAD_TYPE_OPTIONS = [
+  { value: 'enquiry', label: 'Enquiry' },
+  { value: 'student', label: 'Admission Due' },
+  { value: 'all', label: 'All types' },
+];
+
 const fieldClassName =
   'w-full rounded-xl border border-brand-yellow/40 bg-white px-4 py-2.5 text-sm text-brand-navy outline-none transition focus:border-brand-navy';
 
@@ -47,8 +53,17 @@ const LeadFilters = () => {
     };
   }, []);
 
-  const hasActiveFilters = Object.values(filters).some((value) => Boolean(value));
-  const activeFilterCount = Object.values(filters).filter((value) => Boolean(value)).length;
+  const selectedType = filters.type || 'enquiry';
+  const typeSummary =
+    selectedType === 'student'
+      ? 'Showing admission due leads'
+      : selectedType === 'all'
+        ? 'Showing all lead types'
+        : 'Showing enquiry leads';
+  const activeFilterCount =
+    ['search', 'grade', 'board', 'source'].filter((field) => Boolean(filters[field])).length +
+    (selectedType !== 'enquiry' ? 1 : 0);
+  const hasActiveFilters = activeFilterCount > 0;
 
   const handleFieldChange = (field) => (event) => {
     setFilters({
@@ -58,17 +73,17 @@ const LeadFilters = () => {
   };
 
   return (
-    <div className="mb-5 rounded-2xl border border-brand-yellow/40 bg-white shadow-sm">
-      <div className={`flex flex-wrap items-center justify-between gap-3 ${isOpen ? 'border-b border-brand-yellow/30 p-5 pb-4' : 'p-4'}`}>
+    <div className="mb-3 rounded-2xl border border-brand-yellow/40 bg-white shadow-sm sm:mb-5">
+      <div className={`flex flex-wrap items-center justify-between gap-2 sm:gap-3 ${isOpen ? 'border-b border-brand-yellow/30 p-3 pb-3 sm:p-5 sm:pb-4' : 'p-3 sm:p-4'}`}>
         <div className="flex items-center gap-3">
           <div>
             <h2 className="text-sm font-semibold text-brand-navy">Filter leads</h2>
             <p className="text-xs text-brand-muted">
               {isOpen
-                ? 'Search and narrow results by grade, board, or source.'
+                ? 'Search and narrow results by type, grade, board, or source.'
                 : hasActiveFilters
                   ? `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} applied`
-                  : 'Filters are hidden'}
+                  : typeSummary}
             </p>
           </div>
 
@@ -98,10 +113,11 @@ const LeadFilters = () => {
             {isOpen ? 'Hide filters' : 'Show filters'}
           </button>
         </div>
+
       </div>
 
       {isOpen && (
-      <div className="grid gap-4 p-5 pt-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 p-3 pt-3 sm:gap-4 sm:p-5 sm:pt-4 md:grid-cols-2 xl:grid-cols-5">
         <label className="block">
           <span className={labelClassName}>Search</span>
           <input
@@ -111,6 +127,21 @@ const LeadFilters = () => {
             placeholder="Name or contact number"
             className={fieldClassName}
           />
+        </label>
+
+        <label className="block">
+          <span className={labelClassName}>Type</span>
+          <select
+            value={selectedType}
+            onChange={handleFieldChange('type')}
+            className={fieldClassName}
+          >
+            {LEAD_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="block">

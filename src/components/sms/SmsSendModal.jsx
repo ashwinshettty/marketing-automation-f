@@ -277,7 +277,7 @@ const SmsSendModal = ({
           templateId: selected.id,
           limit: parsedCount,
           filters,
-          type: 'all',
+          type: filters.type || 'enquiry',
           excludeAlreadySent: excludeMode,
         });
         summary = summarizeResults(
