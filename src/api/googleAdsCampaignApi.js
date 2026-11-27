@@ -198,6 +198,56 @@ export const listGoogleAdsCampaignLocations = (scope) => liveCampaignScopedGet('
 /** Content / placements for one campaign (often empty on Search). */
 export const listGoogleAdsCampaignContent = (scope) => liveCampaignScopedGet('content', scope);
 
+/** Active Google Ads performance for Analytics → Campaigns. */
+export const listGoogleAdsAdsPerformance = async ({
+  campaignId,
+  range = 'LAST_7_DAYS',
+  startDate,
+  endDate,
+  sortBy = 'conversions',
+  sortDir = 'best',
+  budgetBand = 'all',
+  budgetConstrained = false,
+  limit = 5,
+  offset = 0,
+} = {}) => {
+  const response = await googleAdsCampaignApi({
+    url: '/google-ads/campaigns/ads/performance',
+    params: {
+      range,
+      sortBy,
+      sortDir,
+      budgetBand,
+      limit,
+      offset,
+      ...(campaignId ? { campaignId } : {}),
+      ...(startDate ? { startDate } : {}),
+      ...(endDate ? { endDate } : {}),
+      ...(budgetConstrained ? { budgetConstrained: '1' } : {}),
+    },
+  });
+  return response.data;
+};
+
+/** Live Google Ads lead-form submissions for Analytics → Leads. */
+export const listGoogleAdsLeads = async ({
+  campaignId,
+  limit = 50,
+  offset = 0,
+  signal,
+} = {}) => {
+  const response = await googleAdsCampaignApi({
+    url: '/google-ads/campaigns/leads',
+    params: {
+      limit,
+      offset,
+      ...(campaignId ? { campaignId } : {}),
+    },
+    signal,
+  });
+  return response.data;
+};
+
 /** Live campaign settings for the edit drawer. */
 export const getGoogleAdsCampaignSettings = async (campaignId) => {
   const response = await googleAdsCampaignApi({

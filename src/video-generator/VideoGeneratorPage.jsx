@@ -1,8 +1,12 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { uploadStoryAsset } from '../api/storyApi';
 import {
+  approveStoryboard,
+  confirmVideoGenerate,
   createVideoRequest,
   fetchVideoBlob,
+  getAdsCampaign,
   getLatestSucceededVideoRequest,
   getRecentSucceededVideoRequests,
   pollVideoRequest,
@@ -31,6 +35,7 @@ const USD_PER_1K_TOKENS = 0.0107;
 const SERIES_STORAGE_KEY = 'story-series-id';
 const CAMPAIGN_STORAGE_KEY = 'ads-campaign-id';
 const LAST_VIDEO_REQUEST_KEY = 'video-generator-last-request-id';
+const STORYBOARD_LOCK_KEY = 'ads-storyboard-locked';
 /** Force ads path for Video Generator manual tests (intent router still records reason). */
 const DEFAULT_WORKFLOW_HINT = 'ads';
 
@@ -112,6 +117,37 @@ const SettingButton = ({ active, children, onClick }) => (
   </button>
 );
 
+const SpinnerIcon = ({ className = 'h-5 w-5' }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2.5" />
+    <path
+      d="M21 12a9 9 0 0 0-9-9"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const PROCESSING_COPY = {
+  uploading: {
+    title: 'Uploading references…',
+    detail: 'Attaching your character media before planning.',
+  },
+  planning: {
+    title: 'Planning your video…',
+    detail: 'Building the ads candidate. This usually takes a few seconds.',
+  },
+  confirming: {
+    title: 'Starting Seedance…',
+    detail: 'Confirming spend and queuing generation.',
+  },
+  generating: {
+    title: 'Generating your video…',
+    detail: 'Seedance is rendering. This can take a few minutes.',
+  },
+};
+
 const VideoGeneratorPage = () => {
   const fileInputId = useId();
   const fileInputRef = useRef(null);
@@ -142,11 +178,42 @@ const VideoGeneratorPage = () => {
   const [burnedTokens, setBurnedTokens] = useState(0);
   const [sessionBurned] = useState(0);
   const [planning, setPlanning] = useState(false);
+  const [processingPhase, setProcessingPhase] = useState('');
+  const reduceMotion = useReducedMotion();
   const [generationStatus, setGenerationStatus] = useState('');
+  const [storyboardLocked, setStoryboardLocked] = useState(() => {
+    if (sessionStorage.getItem(STORYBOARD_LOCK_KEY) === '1') return true;
+    // Migrate legacy storybook session flag.
+    if (sessionStorage.getItem('ads-storybook-locked') === '1') {
+      sessionStorage.setItem(STORYBOARD_LOCK_KEY, '1');
+      return true;
+    }
+    return false;
+  });
+  const [lockedRefCount, setLockedRefCount] = useState(0);
+  const [pendingRequestId, setPendingRequestId] = useState('');
+  const [candidatePreview, setCandidatePreview] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+  const [approvingStoryboard, setApprovingStoryboard] = useState(false);
+  const [lastSucceededRequestId, setLastSucceededRequestId] = useState('');
   /** Up to 3 recent videos: { requestId, url } */
   const [galleryVideos, setGalleryVideos] = useState([]);
   const galleryVideosRef = useRef([]);
   const galleryVideoElsRef = useRef({});
+
+  const applyStoryboardLock = (campaignOrFlag) => {
+    const locked = Boolean(
+      campaignOrFlag === true
+      || campaignOrFlag?.continuityStoryboard?.locked
+      || campaignOrFlag?.locked,
+    );
+    setStoryboardLocked(locked);
+    sessionStorage.setItem(STORYBOARD_LOCK_KEY, locked ? '1' : '0');
+    const refs = campaignOrFlag?.continuityStoryboard?.referenceAssetIds
+      || campaignOrFlag?.referenceAssetIds
+      || [];
+    setLockedRefCount(Array.isArray(refs) ? refs.length : 0);
+  };
 
   const estimatedTokens = useMemo(
     () =>
@@ -214,6 +281,25 @@ const VideoGeneratorPage = () => {
     for (const item of galleryVideosRef.current) {
       if (item?.url) URL.revokeObjectURL(item.url);
     }
+  }, []);
+
+  // Hydrate storyboard lock from the active ads campaign (first SUCCEEDED video).
+  useEffect(() => {
+    const campaignId = campaignIdRef.current;
+    if (!campaignId) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await getAdsCampaign(campaignId);
+        if (cancelled) return;
+        applyStoryboardLock(result?.data?.campaign || result?.campaign || null);
+      } catch {
+        // Campaign may not exist yet — first generate creates it.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Restore completed videos into the thumbnail strip (recent → latest → session).
@@ -407,13 +493,21 @@ const VideoGeneratorPage = () => {
       setStatusMessage('Add a prompt before generating.');
       return;
     }
-    if (isBurning || planning) return;
+    if (isBurning || planning || confirming) return;
     setModeOpen(false);
     setSettingsOpen(false);
     setMentionOpen(false);
     setPlanning(true);
-    setStatusMessage('');
+    setCandidatePreview(null);
+    setPendingRequestId('');
     setGenerationStatus('');
+    const needsUpload = references.some((item) => !item.assetId && item.file);
+    setProcessingPhase(needsUpload ? 'uploading' : 'planning');
+    setStatusMessage(
+      needsUpload
+        ? 'Uploading references…'
+        : 'Planning your video… this can take a few seconds.',
+    );
     try {
       const referenceAssetIds = [];
       for (const item of references) {
@@ -431,12 +525,17 @@ const VideoGeneratorPage = () => {
         item.assetId = created.data.asset.id;
         referenceAssetIds.push(item.assetId);
       }
+      setProcessingPhase('planning');
+      setStatusMessage('Planning your video… this can take a few seconds.');
       const seconds = Number(duration);
       const durationSeconds = Number.isInteger(seconds)
         ? seconds
         : (DURATION_SECONDS[duration] ?? 8);
       const wantsNewCampaign = /\b(?:create|start|begin|open)\s+(?:a\s+)?new\b[\s\S]{0,48}\bcampaign\b/i
         .test(prompt.trim());
+      if (wantsNewCampaign) {
+        applyStoryboardLock(false);
+      }
       const result = await createVideoRequest({
         prompt: prompt.trim(),
         workflowHint: DEFAULT_WORKFLOW_HINT,
@@ -455,7 +554,10 @@ const VideoGeneratorPage = () => {
         quantity,
         requestedMode: mode,
         resolution,
+        draftMode,
         format,
+        // Plan + preview only — Seedance spend requires explicit confirm.
+        confirmGeneration: false,
         idempotencyKey: crypto.randomUUID(),
       });
       const workflow = result.data?.workflow || result.data?.routing?.workflow || '';
@@ -463,6 +565,13 @@ const VideoGeneratorPage = () => {
       if (nextCampaignId) {
         campaignIdRef.current = nextCampaignId;
         sessionStorage.setItem(CAMPAIGN_STORAGE_KEY, nextCampaignId);
+      }
+      if (result.data?.continuityStoryboard || result.data?.storyboardLocked) {
+        applyStoryboardLock(
+          result.data?.continuityStoryboard
+          || result.data?.campaign
+          || result.data?.storyboardLocked,
+        );
       }
       const nextSeriesId = result.data?.series?.id || '';
       if (nextSeriesId) {
@@ -474,64 +583,42 @@ const VideoGeneratorPage = () => {
         || result.data?.generationStatus
         || 'NOT_INVOKED';
       setGenerationStatus(genStatus);
+      const preview = result.data?.candidatePreview || null;
+      setCandidatePreview(preview);
+      setPendingRequestId(
+        genStatus === 'AWAITING_CONFIRM' && preview?.ready ? requestId : '',
+      );
       const tracePath = result.data?.runTrace?.mdPath || '';
       const tokens = result.data?.llm?.totalTokens;
       const cost = result.data?.llm?.estimatedCost;
       const metaBits = [
-        tokens != null ? `Tokens: ${tokens}.` : null,
+        tokens != null ? `Plan tokens: ${tokens}.` : null,
         cost != null ? `Est. LLM cost: $${cost}.` : null,
         tracePath ? `Run trace: ${tracePath}` : null,
       ].filter(Boolean);
 
-      if (genStatus === 'GENERATING' && requestId) {
-        setStatusMessage(
-          [`${workflow || 'ads'} plan saved. Generating video…`, ...metaBits].join(' '),
-        );
-        const polled = await pollVideoRequest(requestId, {
-          onUpdate: (payload) => {
-            const status = payload?.generationStatus
-              || payload?.data?.request?.generationStatus
-              || 'GENERATING';
-            setGenerationStatus(status);
-            if (status === 'GENERATING') {
-              setStatusMessage('Generating video… this can take a few minutes.');
-            }
-          },
-        });
-        const finalStatus = polled?.generationStatus
-          || polled?.data?.request?.generationStatus
-          || 'FAILED';
-        setGenerationStatus(finalStatus);
-        if (finalStatus === 'SUCCEEDED') {
-          const blob = await fetchVideoBlob(requestId);
-          const objectUrl = URL.createObjectURL(blob);
-          appendGalleryVideo(requestId, objectUrl);
-          sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
-          setStatusMessage('Video ready. Click the clip for fullscreen.');
-        } else {
-          const errMsg = polled?.data?.request?.generationError?.message
-            || 'Video generation failed.';
-          setStatusMessage(errMsg);
-        }
-      } else {
-        const block = result.data?.generationError;
-        const blockDetail = block
-          ? [
-            block.code || 'GENERATION_BLOCKED',
-            block.message || null,
-            Array.isArray(block.issues) && block.issues.length
-              ? block.issues.map((issue) => issue?.code || issue?.message || String(issue)).slice(0, 4).join(', ')
-              : null,
-          ].filter(Boolean).join(': ')
-          : null;
+      if (genStatus === 'AWAITING_CONFIRM' && preview?.ready) {
         setStatusMessage(
           [
-            genStatus === 'FAILED' || block
-              ? 'Ads plan saved, but video generation was blocked.'
-              : `${workflow || 'video'} plan saved. Video generation was not invoked.`,
-            blockDetail,
+            `${workflow || 'ads'} plan ready. Review the Seedance candidate below — no video tokens spent yet.`,
+            ...metaBits,
+          ].join(' '),
+        );
+      } else if (genStatus === 'FAILED' || result.data?.generationError) {
+        const block = result.data?.generationError;
+        setStatusMessage(
+          [
+            'Plan blocked before Seedance spend.',
+            block?.message || preview?.note || null,
+            Array.isArray(block?.issues) && block.issues.length
+              ? block.issues.slice(0, 3).map((issue) => issue?.code || issue?.message || String(issue)).join(', ')
+              : null,
             ...metaBits,
           ].filter(Boolean).join(' '),
+        );
+      } else {
+        setStatusMessage(
+          [`${workflow || 'video'} plan saved.`, ...metaBits].filter(Boolean).join(' '),
         );
       }
     } catch (error) {
@@ -551,6 +638,106 @@ const VideoGeneratorPage = () => {
       );
     } finally {
       setPlanning(false);
+      setProcessingPhase('');
+    }
+  };
+
+  const runGenerationPoll = async (requestId) => {
+    setGenerationStatus('GENERATING');
+    setProcessingPhase('generating');
+    setStatusMessage('Generating video… this can take a few minutes. Seedance spend started.');
+    const polled = await pollVideoRequest(requestId, {
+      onUpdate: (payload) => {
+        const status = payload?.generationStatus
+          || payload?.data?.request?.generationStatus
+          || 'GENERATING';
+        setGenerationStatus(status);
+      },
+    });
+    const finalStatus = polled?.generationStatus
+      || polled?.data?.request?.generationStatus
+      || 'FAILED';
+    setGenerationStatus(finalStatus);
+    setProcessingPhase('');
+    if (finalStatus === 'SUCCEEDED') {
+      const blob = await fetchVideoBlob(requestId);
+      const objectUrl = URL.createObjectURL(blob);
+      appendGalleryVideo(requestId, objectUrl);
+      sessionStorage.setItem(LAST_VIDEO_REQUEST_KEY, requestId);
+      setLastSucceededRequestId(requestId);
+      setPendingRequestId('');
+      setStatusMessage(
+        'Video ready. Review it — then Approve storyboard only if quality is good enough to reuse.',
+      );
+      return;
+    }
+    const errMsg = polled?.data?.request?.generationError?.message
+      || 'Video generation failed.';
+    setStatusMessage(errMsg);
+  };
+
+  const handleConfirmGenerate = async () => {
+    if (!pendingRequestId || confirming) return;
+    setConfirming(true);
+    setProcessingPhase('confirming');
+    setStatusMessage('Starting Seedance…');
+    try {
+      const started = await confirmVideoGenerate(pendingRequestId, {
+        draftMode,
+        resolution,
+        quantity,
+        sound: soundOn,
+      });
+      const status = started.generationStatus || started.data?.generationStatus;
+      if (status === 'GENERATING' || status === 'SUCCEEDED') {
+        await runGenerationPoll(pendingRequestId);
+      } else {
+        setGenerationStatus(status || 'FAILED');
+        setProcessingPhase('');
+        setStatusMessage(
+          started.message
+          || started.data?.message
+          || 'Confirm failed — Seedance was not started.',
+        );
+      }
+    } catch (error) {
+      setGenerationStatus('FAILED');
+      setProcessingPhase('');
+      setStatusMessage(error.message || 'Confirm failed — no Seedance spend.');
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const isBusy = planning || confirming || processingPhase === 'generating'
+    || generationStatus === 'GENERATING';
+  const busyCopy = PROCESSING_COPY[processingPhase]
+    || (generationStatus === 'GENERATING' ? PROCESSING_COPY.generating : null);
+
+  const handleApproveStoryboard = async () => {
+    const requestId = lastSucceededRequestId || sessionStorage.getItem(LAST_VIDEO_REQUEST_KEY);
+    if (!requestId || approvingStoryboard) return;
+    setApprovingStoryboard(true);
+    try {
+      const result = await approveStoryboard(requestId);
+      applyStoryboardLock(
+        result?.data?.continuityStoryboard
+        || result?.data?.storyboardLocked
+        || true,
+      );
+      if (campaignIdRef.current) {
+        try {
+          const locked = await getAdsCampaign(campaignIdRef.current);
+          applyStoryboardLock(locked?.data?.campaign || true);
+        } catch {
+          // Local lock flag already set.
+        }
+      }
+      setStatusMessage('Storyboard approved and locked for this campaign.');
+    } catch (error) {
+      setStatusMessage(error.message || 'Could not approve storyboard.');
+    } finally {
+      setApprovingStoryboard(false);
     }
   };
 
@@ -574,19 +761,200 @@ const VideoGeneratorPage = () => {
               <h1 className="mt-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl lg:text-4xl">
                 Experience video generation and let creativity shake
               </h1>
-              {generationStatus === 'GENERATING' ? (
-                <p className="mt-4 text-sm font-medium text-brand-navy/70">
-                  Generating your video…
+              {storyboardLocked ? (
+                <p className="mt-3 max-w-xl text-sm text-brand-navy/70">
+                  Storyboard locked for this campaign
+                  {lockedRefCount ? ` · ${lockedRefCount} character ref${lockedRefCount === 1 ? '' : 's'}` : ''}
+                  . New prompts continue the same cast and world.
                 </p>
+              ) : (
+                <p className="mt-3 max-w-xl text-sm text-brand-navy/55">
+                  Upload character refs, plan first, review the candidate, then confirm Seedance spend. Approve storyboard only after a clean video.
+                </p>
+              )}
+              <AnimatePresence>
+                {busyCopy ? (
+                  <motion.div
+                    key={busyCopy.title}
+                    role="status"
+                    aria-live="polite"
+                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="mt-6 flex w-full max-w-md flex-col items-center gap-3 rounded-2xl border border-brand-navy/10 bg-white/90 px-5 py-4 text-center shadow-sm"
+                  >
+                    <motion.span
+                      className="text-[#7aa2ff]"
+                      animate={reduceMotion ? undefined : { rotate: 360 }}
+                      transition={
+                        reduceMotion
+                          ? undefined
+                          : { repeat: Infinity, duration: 0.9, ease: 'linear' }
+                      }
+                    >
+                      <SpinnerIcon className="h-7 w-7" />
+                    </motion.span>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-navy">{busyCopy.title}</p>
+                      <p className="mt-1 text-xs text-brand-navy/60">{busyCopy.detail}</p>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+              {candidatePreview?.ready && pendingRequestId ? (
+                <div className="mt-6 w-full max-w-2xl rounded-xl border border-brand-navy/15 bg-white/90 p-4 text-left shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-navy/55">
+                    Candidate preview · no Seedance spend yet
+                  </p>
+                  <p className="mt-2 text-xs text-brand-navy/60">
+                    {candidatePreview.settings?.resolution || '720p'}
+                    {' · '}
+                    {candidatePreview.settings?.aspectRatio || '16:9'}
+                    {' · '}
+                    {candidatePreview.settings?.durationSeconds || 8}s
+                    {candidatePreview.settings?.draftMode ? ' · draft' : ''}
+                    {' · qty '}
+                    {candidatePreview.settings?.quantity || 1}
+                    {candidatePreview.referenceAssetIds?.length
+                      ? ` · ${candidatePreview.referenceAssetIds.length} ref(s)`
+                      : ' · no refs'}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={confirming}
+                      onClick={handleConfirmGenerate}
+                      className="rounded-lg bg-brand-navy px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
+                    >
+                      {confirming ? 'Starting Seedance…' : 'Confirm & generate video'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={confirming}
+                      onClick={() => {
+                        setPendingRequestId('');
+                        setCandidatePreview(null);
+                        setGenerationStatus('');
+                        setStatusMessage('Preview discarded. No Seedance spend.');
+                      }}
+                      className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-brand-navy"
+                    >
+                      Discard
+                    </button>
+                  </div>
+                  <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.12em] text-brand-navy/45">
+                    Seedance prompt
+                  </p>
+                  <pre className="mt-1.5 max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-xs leading-relaxed text-brand-navy/80">
+                    {candidatePreview.promptExcerpt || candidatePreview.promptText || 'No prompt text'}
+                  </pre>
+                  {candidatePreview.typography?.ok === false ? (
+                    <p className="mt-2 text-xs text-red-600">
+                      Typography gate issues: {(candidatePreview.typography.issues || []).slice(0, 3).join(', ')}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+              {lastSucceededRequestId && !storyboardLocked ? (
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    disabled={approvingStoryboard}
+                    onClick={handleApproveStoryboard}
+                    className="rounded-lg border border-brand-navy/20 bg-white px-4 py-2 text-sm font-semibold text-brand-navy disabled:opacity-60"
+                  >
+                    {approvingStoryboard ? 'Approving…' : 'Approve storyboard (lock cast)'}
+                  </button>
+                </div>
               ) : null}
             </div>
           ) : (
             <div className="w-full">
-              {generationStatus === 'GENERATING' ? (
-                <p className="mb-3 text-left text-sm font-medium text-brand-navy/70">
-                  Generating your video…
+              {storyboardLocked ? (
+                <p className="mb-3 text-left text-sm text-brand-navy/70">
+                  Storyboard locked
+                  {lockedRefCount ? ` · ${lockedRefCount} character ref${lockedRefCount === 1 ? '' : 's'}` : ''}
+                  — later ads follow this cast.
                 </p>
+              ) : lastSucceededRequestId ? (
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <p className="text-left text-sm text-brand-navy/70">
+                    Video ready — approve only if quality is good enough to reuse.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={approvingStoryboard}
+                    onClick={handleApproveStoryboard}
+                    className="rounded-lg border border-brand-navy/20 bg-white px-3 py-1.5 text-xs font-semibold text-brand-navy disabled:opacity-60"
+                  >
+                    {approvingStoryboard ? 'Approving…' : 'Approve storyboard'}
+                  </button>
+                </div>
               ) : null}
+              {candidatePreview?.ready && pendingRequestId ? (
+                <div className="mb-4 rounded-xl border border-brand-navy/15 bg-white/90 p-4 text-left shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-navy/55">
+                    Candidate preview · confirm to spend Seedance
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={confirming}
+                      onClick={handleConfirmGenerate}
+                      className="rounded-lg bg-brand-navy px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+                    >
+                      {confirming ? 'Starting Seedance…' : 'Confirm & generate video'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={confirming}
+                      onClick={() => {
+                        setPendingRequestId('');
+                        setCandidatePreview(null);
+                        setGenerationStatus('');
+                        setStatusMessage('Preview discarded. No Seedance spend.');
+                      }}
+                      className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-brand-navy"
+                    >
+                      Discard
+                    </button>
+                  </div>
+                  <pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-xs text-brand-navy/80">
+                    {candidatePreview.promptExcerpt || candidatePreview.promptText}
+                  </pre>
+                </div>
+              ) : null}
+              <AnimatePresence>
+                {busyCopy ? (
+                  <motion.div
+                    key={`gallery-${busyCopy.title}`}
+                    role="status"
+                    aria-live="polite"
+                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.24 }}
+                    className="mb-4 flex items-center gap-3 rounded-xl border border-brand-navy/10 bg-white/90 px-4 py-3 text-left shadow-sm"
+                  >
+                    <motion.span
+                      className="shrink-0 text-[#7aa2ff]"
+                      animate={reduceMotion ? undefined : { rotate: 360 }}
+                      transition={
+                        reduceMotion
+                          ? undefined
+                          : { repeat: Infinity, duration: 0.9, ease: 'linear' }
+                      }
+                    >
+                      <SpinnerIcon className="h-5 w-5" />
+                    </motion.span>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-navy">{busyCopy.title}</p>
+                      <p className="text-xs text-brand-navy/60">{busyCopy.detail}</p>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
               {/* One box per video only — first top-left, each new clip beside it. */}
               <div className="flex flex-row flex-wrap items-start justify-start gap-2 sm:gap-3">
                 {galleryVideos.map((item) => (
@@ -627,8 +995,40 @@ const VideoGeneratorPage = () => {
         <div className="mx-auto w-full max-w-7xl">
         <form
           onSubmit={handleGenerate}
-          className="relative overflow-visible rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_-40px_rgba(15,40,80,0.45)] sm:rounded-[28px] sm:p-4 lg:p-5"
+          aria-busy={isBusy}
+          className={[
+            'relative overflow-visible rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_-40px_rgba(15,40,80,0.45)] sm:rounded-[28px] sm:p-4 lg:p-5',
+            isBusy ? 'ring-1 ring-[#7aa2ff]/35' : '',
+          ].join(' ')}
         >
+          <AnimatePresence initial={false}>
+            {isBusy && busyCopy ? (
+              <motion.div
+                key="composer-busy"
+                initial={reduceMotion ? false : { opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.22 }}
+                className="mb-3 overflow-hidden"
+              >
+                <div className="flex items-center gap-2 rounded-xl bg-[#7aa2ff]/10 px-3 py-2 text-xs font-medium text-brand-navy">
+                  <motion.span
+                    className="text-[#7aa2ff]"
+                    animate={reduceMotion ? undefined : { rotate: 360 }}
+                    transition={
+                      reduceMotion
+                        ? undefined
+                        : { repeat: Infinity, duration: 0.9, ease: 'linear' }
+                    }
+                  >
+                    <SpinnerIcon className="h-4 w-4" />
+                  </motion.span>
+                  <span>{busyCopy.title}</span>
+                  <span className="hidden text-brand-navy/55 sm:inline">· {busyCopy.detail}</span>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <div className="shrink-0">
               <input
@@ -642,8 +1042,9 @@ const VideoGeneratorPage = () => {
               />
               <button
                 type="button"
+                disabled={isBusy}
                 onClick={() => fileInputRef.current?.click()}
-                className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-brand-navy transition hover:border-brand-yellow hover:bg-brand-yellow/10 sm:h-[88px] sm:w-[88px]"
+                className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-brand-navy transition hover:border-brand-yellow hover:bg-brand-yellow/10 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[88px] sm:w-[88px]"
               >
                 <span className="text-2xl leading-none">+</span>
                 <span className="text-[11px] font-semibold">Reference</span>
@@ -659,8 +1060,9 @@ const VideoGeneratorPage = () => {
                 onKeyDown={handlePromptKeyDown}
                 onClick={handlePromptKeyUp}
                 rows={3}
+                disabled={isBusy}
                 placeholder="Use @ to quickly reference uploaded files, such as referring to actions in @Video 1 to generate videos of characters fighting in @Picture 2 and @Picture 3."
-                className="max-h-40 w-full resize-none border-0 bg-transparent text-sm leading-relaxed text-brand-navy outline-none placeholder:text-slate-400"
+                className="max-h-40 w-full resize-none border-0 bg-transparent text-sm leading-relaxed text-brand-navy outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-70"
               />
 
               {mentionOpen ? (
@@ -963,14 +1365,27 @@ const VideoGeneratorPage = () => {
 
               <button
                 type="submit"
-                disabled={isBurning || planning}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#7aa2ff] text-white shadow-md transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-                aria-label="Generate video"
-                title="Generate video"
+                disabled={isBurning || isBusy}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#7aa2ff] text-white shadow-md transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+                aria-label={isBusy ? busyCopy?.title || 'Processing' : 'Generate video'}
+                title={isBusy ? busyCopy?.title || 'Processing' : 'Generate video'}
               >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                {isBusy ? (
+                  <motion.span
+                    animate={reduceMotion ? undefined : { rotate: 360 }}
+                    transition={
+                      reduceMotion
+                        ? undefined
+                        : { repeat: Infinity, duration: 0.85, ease: 'linear' }
+                    }
+                  >
+                    <SpinnerIcon className="h-5 w-5" />
+                  </motion.span>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>

@@ -26,11 +26,28 @@ videoClient.interceptors.response.use(
 );
 
 /**
- * Central video entry (intent router → ads | lesson).
- * When VIDEO_GENERATION_ENABLED on the backend, may return GENERATING and a requestId to poll.
+ * Plan + candidate preview. Does NOT spend Seedance unless confirmGeneration=true.
  */
 export const createVideoRequest = async (body) => {
   const response = await videoClient.post('/video/requests', body);
+  return response.data;
+};
+
+/** Explicit confirm — starts billable Seedance generation for a previewed request. */
+export const confirmVideoGenerate = async (requestId, body = {}) => {
+  const response = await videoClient.post(`/video/requests/${requestId}/generate`, body);
+  return response.data;
+};
+
+/** Lock storyboard only after human approval of a succeeded video. */
+export const approveStoryboard = async (requestId) => {
+  const response = await videoClient.post(`/video/requests/${requestId}/approve-storyboard`);
+  return response.data;
+};
+
+/** Ads campaign including continuityStoryboard lock (if approved). */
+export const getAdsCampaign = async (campaignId) => {
+  const response = await videoClient.get(`/ads/campaigns/${campaignId}`);
   return response.data;
 };
 
@@ -58,7 +75,6 @@ export const getRecentSucceededVideoRequests = async (limit = 3) => {
     });
     return response.data;
   } catch (error) {
-    // Older backends return 404 when the gallery route is missing or empty.
     if (error.status === 404) return { data: { requests: [] } };
     throw error;
   }

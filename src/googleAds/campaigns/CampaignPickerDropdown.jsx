@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { listGoogleAdsCampaignPicker } from '../../api/googleAdsCampaignApi';
 import { GaIcon } from '../icons/GoogleAdsIcons';
 
@@ -82,6 +83,7 @@ export default function CampaignPickerDropdown({
   const [error, setError] = useState('');
   const [anchor, setAnchor] = useState(null);
   const panelRef = useRef(null);
+  const buttonRef = useRef(null);
   const inputRef = useRef(null);
 
   const label = campaignName || (campaignId ? 'Campaign' : allLabel);
@@ -125,7 +127,9 @@ export default function CampaignPickerDropdown({
   useEffect(() => {
     if (!open) return undefined;
     const onPointer = (event) => {
-      if (!panelRef.current?.contains(event.target)) setOpen(false);
+      const target = event.target;
+      if (panelRef.current?.contains(target) || buttonRef.current?.contains(target)) return;
+      setOpen(false);
     };
     const onKey = (event) => {
       if (event.key === 'Escape') setOpen(false);
@@ -192,9 +196,104 @@ export default function CampaignPickerDropdown({
     setOpen(true);
   };
 
+  const panel = open && anchor ? (
+    <div
+      ref={panelRef}
+      role="listbox"
+      aria-label="Campaigns"
+      style={{
+        top: anchor.top,
+        left: anchor.left,
+        width: anchor.width,
+        maxHeight: anchor.maxHeight,
+      }}
+      className="fixed z-[400] flex flex-col overflow-hidden rounded-lg border border-[var(--ga-border)] bg-white shadow-[0_8px_24px_rgba(32,33,36,0.16)]"
+    >
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--ga-border)] px-3 py-2">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f0fe] px-2.5 py-1 text-xs font-medium text-[var(--ga-blue)]">
+          Campaign status: All
+        </span>
+        <span className="text-xs text-[var(--ga-muted)]">Alphabetical</span>
+      </div>
+
+      <div className="border-b border-[var(--ga-border)] px-3 py-2">
+        <label className="relative block">
+          <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-[var(--ga-muted)]">
+            <GaIcon name="search" className="h-3.5 w-3.5" />
+          </span>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={total ? `Search ${total} campaigns` : 'Search campaigns by name'}
+            aria-label="Search campaigns by name"
+            className="w-full rounded-md border border-[var(--ga-border)] bg-white py-2 pr-3 pl-8 text-sm text-[var(--ga-ink)] outline-none focus:border-[var(--ga-blue)]"
+          />
+        </label>
+        <p className="mt-2 text-xs text-[var(--ga-muted)]">
+          {loading && !campaigns.length
+            ? 'Loading campaigns…'
+            : `View ${total ? `all ${total}` : '0'} campaigns in this view`}
+        </p>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto py-1">
+        {allowAll ? (
+          <button
+            type="button"
+            role="option"
+            aria-selected={!campaignId}
+            onClick={() => choose('')}
+            className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--ga-blue-soft)] ${!campaignId ? 'bg-[var(--ga-blue-soft)] text-[var(--ga-blue)]' : 'text-[var(--ga-ink)]'}`}
+          >
+            {allLabel}
+          </button>
+        ) : null}
+
+        {campaigns.map((campaign) => {
+          const selected = campaign.id === campaignId;
+          return (
+            <button
+              key={campaign.id}
+              type="button"
+              role="option"
+              aria-selected={selected}
+              onClick={() => choose(campaign.id, campaign)}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--ga-blue-soft)] ${selected ? 'bg-[var(--ga-blue-soft)] text-[var(--ga-blue)]' : 'text-[var(--ga-ink)]'}`}
+            >
+              <DeliveryMark row={campaign} />
+              <ChannelMark channelType={campaign.channelType} />
+              <span className="min-w-0 flex-1 truncate">{campaign.name}</span>
+            </button>
+          );
+        })}
+
+        {!loading && campaigns.length === 0 ? (
+          <p className="px-3 py-3 text-sm text-[var(--ga-muted)]">
+            {appliedQuery ? 'No campaigns match that name.' : 'No campaigns available.'}
+          </p>
+        ) : null}
+
+        {error ? <p className="px-3 py-2 text-sm text-[#d93025]">{error}</p> : null}
+
+        {hasMore ? (
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="block w-full px-3 py-2.5 text-left text-sm font-medium text-[var(--ga-blue)] hover:bg-[var(--ga-blue-soft)] disabled:text-[var(--ga-muted)]"
+          >
+            {loadingMore ? 'Loading…' : 'Load more campaigns'}
+          </button>
+        ) : null}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className={`relative ${className}`}>
       <button
+        ref={buttonRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -205,100 +304,7 @@ export default function CampaignPickerDropdown({
         <span className="truncate">{label}</span>
         <span aria-hidden="true" className="text-[10px] text-[var(--ga-muted)]">▼</span>
       </button>
-
-      {open && anchor ? (
-        <div
-          ref={panelRef}
-          role="listbox"
-          aria-label="Campaigns"
-          style={{
-            top: anchor.top,
-            left: anchor.left,
-            width: anchor.width,
-            maxHeight: anchor.maxHeight,
-          }}
-          className="fixed z-50 flex flex-col overflow-hidden rounded-lg border border-[var(--ga-border)] bg-white shadow-[0_8px_24px_rgba(32,33,36,0.16)]"
-        >
-          <div className="flex flex-wrap items-center gap-2 border-b border-[var(--ga-border)] px-3 py-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f0fe] px-2.5 py-1 text-xs font-medium text-[var(--ga-blue)]">
-              Campaign status: All
-            </span>
-            <span className="text-xs text-[var(--ga-muted)]">Alphabetical</span>
-          </div>
-
-          <div className="border-b border-[var(--ga-border)] px-3 py-2">
-            <label className="relative block">
-              <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-[var(--ga-muted)]">
-                <GaIcon name="search" className="h-3.5 w-3.5" />
-              </span>
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={total ? `Search ${total} campaigns` : 'Search campaigns by name'}
-                aria-label="Search campaigns by name"
-                className="w-full rounded-md border border-[var(--ga-border)] bg-white py-2 pr-3 pl-8 text-sm text-[var(--ga-ink)] outline-none focus:border-[var(--ga-blue)]"
-              />
-            </label>
-            <p className="mt-2 text-xs text-[var(--ga-muted)]">
-              {loading && !campaigns.length
-                ? 'Loading campaigns…'
-                : `View ${total ? `all ${total}` : '0'} campaigns in this view`}
-            </p>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto py-1">
-            {allowAll ? (
-              <button
-                type="button"
-                role="option"
-                aria-selected={!campaignId}
-                onClick={() => choose('')}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--ga-blue-soft)] ${!campaignId ? 'bg-[var(--ga-blue-soft)] text-[var(--ga-blue)]' : 'text-[var(--ga-ink)]'}`}
-              >
-                {allLabel}
-              </button>
-            ) : null}
-
-            {campaigns.map((campaign) => {
-              const selected = campaign.id === campaignId;
-              return (
-                <button
-                  key={campaign.id}
-                  type="button"
-                  role="option"
-                  aria-selected={selected}
-                  onClick={() => choose(campaign.id, campaign)}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--ga-blue-soft)] ${selected ? 'bg-[var(--ga-blue-soft)] text-[var(--ga-blue)]' : 'text-[var(--ga-ink)]'}`}
-                >
-                  <DeliveryMark row={campaign} />
-                  <ChannelMark channelType={campaign.channelType} />
-                  <span className="min-w-0 flex-1 truncate">{campaign.name}</span>
-                </button>
-              );
-            })}
-
-            {!loading && campaigns.length === 0 ? (
-              <p className="px-3 py-3 text-sm text-[var(--ga-muted)]">
-                {appliedQuery ? 'No campaigns match that name.' : 'No campaigns available.'}
-              </p>
-            ) : null}
-
-            {error ? <p className="px-3 py-2 text-sm text-[#d93025]">{error}</p> : null}
-
-            {hasMore ? (
-              <button
-                type="button"
-                onClick={loadMore}
-                disabled={loadingMore}
-                className="block w-full px-3 py-2.5 text-left text-sm font-medium text-[var(--ga-blue)] hover:bg-[var(--ga-blue-soft)] disabled:text-[var(--ga-muted)]"
-              >
-                {loadingMore ? 'Loading…' : 'Load more campaigns'}
-              </button>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
+      {panel ? createPortal(panel, document.body) : null}
     </div>
   );
 }

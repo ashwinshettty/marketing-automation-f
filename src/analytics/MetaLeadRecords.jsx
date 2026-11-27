@@ -107,7 +107,7 @@ const MetaLeadRecords = () => {
       <section className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-brand-yellow/40 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-brand-yellow/40 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-base font-semibold text-brand-navy">Leads</h2>
+            <h2 className="text-base font-semibold text-brand-navy">Meta leads</h2>
             <button
               type="button"
               onClick={onSync}

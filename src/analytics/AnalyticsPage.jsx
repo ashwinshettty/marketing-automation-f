@@ -8,20 +8,18 @@ import {
 import { fetchCounsellors } from '../api/lookupApi';
 import { toast } from '../utils/toast';
 import { PRESETS } from './format';
-import AnalyticsCharts from './AnalyticsCharts';
-import CampaignRecords from './CampaignRecords';
-import IntelligenceSections from './IntelligenceSections';
-import KpiGrid from './KpiGrid';
-import MarketingStage from './MarketingStage';
+import AnalyticsCreatives from './AnalyticsCreatives';
+import AnalyticsMetaCreatives from './AnalyticsMetaCreatives';
+import AnalyticsOverview from './AnalyticsOverview';
+import AnalyticsPlaces from './AnalyticsPlaces';
+import AnalyticsGoogleLeads from './AnalyticsGoogleLeads';
 import MetaLeadRecords from './MetaLeadRecords';
-import { ChannelBreakdown } from './PerformanceTables';
 
 const VIEWS = [
   ['overview', 'Overview'],
   ['campaigns', 'Campaigns'],
   ['leads', 'Leads'],
   ['places', 'Places'],
-  ['creatives', 'Creatives'],
 ];
 
 const Glyph = ({ children, className = 'h-4 w-4 text-brand-muted' }) => (
@@ -68,7 +66,10 @@ const AnalyticsPage = () => {
   const [ownerId, setOwnerId] = useState(params.get('owner') || '');
   const [location, setLocation] = useState(params.get('location') || '');
   const [grain, setGrain] = useState(params.get('grain') || '');
-  const [view, setView] = useState(VIEWS.some(([id]) => id === initialView) ? initialView : 'overview');
+  const [view, setView] = useState(() => {
+    if (initialView === 'creatives') return 'campaigns';
+    return VIEWS.some(([id]) => id === initialView) ? initialView : 'overview';
+  });
   const [owners, setOwners] = useState([]);
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
@@ -198,8 +199,9 @@ const AnalyticsPage = () => {
       setLocation(move.city);
       return;
     }
-    if (move.go === 'campaigns' || move.go === 'leads' || move.go === 'places' || move.go === 'creatives' || move.go === 'overview') {
-      setView(move.go);
+    const nextView = move.go === 'creatives' ? 'campaigns' : move.go;
+    if (nextView === 'campaigns' || nextView === 'leads' || nextView === 'places' || nextView === 'overview') {
+      setView(nextView);
     }
   };
 
@@ -353,42 +355,31 @@ const AnalyticsPage = () => {
       )}
 
       {view === 'overview' && (
-        <div className="min-w-0 max-w-full space-y-6">
-          {!summaryLoading && summary && (
-            <MarketingStage summary={summary} onGo={openStage} />
-          )}
-          <KpiGrid kpis={summary?.kpis} loading={summaryLoading} />
-          {!summaryLoading && summary && <AnalyticsCharts summary={summary} grain={grain} onGrain={setGrain} />}
-          {!summaryLoading && summary && <ChannelBreakdown channels={summary.channels || []} />}
-        </div>
+        <AnalyticsOverview
+          preset={preset}
+          from={from}
+          to={to}
+        />
       )}
 
       {view === 'campaigns' && (
-        <div className="min-w-0 max-w-full">
-          <CampaignRecords platform={platform} />
+        <div className="min-w-0 max-w-full space-y-8">
+          <AnalyticsCreatives />
+          <AnalyticsMetaCreatives />
         </div>
       )}
 
       {view === 'leads' && (
-        <div className="min-w-0 max-w-full">
-          <MetaLeadRecords />
+        <div className="min-w-0 max-w-full space-y-8">
+          {(platform === 'all' || platform === 'google') && <AnalyticsGoogleLeads />}
+          {(platform === 'all' || platform === 'meta') && <MetaLeadRecords />}
         </div>
       )}
 
       {view === 'places' && (
-        summaryLoading ? <p className="text-sm text-brand-muted">Loading places…</p> : summary && (
-          <div className="min-w-0 max-w-full space-y-4">
-            <IntelligenceSections summary={summary} part="places" onJump={() => setView('leads')} />
-          </div>
-        )
-      )}
-
-      {view === 'creatives' && (
-        summaryLoading ? <p className="text-sm text-brand-muted">Loading creatives…</p> : summary && (
-          <div className="min-w-0 max-w-full space-y-4">
-            <IntelligenceSections summary={summary} part="creatives" onJump={() => setView('campaigns')} />
-          </div>
-        )
+        <div className="min-w-0 max-w-full">
+          <AnalyticsPlaces />
+        </div>
       )}
 
       <details id="analytics-definitions" className="rounded-2xl border border-brand-yellow/40 bg-white px-4 py-3 text-sm text-brand-muted shadow-sm">

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listGoogleAdsCampaignLocations } from '../../../api/googleAdsCampaignApi';
 import CampaignScopeFilters, { DEFAULT_STATUSES } from '../../campaigns/CampaignScopeFilters';
 import { formatCount, formatDay, formatMoney, formatPercent } from '../../campaigns/campaignFormat';
 import useCampaignScopeParams from '../../hooks/useCampaignScopeParams';
+import { placeLabel, sumLocationMetrics } from '../../overview/locationModel';
 import { GOOGLE_ADS_BASE } from '../../nav/googleAdsNavConfig';
 
 const messageOf = (error) => error?.response?.data?.message || error?.message || 'Could not load locations';
@@ -67,6 +68,7 @@ export default function CampaignLocationsPage() {
   }, [applied]);
 
   const rows = tab === 'excluded' ? excluded : targeted;
+  const totals = useMemo(() => sumLocationMetrics(rows), [rows]);
   const titleName = campaign?.name || applied.campaignName;
   const dateLabel = applied.range === 'CUSTOM' && applied.startDate
     ? `${formatDay(applied.startDate)} – ${formatDay(applied.endDate)}`
@@ -144,6 +146,15 @@ export default function CampaignLocationsPage() {
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 text-xs font-medium">Total</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatCount(totals.clicks)}</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatCount(totals.impressions)}</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatPercent(totals.ctr)}</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatMoney(totals.averageCpc, currencyCode)}</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatMoney(totals.cost, currencyCode)}</td>
+                  <td className="border-t border-[var(--ga-border)] bg-[var(--ga-surface)] px-3 py-2.5 tabular-nums text-[var(--ga-muted)]">{formatCount(totals.conversions)}</td>
+                </tr>
                 {loading ? (
                   <tr><td colSpan={7} className="px-3 py-8 text-sm text-[var(--ga-muted)]">Loading locations…</td></tr>
                 ) : null}
@@ -153,7 +164,7 @@ export default function CampaignLocationsPage() {
                 {!loading ? rows.map((row) => (
                   <tr key={`${row.id}-${row.campaignId}`} className="border-t border-[var(--ga-border)] hover:bg-[var(--ga-hover)]">
                     <td className="px-3 py-2.5 font-medium text-[var(--ga-blue)]">
-                      {row.canonicalName || row.name}
+                      {placeLabel(row)}
                     </td>
                     <td className="px-3 py-2.5 tabular-nums">{formatCount(row.metrics?.clicks)}</td>
                     <td className="px-3 py-2.5 tabular-nums">{formatCount(row.metrics?.impressions)}</td>
